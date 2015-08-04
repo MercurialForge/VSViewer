@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media.Imaging;
+using System.Drawing;
 
 namespace VSViewer.FileFormats.Sections
 {
-    class Vertex
+    class Texture
     {
-        public Int16 x;
-        public Int16 y;
-        public Int16 z;
-        public int groupID;
-        public Group group;
-        public Int16 boneID;
+        List<WriteableBitmap> maps = new List<WriteableBitmap>();
+
     }
 }

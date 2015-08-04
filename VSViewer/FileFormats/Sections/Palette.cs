@@ -9,7 +9,6 @@ namespace VSViewer.FileFormats.Sections
 {
     class Palette
     {
-        public byte size;
-        public List<Color> colors = new List<Color>();
+        public List<byte[]> colors = new List<byte[]>();
     }
 }
