@@ -68,6 +68,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FileFormats\Loaders\LoaderBase.cs" />
+    <Compile Include="FileFormats\Loaders\LoaderWEP.cs" />
+    <Compile Include="FileFormats\Sections\Group.cs" />
+    <Compile Include="FileFormats\Sections\Joint.cs" />
+    <Compile Include="FileFormats\Sections\Palette.cs" />
+    <Compile Include="FileFormats\Sections\Polygon.cs" />
+    <Compile Include="FileFormats\Sections\Vertex.cs" />
+    <Compile Include="FileFormats\WEP.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -132,6 +140,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

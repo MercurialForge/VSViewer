@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using GameFormatReader.Common;
 using System.IO;
+using VSViewer.FileFormats.Loaders;
+using VSViewer.FileFormats;
 
 namespace VSViewer.ViewModels
 {
@@ -30,27 +32,10 @@ namespace VSViewer.ViewModels
                 file = openFileDialog.FileName;
             }
 
-            // load file into memory stream
-            FileStream fileStream = File.OpenRead(file);
-            MemoryStream memStream = new MemoryStream();
-            memStream.SetLength(fileStream.Length);
-            fileStream.Read(memStream.GetBuffer(), 0, (int)fileStream.Length);
-
-            // create endian reader
-            EndianBinaryReader reader = new EndianBinaryReader(memStream, Endian.Big);
-
-            //being reader
-
-            // Magic H01 + 0x00
-            reader.SkipInt32();
-            Console.WriteLine(" ");
-            Console.WriteLine((int)reader.ReadByte());
-            Console.WriteLine((int)reader.ReadByte());
-            Console.WriteLine(reader.ReadUInt16());
-
-            fileStream.Close();
-            memStream.Close();
-            reader.Close();
+            using ( LoaderWEP Loader = new LoaderWEP(file) )
+            {
+                WEP wep = Loader.Read();
+            }
 
         }
     }
