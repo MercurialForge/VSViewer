@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 
-namespace VSViewer.FileFormats
+namespace VSViewer
 {
-    static class VSTools
+    static partial class VSTools
     {
-
         // convert 16 bit color values to 32RGBA
 	    // first bit == 1 or bits == 0 means fully transparent
 	    // then 5 bits for each of B, G, R

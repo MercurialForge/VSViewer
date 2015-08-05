@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using GameFormatReader.Common;
 using System.IO;
-using VSViewer.FileFormats.Loaders;
 using VSViewer.FileFormats;
+using VSViewer.Loader;
 
-namespace VSViewer.ViewModels
+namespace VSViewer
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
@@ -32,11 +32,10 @@ namespace VSViewer.ViewModels
                 file = openFileDialog.FileName;
             }
 
-            using ( LoaderWEP Loader = new LoaderWEP(file) )
+            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
             {
-                WEP wep = Loader.Read();
+                WEP wep = WEPLoader.FromStream(reader);
             }
-
         }
     }
 }

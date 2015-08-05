@@ -4,6 +4,5 @@
         Title="MainWindow" Height="473.013" Width="1058.054">
     <Grid>
         <Button Content="Read_Click" HorizontalAlignment="Left" Margin="491,219,0,0" VerticalAlignment="Top" Width="75" Click="Read_Click"/>
-
     </Grid>
 </Window>

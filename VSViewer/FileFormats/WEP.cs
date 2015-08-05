@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VSViewer.FileFormats.Sections;
+using VSViewer.FileFormats;
 
 namespace VSViewer.FileFormats
 {
@@ -13,6 +13,6 @@ namespace VSViewer.FileFormats
         public List<Group> groups = new List<Group>();
         public List<Vertex> vertices = new List<Vertex>();
         public List<Polygon> polygons = new List<Polygon>();
-        //public Texture[] textures; // this may end up being the string to the output texture for the item.
+        public List<TextureMap> textures = new List<TextureMap>();
     }
 }

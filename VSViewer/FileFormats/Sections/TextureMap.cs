@@ -7,11 +7,12 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Drawing;
 
-namespace VSViewer.FileFormats.Sections
+namespace VSViewer.FileFormats
 {
-    class Texture
+    class TextureMap
     {
-        List<WriteableBitmap> maps = new List<WriteableBitmap>();
-
+        public int width;
+        public int height;
+        public BitmapSource texture;
     }
 }

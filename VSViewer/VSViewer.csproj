@@ -68,16 +68,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="FileFormats\Loaders\LoaderBase.cs" />
-    <Compile Include="FileFormats\Loaders\LoaderWEP.cs" />
+    <Compile Include="Common\VSToolsMeshParser.cs" />
+    <Compile Include="Loader\WEPLoader.cs" />
     <Compile Include="FileFormats\Sections\Group.cs" />
     <Compile Include="FileFormats\Sections\Joint.cs" />
     <Compile Include="FileFormats\Sections\Palette.cs" />
     <Compile Include="FileFormats\Sections\Polygon.cs" />
-    <Compile Include="FileFormats\Sections\Texture.cs" />
+    <Compile Include="FileFormats\Sections\TextureMap.cs" />
     <Compile Include="FileFormats\Sections\Vertex.cs" />
-    <Compile Include="FileFormats\VSTools.cs" />
+    <Compile Include="Common\VSTools.cs" />
     <Compile Include="FileFormats\WEP.cs" />
+    <Compile Include="Models\LoaderModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
