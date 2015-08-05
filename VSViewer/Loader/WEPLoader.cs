@@ -19,13 +19,14 @@ namespace VSViewer.Loader
             /*=====================================================================
                 WEP HEADER (0x50) 80 bytes long
             =====================================================================*/
+            reader.BaseStream.Seek(0, SeekOrigin.Begin);
             reader.Skip(0x04); // TODO: skip magic 0x04 (4 dec) "H01" check for file type?
 
             byte numJoints = reader.ReadByte();
             byte numGroups = reader.ReadByte();
-            UInt16 numTriangles = reader.ReadUInt16();
-            UInt16 numQuads = reader.ReadUInt16();
-            UInt16 numPolygons = reader.ReadUInt16();
+            ushort numTriangles = reader.ReadUInt16();
+            ushort numQuads = reader.ReadUInt16();
+            ushort numPolygons = reader.ReadUInt16();
             int ptrTexture1 = (int)(reader.ReadUInt32() + 0x10); // same as ptrTexture... why?
 
             reader.Skip(0x30); // header padding?

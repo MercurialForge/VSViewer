@@ -18,7 +18,6 @@ namespace VSViewer
 
         public MainWindowViewModel()
         {
-            Console.WriteLine("hello from the view model");
         }
 
         public void Read_Click()
@@ -35,6 +34,7 @@ namespace VSViewer
             using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
             {
                 WEP wep = WEPLoader.FromStream(reader);
+                wep.textures[0].Save("Bronze");
             }
         }
     }

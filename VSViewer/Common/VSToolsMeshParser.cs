@@ -128,76 +128,36 @@ namespace VSViewer
             int height = reader.ReadByte() * 2;
             byte colorsPerPalette = reader.ReadByte();
 
-            List<Palette> colorPalettes = new List<Palette>();
+            List<TextureMap> textures = new List<TextureMap>();
 
             for (int p = 0; p < numOfPalettes; p++)
             {
+                TextureMap tex = new TextureMap(width, height);
                 Palette palette = new Palette();
                 for (int c = 0; c < colorsPerPalette; c++)
                 {
                     palette.colors.Add(VSTools.BitColorConverter(reader.ReadUInt16()));
                 }
-                colorPalettes.Add(palette);
+                tex.colorPalette = palette;
+                outTextures.Add(tex);
             }
 
-            //TODO: put the following into a texture class so byte or texture can be retrived.
-
-            // List of a list of bytes. Represents x,y texture map palette index.
-            byte[] map = new byte[width * height];
+            // A linear representation of the texture map, each byte is a palette index.
+            byte[] paletteMap = new byte[width * height];
 
             for (var y = 0; y < height; ++y)
             {
                 for (var x = 0; x < width; ++x)
                 {
-                    map[(y * width) + x] = reader.ReadByte();
+                    paletteMap[(y * width) + x] = reader.ReadByte();
                 }
             }
 
-            // create texture
-            for (int i = 0, l = colorPalettes.Count; i < l; ++i)
+            for (int i = 0; i < numOfPalettes; i++) 
             {
-                Palette palette = colorPalettes[i];
-                byte[] buffer = new byte[width * height * 4];
-                for (int y = 0; y < height; ++y)
-                {
-                    for (int x = 0; x < width; ++x)
-                    {
-                        int c = map[(y * width) + x];
-                        int index = (((y * width) + x) * 4);
-
-                        // TODO sometimes c >= colorsPerPalette?? set transparent, for now
-                        if (c < colorsPerPalette)
-                        {
-                            // swizzled to BGRA
-                            buffer[index + 0] = palette.colors[c][2]; //b
-                            buffer[index + 1] = palette.colors[c][1]; //g
-                            buffer[index + 2] = palette.colors[c][0]; //r
-                            buffer[index + 3] = palette.colors[c][3]; //a
-                        }
-                        else
-                        {
-                            Console.WriteLine("Over colors per palette bounds");
-                            // defaults to byte[] = {0, 0, 0, 0} transparent
-                        }
-                    }
-                }
-
-                // copy stream to texture
-                BitmapSource tempTexture = BitmapSource.Create(width, height, 96d, 96d, PixelFormats.Bgra32, null, buffer.ToArray(), 4 * ((width * 4 + 3) / 4));
-                TextureMap tempTMap = new TextureMap();
-                tempTMap.width = width;
-                tempTMap.height = height;
-                tempTMap.texture = tempTexture;
-                outTextures.Add(tempTMap);
-
-                // write to disk
-                using (FileStream stream = new FileStream("paletteMap" + i + ".png", FileMode.Create))
-                {
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(tempTexture));
-                    encoder.Save(stream);
-                }
+                outTextures[i].map = paletteMap; 
             }
+
         }
     }
 }

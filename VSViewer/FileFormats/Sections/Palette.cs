@@ -15,5 +15,7 @@ namespace VSViewer.FileFormats
     class Palette
     {
         public List<byte[]> colors = new List<byte[]>();
+
+        public int GetColorCount() { return colors.Count; }
     }
 }

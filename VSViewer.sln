@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSViewer", "VSViewer\VSView
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndianBinaryStreams", "EndianBinaryStreams\EndianBinaryStreams.csproj", "{59EF7327-AB29-4395-9CD8-E5BE54640C6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpDX.WPF", "SharpDX.WPF\SharpDX.WPF.csproj", "{587D723B-36B2-49E2-9018-E3ABD4B8BBA6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{59EF7327-AB29-4395-9CD8-E5BE54640C6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59EF7327-AB29-4395-9CD8-E5BE54640C6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59EF7327-AB29-4395-9CD8-E5BE54640C6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{587D723B-36B2-49E2-9018-E3ABD4B8BBA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{587D723B-36B2-49E2-9018-E3ABD4B8BBA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{587D723B-36B2-49E2-9018-E3ABD4B8BBA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{587D723B-36B2-49E2-9018-E3ABD4B8BBA6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
