@@ -115,6 +115,8 @@ namespace VSViewer
 
 	        //geometry.computeFaceNormals();
 	        //geometry.computeVertexNormals();
+
+
             return geometry;
         }
     }

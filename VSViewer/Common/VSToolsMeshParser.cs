@@ -69,7 +69,6 @@ namespace VSViewer
                 reader.Skip(0x02); // padding
 
                 vertex.groupID = g;
-                vertex.group = groups[g];
                 vertex.boneID = groups[g].boneID;
 
                 outVertices.Add(vertex);

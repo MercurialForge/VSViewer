@@ -5,14 +5,13 @@
         xmlns:dxc="clr-namespace:SharpDX.WPF;assembly=SharpDX.WPF"
         xmlns:local="clr-namespace:VSViewer"
         Title="MainWindow" Height="473.013" Width="1058.054">
+    <Window.DataContext> 
+        <local:MainWindowViewModel/>
+    </Window.DataContext>
     <Grid>
         <Button Content="Read_Click" HorizontalAlignment="Left" Margin="894,212,0,0" VerticalAlignment="Top" Width="75" Click="Read_Click"/>
         <Grid HorizontalAlignment="Left" Height="423" Margin="10,10,0,0" VerticalAlignment="Top" Width="746">
-            <dxc:DXElement>
-                <dxc:DXElement.Renderer>
-                    <local:ViewportViewModel/>
-                </dxc:DXElement.Renderer>
-            </dxc:DXElement>
+            <dxc:DXElement Renderer="{Binding D3D11Renderer}"/>
         </Grid>
     </Grid>
 </Window>

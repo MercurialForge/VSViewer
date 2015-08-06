@@ -13,7 +13,6 @@ namespace VSViewer.FileFormats
         public Int16 y;
         public Int16 z;
         public int groupID;
-        public Group group;
         public Int16 boneID;
 
         public Vector3 GetVector ()

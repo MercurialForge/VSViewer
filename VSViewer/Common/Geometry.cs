@@ -22,5 +22,11 @@ namespace VSViewer
         public List<UInt16> indices = new List<UInt16>();
         // skinned bone
         public List<int> boneID = new List<int>();
+
+        // generate normals
+        // a-b
+        // b-c
+        // cross for vector
+
     }
 }

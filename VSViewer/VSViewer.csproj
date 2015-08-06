@@ -116,6 +116,8 @@
     <Compile Include="Common\VSTools.cs" />
     <Compile Include="FileFormats\WEP.cs" />
     <Compile Include="Models\LoaderModel.cs" />
+    <Compile Include="RenderSystem\RenderCore.cs" />
+    <Compile Include="RenderSystem\RenderSystem.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\ViewportViewModel.cs" />
     <Page Include="MainWindow.xaml">
@@ -190,6 +192,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
