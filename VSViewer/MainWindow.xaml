@@ -4,14 +4,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:dxc="clr-namespace:SharpDX.WPF;assembly=SharpDX.WPF"
         xmlns:local="clr-namespace:VSViewer"
-        Title="MainWindow" Height="473.013" Width="1058.054">
-    <Window.DataContext> 
+        Title="MainWindow" Height="549.013" Width="1080.054">
+    <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
-    <Grid>
-        <Button Content="Read_Click" HorizontalAlignment="Left" Margin="894,212,0,0" VerticalAlignment="Top" Width="75" Click="Read_Click"/>
-        <Grid HorizontalAlignment="Left" Height="423" Margin="10,10,0,0" VerticalAlignment="Top" Width="746">
+    <Grid Margin="0,0,2,0">
+        <Grid Width="791" HorizontalAlignment="Left">
             <dxc:DXElement Renderer="{Binding D3D11Renderer}"/>
+        </Grid>
+        <Grid Margin="761,0,0,0" HorizontalAlignment="Right">
+            <GroupBox Header="Import" VerticalAlignment="Top" Height="157" Width="274">
+                <Button Content="Read_Click" HorizontalAlignment="Left" Margin="4,109,0,0" VerticalAlignment="Top" Width="75" Click="Read_Click"/>
+            </GroupBox>
+            <StackPanel HorizontalAlignment="Left" Margin="10,162,0,0" VerticalAlignment="Top"/>
         </Grid>
     </Grid>
 </Window>

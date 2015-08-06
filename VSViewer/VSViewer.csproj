@@ -103,7 +103,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Common\Geometry.cs" />
-    <Compile Include="Common\SkinWeight.cs" />
+    <Compile Include="Common\SkeletalBone.cs" />
     <Compile Include="Common\VSToolsGeometryBuilder.cs" />
     <Compile Include="Common\VSToolsMeshParser.cs" />
     <Compile Include="Loader\WEPLoader.cs" />
@@ -116,10 +116,8 @@
     <Compile Include="Common\VSTools.cs" />
     <Compile Include="FileFormats\WEP.cs" />
     <Compile Include="Models\LoaderModel.cs" />
-    <Compile Include="RenderSystem\RenderCore.cs" />
     <Compile Include="RenderSystem\RenderSystem.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="ViewModels\ViewportViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -188,7 +186,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="T2_SimpleTriangle.fx">
+    <Content Include="VagrantStoryMaterial.fx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

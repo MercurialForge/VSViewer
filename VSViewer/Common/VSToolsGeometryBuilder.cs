@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VSViewer;
 using VSViewer.Common;
 using VSViewer.FileFormats;
 
@@ -11,10 +12,10 @@ namespace VSViewer
 {
     static partial class VSTools
     {
-        static public Geometry CreateGeometry (List<Vertex> vertices, List<Polygon> polygons, TextureMap textureMap)
+        static public Geometry CreateGeometry (List<Vertex> vertices, List<Polygon> polygons, List<Joint> bones, TextureMap textureMap)
         {
-            var tw = textureMap.width;
-	        var th = textureMap.height;
+            float tw = textureMap.width;
+	        float th = textureMap.height;
 
 	        Geometry geometry = new Geometry();
 
@@ -116,6 +117,31 @@ namespace VSViewer
 	        //geometry.computeFaceNormals();
 	        //geometry.computeVertexNormals();
 
+            
+            for ( var i = 0; i < bones.Count; i++ ) 
+            {
+		        int parent = bones[ i ].parentID;
+
+                SkeletalBone bone = new SkeletalBone();
+                bone.name += i;
+                bone.parentIndex = (parent < bones.Count) ? parent + bones.Count : -1;
+                geometry.skeleton.Add(bone);
+	        }
+
+	        // translation bones
+	        for ( var i = bones.Count; i < bones.Count * 2; ++i ) 
+            {
+                SkeletalBone bone = new SkeletalBone();
+                bone.name += i;
+                bone.parentIndex = i - bones.Count;
+                geometry.skeleton.Add(bone);
+	        }
+
+            for (var i = bones.Count; i < bones.Count * 2; ++i)
+            {
+
+                geometry.skeleton[i].position.X = bones[i - bones.Count].boneLength;
+            }
 
             return geometry;
         }

@@ -1,35 +1,47 @@
 ﻿//--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
+Texture2D txDiffuse : register(t0);
+SamplerState samLinear : register(s0);
+
 cbuffer ConstantBuffer : register(b0)
 {
 	matrix World;
 	matrix View;
 	matrix Projection;
-}
+};
 
 //--------------------------------------------------------------------------------------
-struct VS_OUTPUT
+struct VS_INPUT
+{
+	float4 Pos : POSITION;
+	float2 Tex : TEXCOORD0;
+};
+
+struct PS_INPUT
 {
 	float4 Pos : SV_POSITION;
+	float2 Tex : TEXCOORD0;
 };
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-VS_OUTPUT VShader(float4 Pos : VERTEX)
+PS_INPUT VS(VS_INPUT input)
 {
-	VS_OUTPUT output = (VS_OUTPUT)0;
-	output.Pos = mul(Pos, World);
+	PS_INPUT output = (PS_INPUT)0;
+	output.Pos = mul(input.Pos, World);
 	output.Pos = mul(output.Pos, View);
 	output.Pos = mul(output.Pos, Projection);
+	output.Tex = input.Tex;
+
 	return output;
 }
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-float4 PShader(VS_OUTPUT input) : SV_Target
+float4 PS(PS_INPUT input) : SV_Target
 {
-	return float4(1.0f, 0.4f, 0.6f, 1.0f);
+	return txDiffuse.Sample(samLinear, input.Tex);
 }

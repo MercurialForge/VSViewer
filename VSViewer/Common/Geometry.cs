@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VSViewer;
 using VSViewer.Common;
 
 namespace VSViewer
 {
     class Geometry
     {
+        // all skin weights in Vagrant Story are 1
         public const int skinWeight = 1;
 
         // the positions of the vertices
@@ -22,10 +24,13 @@ namespace VSViewer
         public List<UInt16> indices = new List<UInt16>();
         // skinned bone
         public List<int> boneID = new List<int>();
+        // skeleton
+        public List<SkeletalBone> skeleton = new List<SkeletalBone>();
 
+        // TODO: generate normals for faces and verts
         // generate normals
         // a-b
-        // b-c
+        // a-c
         // cross for vector
 
     }
