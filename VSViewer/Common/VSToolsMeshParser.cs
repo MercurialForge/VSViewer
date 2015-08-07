@@ -83,7 +83,7 @@ namespace VSViewer
 
                 polygon.polygonType = (PolygonType)reader.ReadByte();
                 polygon.size = reader.ReadByte();
-                polygon.BaceFaceMode = (BackFaceMode)reader.ReadByte();
+                polygon.BaceFaceMode = (FaceMode)reader.ReadByte();
 
                 polygon.unknown = reader.ReadByte();
 

@@ -487,7 +487,7 @@ namespace SharpDX.WPF
 				speed += GetSpeed(item);
 				rSpeed += GetRollSpeed(item);
 			}
-
+            speed *= 100;
 			KeyMove(speed * (float)elapsed.TotalSeconds);
 			KeyRoll(rSpeed * (float)elapsed.TotalSeconds);
 		}

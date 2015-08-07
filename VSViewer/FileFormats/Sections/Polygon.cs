@@ -18,10 +18,10 @@ namespace VSViewer.FileFormats
     /// <summary>
     /// Used to easily cast byte to determined bace face mode
     /// </summary>
-    enum BackFaceMode : byte
+    enum FaceMode : byte
     {
-        Off = 0x40,
-        On = 0x50
+        Front = 0x40,
+        Back = 0x50
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ namespace VSViewer.FileFormats
         // size in bytes of the polygon data, could be used to determine if forth vertex and uv sets are expected
         public byte size;
         // determine if backface should be generated (0x40 => one-sided, 0x50 => double-sided)
-        public BackFaceMode BaceFaceMode;
+        public FaceMode BaceFaceMode;
 
         //TODO: unknown possible normal or alpha? Could be skipped in reader.
         public byte unknown; 

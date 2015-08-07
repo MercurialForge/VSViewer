@@ -34,6 +34,10 @@ namespace VSViewer
 		        geometry.vertices.Add(v2.GetVector());
 		        geometry.vertices.Add(v3.GetVector());
 
+                //uvs
+                
+
+
                 // skip weights
 
                 // bone weight IDs
@@ -48,17 +52,14 @@ namespace VSViewer
 
 			        geometry.vertices.Add(v4.GetVector());
 
+                    geometry.uv1.Add(new Vector2(p.u1 / tw, p.v1 / th));
+                    geometry.uv1.Add(new Vector2(p.u2 / tw, p.v2 / th));
+                    geometry.uv1.Add(new Vector2(p.u3 / tw, p.v3 / th));
+                    geometry.uv1.Add(new Vector2(p.u4 / tw, p.v4 / th));
+
                     // skip weights
 
 			        geometry.boneID.Add( v4.boneID );
-
-			        geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
-			        geometry.uv1.Add( new Vector2( p.u2 / tw, 1 - p.v2 / th ) );
-			        geometry.uv1.Add( new Vector2( p.u1 / tw, 1 - p.v1 / th ) );
-
-                    geometry.uv1.Add( new Vector2( p.u2 / tw, 1 - p.v2 / th ) );
-			        geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
-			        geometry.uv1.Add( new Vector2( p.u4 / tw, 1 - p.v4 / th ) );
 
                     geometry.indices.Add((UInt16)(iv + 2));
                     geometry.indices.Add((UInt16)(iv + 1));
@@ -68,45 +69,41 @@ namespace VSViewer
                     geometry.indices.Add((UInt16)(iv + 2));
                     geometry.indices.Add((UInt16)(iv + 3));
 
-			        if ( p.BaceFaceMode == BackFaceMode.On ) 
+			        if ( p.BaceFaceMode == FaceMode.Back ) 
                     {
-                        geometry.indices.Add((UInt16)(iv + 0));
-                        geometry.indices.Add((UInt16)(iv + 1));
-                        geometry.indices.Add((UInt16)(iv + 2));
+                        //geometry.indices.Add((UInt16)(iv + 2));
+                        //geometry.indices.Add((UInt16)(iv + 0));
+                        //geometry.indices.Add((UInt16)(iv + 1));
 
-                        geometry.indices.Add((UInt16)(iv + 3));
-                        geometry.indices.Add((UInt16)(iv + 2));
-                        geometry.indices.Add((UInt16)(iv + 1));
+                        //geometry.indices.Add((UInt16)(iv + 1));
+                        //geometry.indices.Add((UInt16)(iv + 2));
+                        //geometry.indices.Add((UInt16)(iv + 3));
 
-
-                        geometry.uv1.Add( new Vector2( p.u1 / tw, 1 - p.v1 / th ) );
-			            geometry.uv1.Add( new Vector2( p.u2 / tw, 1 - p.v2 / th ) );
-			            geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
-
-                        geometry.uv1.Add( new Vector2( p.u4 / tw, 1 - p.v4 / th ) );
-			            geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
-			            geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v2 / th ) );
+                        //geometry.uv1.Add( new Vector2( p.u1 / tw, 1 - p.v1 / th ) );
+                        //geometry.uv1.Add( new Vector2( p.u2 / tw, 1 - p.v2 / th ) );
+                        //geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
+                        //geometry.uv1.Add( new Vector2( p.u4 / tw, 1 - p.v4 / th ) );
 			        }
 
 		        } else {
 
-			        geometry.uv1.Add( new Vector2( p.u1 / tw, 1 - p.v1 / th ) );
-			        geometry.uv1.Add( new Vector2( p.u2 / tw, 1 - p.v2 / th ) );
-			        geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
+                    geometry.uv1.Add(new Vector2(p.u2 / tw, p.v2 / th));
+                    geometry.uv1.Add(new Vector2(p.u3 / tw, p.v3 / th));
+                    geometry.uv1.Add(new Vector2(p.u1 / tw, p.v1 / th));
 
                     geometry.indices.Add((UInt16)(iv + 2));
                     geometry.indices.Add((UInt16)(iv + 1));
                     geometry.indices.Add((UInt16)(iv + 0));
 
-			        if ( p.BaceFaceMode == BackFaceMode.On ) {
+			        if ( p.BaceFaceMode == FaceMode.Back ) {
 
-				        geometry.indices.Add((UInt16)(iv + 0));
-                        geometry.indices.Add((UInt16)(iv + 1));
-                        geometry.indices.Add((UInt16)(iv + 2));
+                        //geometry.indices.Add((UInt16)(iv + 2));
+                        //geometry.indices.Add((UInt16)(iv + 1));
+                        //geometry.indices.Add((UInt16)(iv + 0));
 
-				        geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
-			            geometry.uv1.Add( new Vector2( p.u2 / tw, 1 - p.v2 / th ) );
-			            geometry.uv1.Add( new Vector2( p.u1 / tw, 1 - p.v1 / th ) );
+                        //geometry.uv1.Add( new Vector2( p.u2 / tw, 1 - p.v2 / th ) );
+                        //geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
+                        //geometry.uv1.Add( new Vector2( p.u1 / tw, 1 - p.v1 / th ) );
 
 			        }
 

@@ -32,7 +32,6 @@ namespace VSViewer
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainWindowViewModel();
         }
 
         private void Read_Click(object sender, RoutedEventArgs e)
