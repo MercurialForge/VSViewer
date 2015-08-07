@@ -12,6 +12,7 @@ using VSViewer.Loader;
 using SharpDX.WPF;
 using SharpDX.Direct3D11;
 using VSViewer.Rendering;
+using System.Windows;
 
 namespace VSViewer
 {
@@ -19,15 +20,20 @@ namespace VSViewer
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public IDirect3D D3D11Renderer { get; private set; }
+        public RenderSystem Viewport { get; private set; }
 
         public MainWindowViewModel()
         {
-            D3D11Renderer = new RenderSystem();
+            Viewport = new RenderSystem();
+            if(!Viewport.Initialize())
+            {
+                Application.Current.Shutdown();
+            }
         }
 
         public void Read_Click()
         {
+            Viewport.Load();
             //string file = "";
 
             //// open file

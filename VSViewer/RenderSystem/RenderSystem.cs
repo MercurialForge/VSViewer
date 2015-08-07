@@ -16,110 +16,137 @@ using VSViewer.Common;
 using VSViewer.FileFormats;
 using VSViewer.Loader;
 using Device = SharpDX.Direct3D11.Device;
+using Buffer = SharpDX.Direct3D11.Buffer;
+using System.Windows;
 
 namespace VSViewer.Rendering
 {
-
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct Projections
-    {
-        public Matrix World;
-        public Matrix View;
-        public Matrix Projection;
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct SimpleVertex
-    {
-        public SimpleVertex(Vector3 p, Vector2 t)
-        {
-            Pos = p;
-            Tex = t;
-        }
-        public Vector3 Pos;
-        public Vector2 Tex;
-
-        public const int SizeInBytes = (3 + 2) * 4;
-    }
-
     class RenderSystem : D3D11
     {
-        private VertexShader m_vertexShader;
-        private PixelShader m_pixelShader;
-        private ConstantBuffer<Projections> m_constantProjectionBuffer;
-        private ShaderResourceView m_textureRV;
-        private SamplerState m_samplerLinear;
+        #region Structures
+        [StructLayout(LayoutKind.Sequential)]
+        public struct InputVertex
+        {
+            public Vector3 Position;
+            public Vector2 Texture;
+
+            public InputVertex(Vector3 p, Vector2 t)
+            {
+                Position = p;
+                Texture = t;
+            }
+
+            public void SetToZero()
+            {
+                Position = Vector3.Zero;
+                Texture = Vector2.Zero;
+            }
+
+            public const int SizeInBytes = (3 + 2) * 4;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct MatrixBuffer
+        {
+            public Matrix World;
+            public Matrix View;
+            public Matrix Projection;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct TransparentBuffer
+        {
+            public float BlendAmount;
+            private Vector3 Padding;
+        }
+        #endregion
+
+        VertexShader m_vertexShader;
+        PixelShader m_pixelShader;
+        ConstantBuffer<MatrixBuffer> m_matrixBuffer;
+        InputLayout m_inputElements;
+        ShaderResourceView m_textureResourceView;
+        SamplerState m_samplerState;
+        Buffer vertexBuffer;
+        Buffer indexBuffer;
 
         private Geometry geometry;
-        private SimpleVertex[] m_skinnedVertices;
+        private InputVertex[] m_instanceVertices;
         private WEP wep;
+        int deleteme = 10;
+        bool m_isPendingVertexBufferUpdate;
 
         public void SetCamera(BaseCamera newCamera) { Camera = newCamera; }
 
         public void Load()
         {
-            string file = @"C:\Users\Oliver\Desktop\VSDump\OBJ\41.WEP";
+            string file = @"E:\CloudServices\GoogleDrive\VSTools\OBJ\" + deleteme + ".WEP";
+            deleteme++;
+
             using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
             {
                 // should this return a Geometry, should they all return Geometries? But then where do I keep others like textures etc?
                 wep = WEPLoader.FromStream(reader);
                 wep.textures[0].Save("Bronze");
                 geometry = VSTools.CreateGeometry(wep.vertices, wep.polygons, wep.joints, wep.textures[0]);
-
+                m_instanceVertices = new InputVertex[geometry.vertices.Count];
             }
+            m_isPendingVertexBufferUpdate = true;
         }
 
-        public RenderSystem()
+        // Render system initialize all initialization should be done here.
+        public bool Initialize()
         {
-            using (DisposeGroup dg = new DisposeGroup())
+            Load();
+            ApplySkinning();
+            return InitializeShader("VagrantStoryMaterial.fx");
+        }
+
+        public bool InitializeShader(string shaderName)
+        {
+            try
             {
-                // --- init shaders
+                // Set shader flags
                 ShaderFlags sFlags = ShaderFlags.EnableStrictness;
 
                 #if DEBUG
                 sFlags |= ShaderFlags.Debug;
                 #endif
 
-                CompilationResult pVSBlob = dg.Add(ShaderBytecode.CompileFromFile("VagrantStoryMaterial.fx", "VS", "vs_4_0", sFlags, EffectFlags.None));
-                ShaderSignature inputSignature = dg.Add(ShaderSignature.GetInputSignature(pVSBlob));
-                Set(ref m_vertexShader, new VertexShader(Device, pVSBlob));
+                // Compile shader code
+                CompilationResult vertexShaderByteCode = ShaderBytecode.CompileFromFile(shaderName, "VS", "vs_4_0", sFlags, EffectFlags.None);
+                CompilationResult pixelShaderByteCode = ShaderBytecode.CompileFromFile(shaderName, "PS", "ps_4_0", sFlags, EffectFlags.None);
 
-                // --- let DX know about the pixels memory layout
-                InputLayout layout = dg.Add(new InputLayout(Device, inputSignature, new[]{
+                // Create signature
+                ShaderSignature inputSignature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
+
+                // Set shaders
+                Set(ref m_vertexShader, new VertexShader(Device, vertexShaderByteCode));
+                Set(ref m_pixelShader, new PixelShader(Device, pixelShaderByteCode));
+
+                // Define inputs
+                m_inputElements = new InputLayout(Device, inputSignature, new[]{
 					new InputElement("POSITION", 0, Format.R32G32B32_Float, 0),
 					new InputElement("TEXCOORD", 0, Format.R32G32_Float, 12, 0),
-				}));
-                Device.ImmediateContext.InputAssembler.InputLayout = (layout);
+				});
+                Device.ImmediateContext.InputAssembler.InputLayout = (m_inputElements);
 
-                CompilationResult pPSBlob = dg.Add(ShaderBytecode.CompileFromFile("VagrantStoryMaterial.fx", "PS", "ps_4_0", sFlags, EffectFlags.None));
-                Set(ref m_pixelShader, new PixelShader(Device, pPSBlob));
+                // Release the shader buffers.
+                vertexShaderByteCode.Dispose();
+                pixelShaderByteCode.Dispose();
 
-                Load();
-                ApplySkinning();
-
-                // --- init vertices
-                var vertexBuffer = dg.Add(DXUtils.CreateBuffer(Device, m_skinnedVertices));
-                Device.ImmediateContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertexBuffer, SimpleVertex.SizeInBytes, 0));
-                // --- init indices
-                var g_pIndexBuffer = dg.Add(DXUtils.CreateBuffer(Device, geometry.indices.ToArray() ));
-                Device.ImmediateContext.InputAssembler.SetIndexBuffer(g_pIndexBuffer, Format.R16_UInt, 0);
+                // Vagrant Story meshes are written as TriangleLists
                 Device.ImmediateContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-                // --- create the constant buffer
-                m_constantProjectionBuffer = new ConstantBuffer<Projections>(Device);
-                Device.ImmediateContext.VertexShader.SetConstantBuffer(0, m_constantProjectionBuffer.Buffer);
+                // Create constant matrix buffer
+                m_matrixBuffer = new ConstantBuffer<MatrixBuffer>(Device);
+                Device.ImmediateContext.VertexShader.SetConstantBuffer(0, m_matrixBuffer.Buffer);
 
-                RasterizerStateDescription RSD = new RasterizerStateDescription();
-                RSD.CullMode = CullMode.Back;
-                RSD.IsFrontCounterClockwise = false;
-                RSD.FillMode = FillMode.Solid;
+                // Create texture resource.
+                m_textureResourceView = ShaderResourceView.FromFile(Device, @"C:\Users\Mercurial Forge\Desktop\My Projects\C#\VSViewer\VSViewer\bin\Debug\Bronze.png");
 
-                RasterizerState RS = new RasterizerState(Device, ref RSD);
-                Device.ImmediateContext.Rasterizer.State = RS;
-
-                m_textureRV = ShaderResourceView.FromFile(Device, @"D:\Projects\C#\VSViewer\VSViewer\bin\Debug\Bronze.png");
-
-                m_samplerLinear = new SamplerState(Device, new SamplerStateDescription
+                // Create a texture sampler state description.
+                SamplerStateDescription samplerDesc = new SamplerStateDescription
                 {
                     Filter = Filter.MinMagMipPoint,
                     AddressU = TextureAddressMode.Wrap,
@@ -128,53 +155,54 @@ namespace VSViewer.Rendering
                     ComparisonFunction = Comparison.Never,
                     MinimumLod = 0,
                     MaximumLod = 0,
-                });
-
+                };
+                m_samplerState = new SamplerState(Device, samplerDesc);
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error initializing shader. Error is " + ex.Message);
+                return false;
+            };
+
             Camera = new FirstPersonCamera();
             Camera.EnableYAxisMovement = false;
-            Camera.SetProjParams(90, 1, 0.01f, 2000);
+            Camera.SetProjParams(65, 1, 0.01f, 2000);
             Camera.SetViewParams(new Vector3(0.0f, 0.0f, -5.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0, 0, 1));
+            return true;
         }
-
-        public override void Reset(int w, int h)
-        {
-            base.Reset(w, h);
-            Camera.SetProjParams(90 * Deg2Rad, w / (float)h, 0.01f, 2000);
-        }
-
-        public const float Rad2Deg = (float)(180.0 / Math.PI);
-        public const float Deg2Rad = (float)(Math.PI / 180.0);
 
         public override void RenderScene(DrawEventArgs args)
         {
             // fill the back buffer with solid black
-            m_device.ImmediateContext.ClearRenderTargetView(RenderTargetView, new Color4(0, 0, 0, 1));
-
-            // rotate the object for debugging
-            float t = (float)args.TotalTime.TotalSeconds;
-            var g_World = Matrix.RotationY(0);
-
-
-            // update vertex shader projections MVP
-            Projections projectionModel = new Projections();
-            projectionModel.World = Matrix.Transpose(g_World);
-            projectionModel.View = Matrix.Transpose(Camera.View);
-            projectionModel.Projection = Matrix.Transpose(Camera.Projection);
-            m_constantProjectionBuffer.Value = projectionModel;
+            Device.ImmediateContext.ClearRenderTargetView(RenderTargetView, new Color4(0, 0, 0, 1));
 
             ApplySkinning();
 
-            m_device.ImmediateContext.VertexShader.Set(m_vertexShader);
-            m_device.ImmediateContext.VertexShader.SetConstantBuffer(0, m_constantProjectionBuffer.Buffer);
-            m_device.ImmediateContext.PixelShader.Set(m_pixelShader);
-            Device.ImmediateContext.PixelShader.SetShaderResource(0, m_textureRV);
-            Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerLinear);
-            m_device.ImmediateContext.DrawIndexed(geometry.indices.Count, 0 ,0);
+            SetShaderParameters(args);
+
+            UpdateVertexAndIndiceBuffers();
+
+            PushShaders();
+        }
+
+        private void UpdateVertexAndIndiceBuffers()
+        {
+            if (!m_isPendingVertexBufferUpdate) { return; }
+
+            // Setup vertex buffer
+            vertexBuffer = DXUtils.CreateBuffer(Device, m_instanceVertices);
+            VertexBufferBinding vertexBufferBinding = new VertexBufferBinding(vertexBuffer, InputVertex.SizeInBytes, 0);
+            Device.ImmediateContext.InputAssembler.SetVertexBuffers(0, vertexBufferBinding);
+
+            // Setup index buffer
+            indexBuffer = DXUtils.CreateBuffer(Device, geometry.indices.ToArray());
+            Device.ImmediateContext.InputAssembler.SetIndexBuffer(indexBuffer, Format.R16_UInt, 0);
+            m_isPendingVertexBufferUpdate = false;
         }
 
         private void ApplySkinning()
         {
+            // Construct the matrices of each bone from it's many parents
             Matrix[] boneTransforms = new Matrix[geometry.skeleton.Count];
             for (int i = 0; i < geometry.skeleton.Count; i++)
             {
@@ -190,75 +218,71 @@ namespace VSViewer.Rendering
                 boneTransforms[i] = cumulativeTransform;
             }
 
-            // Each boneCopy is now in it's final position, so we can apply that to the vertexes based on their bone weighting.
-            // However, vertex positions have already been uploaded once, so we're uh... going to hack it and re-upload them.
-            Vector3[] origVerts = geometry.vertices.ToArray();
-            Vector3[] skinnedVertices = new Vector3[geometry.vertices.Count];
-            Array.Copy(origVerts, skinnedVertices, origVerts.Length);
-            int g = 0;
-
-            for (int v = 0; v < skinnedVertices.Length; v++)
+            // Each bone is now in it's final position, so we can apply that to the vertices based on their bone weighting.
+            // However, in Vagrant Story all vertices have a max influence of 1, so this is very simple.
+            Vector3[] temporarySkinnedVertices = new Vector3[geometry.vertices.Count];
+            for (int v = 0; v < m_instanceVertices.Length; v++)
             {
-
-                Matrix finalMatrix = Matrix.Zero;
-                Matrix boneInfluence = boneTransforms[geometry.boneID[v]];
-                finalMatrix = (boneInfluence * 1) + finalMatrix;
-
-                skinnedVertices[v] = Vector3.TransformCoordinate(skinnedVertices[v], finalMatrix);
+                temporarySkinnedVertices[v] = Vector3.TransformCoordinate(geometry.vertices[v], boneTransforms[geometry.boneID[v]]);
             }
 
-            // Now re-assign our Vertices to the mesh so they get uploaded to the GPU...
-            InterleavedBuffer(skinnedVertices, geometry.uv1);
+            InterleaveVerticesWithUVs(temporarySkinnedVertices);
         }
 
-        private void InterleavedBuffer(Vector3[] vertices, List<Vector2> uvs)
+        private void InterleaveVerticesWithUVs(Vector3[] vertices)
         {
-            SimpleVertex[] sva = new SimpleVertex[vertices.Length];
-            for (int i = 0; i < vertices.Length; i++ )
+            for (int i = 0; i < m_instanceVertices.Length; i++)
             {
-                sva[i] = new SimpleVertex(vertices[i], uvs[i]);
+                m_instanceVertices[i] = new InputVertex(vertices[i], geometry.uv1[i]);
             }
-            m_skinnedVertices = sva;
         }
 
-        private void DrawMap()
+        private void SetShaderParameters(DrawEventArgs args)
         {
+            // Rotate the object for debugging
+            float t = (float)args.TotalTime.TotalSeconds;
+            var g_World = Matrix.RotationY(t);
 
+            // Update matrices in the constant buffer
+            MatrixBuffer projectionModel = new MatrixBuffer
+            {
+                World = Matrix.Transpose(g_World),
+                View = Matrix.Transpose(Camera.View),
+                Projection = Matrix.Transpose(Camera.Projection)
+            };
+            m_matrixBuffer.Value = projectionModel;
+
+            // Set Vertex shader resources
+            Device.ImmediateContext.VertexShader.SetConstantBuffer(0, m_matrixBuffer.Buffer);
+
+            // Set pixel shader resources
+            Device.ImmediateContext.PixelShader.SetShaderResource(0, m_textureResourceView);
         }
 
-        private void DrawScene()
+        private void PushShaders()
         {
+            // Set the shaders to be used this frame
+            Device.ImmediateContext.VertexShader.Set(m_vertexShader);
+            Device.ImmediateContext.PixelShader.Set(m_pixelShader);
 
+            Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
+            Device.ImmediateContext.DrawIndexed(geometry.indices.Count, 0, 0);
         }
 
-        public void UnloadAll()
+        private void ShutdownShader()
         {
-
-        }
-
-        private void DrawDebugShapes()
-        {
-
-        }
-
-        private void DrawMesh()
-        {
-
-        }
-
-        public void SetOutputSize()
-        {
-
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            // NOTE: SharpDX 1.3 requires explicit Dispose() of everything
             Set(ref m_vertexShader, null);
             Set(ref m_pixelShader, null);
-            Set(ref m_constantProjectionBuffer, null);
+            Set(ref m_matrixBuffer, null);
+            Set(ref m_inputElements, null);
+            Set(ref m_textureResourceView, null);
+            Set(ref m_samplerState, null);
         }
 
+        public override void Reset(int w, int h)
+        {
+            base.Reset(w, h);
+            Camera.SetProjParams(90 * VSTools.Deg2Rad, w / (float)h, 0.01f, 2000);
+        }
     }
 }

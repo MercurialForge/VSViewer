@@ -4,6 +4,9 @@ namespace VSViewer
 {
     static partial class VSTools
     {
+        public const float Rad2Deg = (float)(180.0 / Math.PI);
+        public const float Deg2Rad = (float)(Math.PI / 180.0);
+
         // convert 16 bit color values to 32RGBA
 	    // first bit == 1 or bits == 0 means fully transparent
 	    // then 5 bits for each of B, G, R

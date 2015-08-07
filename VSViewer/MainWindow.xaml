@@ -14,12 +14,12 @@
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="auto" MinWidth="200"/>
             </Grid.ColumnDefinitions>
-            <Grid Background="Aqua" Grid.Column="0">
-                <dxc:DXElement Renderer="{Binding D3D11Renderer}"/>
+            <Grid Background="Black" Grid.Column="0">
+                <dxc:DXElement Renderer="{Binding Viewport}"/>
             </Grid>
             <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Pink"/>
             <Grid Grid.Column="2" Background="Red">
-                
+                <Button Content="open" Click="Read_Click"/>
             </Grid>
         </Grid>
 </Window>
