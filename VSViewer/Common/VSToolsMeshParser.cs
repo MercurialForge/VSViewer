@@ -121,7 +121,8 @@ namespace VSViewer
         {
             UInt32 size = reader.ReadUInt32();
 
-            reader.Skip(0x01); // unknown, always 1?
+            //reader.Skip(0x01); // unknown, always 1?
+            reader.ReadByte();
 
             int width = reader.ReadByte() * 2;
             int height = reader.ReadByte() * 2;
@@ -137,7 +138,7 @@ namespace VSViewer
                 {
                     palette.colors.Add(VSTools.BitColorConverter(reader.ReadUInt16()));
                 }
-                tex.colorPalette = palette;
+                tex.m_colorPalette = palette;
                 outTextures.Add(tex);
             }
 

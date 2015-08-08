@@ -104,6 +104,7 @@
     </ApplicationDefinition>
     <Compile Include="Common\Geometry.cs" />
     <Compile Include="Common\SkeletalBone.cs" />
+    <Compile Include="Common\Transform.cs" />
     <Compile Include="Common\VSToolsGeometryBuilder.cs" />
     <Compile Include="Common\VSToolsMeshParser.cs" />
     <Compile Include="Loader\WEPLoader.cs" />

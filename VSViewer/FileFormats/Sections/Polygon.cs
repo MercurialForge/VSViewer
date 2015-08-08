@@ -20,8 +20,8 @@ namespace VSViewer.FileFormats
     /// </summary>
     enum FaceMode : byte
     {
-        Front = 0x40,
-        Back = 0x50
+        Front = 0x04,
+        Back = 0x05
     }
 
     /// <summary>

@@ -73,14 +73,15 @@ namespace VSViewer.Rendering
         private Geometry geometry;
         private InputVertex[] m_instanceVertices;
         private WEP wep;
-        int deleteme = 10;
+        int deleteme = 70;
         bool m_isPendingVertexBufferUpdate;
 
         public void SetCamera(BaseCamera newCamera) { Camera = newCamera; }
 
         public void Load()
         {
-            string file = @"E:\CloudServices\GoogleDrive\VSTools\OBJ\" + deleteme + ".WEP";
+            string file = @"C:\Users\Oliver\Desktop\VSDump\OBJ\" + deleteme.ToString("X2") + ".WEP";
+            Console.WriteLine(deleteme.ToString("X2"));
             deleteme++;
 
             using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
@@ -143,7 +144,7 @@ namespace VSViewer.Rendering
                 Device.ImmediateContext.VertexShader.SetConstantBuffer(0, m_matrixBuffer.Buffer);
 
                 // Create texture resource.
-                m_textureResourceView = ShaderResourceView.FromFile(Device, @"C:\Users\Mercurial Forge\Desktop\My Projects\C#\VSViewer\VSViewer\bin\Debug\Bronze.png");
+                m_textureResourceView = new ShaderResourceView(Device, wep.textures[0].GetTexture2D(Device));
 
                 // Create a texture sampler state description.
                 SamplerStateDescription samplerDesc = new SamplerStateDescription
@@ -167,7 +168,7 @@ namespace VSViewer.Rendering
             Camera = new FirstPersonCamera();
             Camera.EnableYAxisMovement = false;
             Camera.SetProjParams(65, 1, 0.01f, 2000);
-            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -5.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0, 0, 1));
+            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -5.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0, 0, -1));
             return true;
         }
 
@@ -188,6 +189,8 @@ namespace VSViewer.Rendering
         private void UpdateVertexAndIndiceBuffers()
         {
             if (!m_isPendingVertexBufferUpdate) { return; }
+
+            Set(ref m_textureResourceView, new ShaderResourceView(Device, wep.textures[0].GetTexture2D(Device)));
 
             // Setup vertex buffer
             vertexBuffer = DXUtils.CreateBuffer(Device, m_instanceVertices);

@@ -14,8 +14,8 @@ namespace VSViewer
     {
         static public Geometry CreateGeometry (List<Vertex> vertices, List<Polygon> polygons, List<Joint> bones, TextureMap textureMap)
         {
-            float tw = textureMap.width;
-	        float th = textureMap.height;
+            float tw = textureMap.Width;
+	        float th = textureMap.Height;
 
 	        Geometry geometry = new Geometry();
 
@@ -33,10 +33,6 @@ namespace VSViewer
 		        geometry.vertices.Add(v1.GetVector());
 		        geometry.vertices.Add(v2.GetVector());
 		        geometry.vertices.Add(v3.GetVector());
-
-                //uvs
-                
-
 
                 // skip weights
 
@@ -71,18 +67,19 @@ namespace VSViewer
 
 			        if ( p.BaceFaceMode == FaceMode.Back ) 
                     {
-                        //geometry.indices.Add((UInt16)(iv + 2));
-                        //geometry.indices.Add((UInt16)(iv + 0));
-                        //geometry.indices.Add((UInt16)(iv + 1));
 
-                        //geometry.indices.Add((UInt16)(iv + 1));
-                        //geometry.indices.Add((UInt16)(iv + 2));
-                        //geometry.indices.Add((UInt16)(iv + 3));
+                        geometry.indices.Add((UInt16)(iv + 0));
+                        geometry.indices.Add((UInt16)(iv + 1));
+                        geometry.indices.Add((UInt16)(iv + 2));
 
-                        //geometry.uv1.Add( new Vector2( p.u1 / tw, 1 - p.v1 / th ) );
-                        //geometry.uv1.Add( new Vector2( p.u2 / tw, 1 - p.v2 / th ) );
-                        //geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
-                        //geometry.uv1.Add( new Vector2( p.u4 / tw, 1 - p.v4 / th ) );
+                        geometry.indices.Add((UInt16)(iv + 3));
+                        geometry.indices.Add((UInt16)(iv + 2));
+                        geometry.indices.Add((UInt16)(iv + 1));
+
+                        geometry.uv1.Add(new Vector2(p.u4 / tw, p.v4 / th));
+                        geometry.uv1.Add(new Vector2(p.u3 / tw, p.v3 / th));
+                        geometry.uv1.Add(new Vector2(p.u2 / tw, p.v2 / th));
+                        geometry.uv1.Add(new Vector2(p.u1 / tw, p.v1 / th));
 			        }
 
 		        } else {
@@ -97,24 +94,20 @@ namespace VSViewer
 
 			        if ( p.BaceFaceMode == FaceMode.Back ) {
 
-                        //geometry.indices.Add((UInt16)(iv + 2));
-                        //geometry.indices.Add((UInt16)(iv + 1));
-                        //geometry.indices.Add((UInt16)(iv + 0));
+                        geometry.indices.Add((UInt16)(iv + 0));
+                        geometry.indices.Add((UInt16)(iv + 1));
+                        geometry.indices.Add((UInt16)(iv + 2));
 
-                        //geometry.uv1.Add( new Vector2( p.u2 / tw, 1 - p.v2 / th ) );
-                        //geometry.uv1.Add( new Vector2( p.u3 / tw, 1 - p.v3 / th ) );
-                        //geometry.uv1.Add( new Vector2( p.u1 / tw, 1 - p.v1 / th ) );
-
+                        geometry.uv1.Add(new Vector2(p.u3 / tw, p.v3 / th));
+                        geometry.uv1.Add(new Vector2(p.u2 / tw, p.v2 / th));
+                        geometry.uv1.Add(new Vector2(p.u1 / tw, p.v1 / th));
 			        }
-
 		        }
-
 	        }
 
 	        //geometry.computeFaceNormals();
 	        //geometry.computeVertexNormals();
 
-            
             for ( var i = 0; i < bones.Count; i++ ) 
             {
 		        int parent = bones[ i ].parentID;
