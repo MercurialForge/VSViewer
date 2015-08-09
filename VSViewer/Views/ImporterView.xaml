@@ -1,0 +1,62 @@
+﻿<UserControl x:Class="VSViewer.Views.ImporterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="300">
+    <Grid Background="LightGray">
+        <Grid Margin="10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!--Import Label-->
+            <Label Grid.Row="0" Content=" - IMPORT" FontWeight="Bold" FontSize="15" />
+            
+            <!--Main file loader-->
+            <Grid Grid.Row="1">
+                <WrapPanel Orientation="Vertical">
+                    <Label Grid.Row="0" Content="Select SHP, WEP, ZUD, ZND, or ARM" FontSize="15"/>
+                    <Grid>
+                        <WrapPanel Orientation="Horizontal">
+                            <Button Content="Choose File" Command="{Binding OnMainFile}" Height="25" HorizontalAlignment="Left" Width="70"/>
+                            <Label Grid.Row="0" Content="{Binding MainFileName}" FontSize="15"/>
+                        </WrapPanel>
+                    </Grid>
+                </WrapPanel>
+            </Grid>
+            
+            <!--Sub file loader-->
+            <Grid Grid.Row="2">
+                <WrapPanel Orientation="Vertical">
+                    <Label Grid.Row="0" Content="Select SEQ or MPD" FontSize="15"/>
+                    <Grid>
+                        <WrapPanel Orientation="Horizontal">
+                            <Button Content="Choose File" Command="{Binding OnSubFile}" Height="25" HorizontalAlignment="Left" Width="70"/>
+                            <Label Grid.Row="0" Content="{Binding SubFileName}" FontSize="15"/>
+                        </WrapPanel>
+                    </Grid>
+                </WrapPanel>
+            </Grid>
+            
+            <!--Show skeleton-->
+            <Grid Grid.Row="3">
+                <CheckBox Content="Show Skeleton" IsChecked="{Binding IsActive, Mode = TwoWay}" Command="{Binding OnShowSkeleton}" FontSize="15" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            </Grid>
+            
+            <!--Load button-->
+            <Grid Grid.Row="4" VerticalAlignment="Top">
+                <Button Content="Load" Command="{Binding OnRequestLoad}" Height="25" HorizontalAlignment="Left" Width="70"/>
+            </Grid>
+            
+            <!--Simple separator-->
+            <Separator Grid.Row="5" VerticalAlignment="Bottom"/>
+        </Grid>
+    </Grid>
+</UserControl>

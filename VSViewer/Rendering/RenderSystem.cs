@@ -6,22 +6,18 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.WPF;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 using VSViewer.Common;
 using VSViewer.FileFormats;
 using VSViewer.Loader;
-using Device = SharpDX.Direct3D11.Device;
 using Buffer = SharpDX.Direct3D11.Buffer;
-using System.Windows;
+using Device = SharpDX.Direct3D11.Device;
 
 namespace VSViewer.Rendering
 {
-    class RenderSystem : D3D11
+    public class RenderSystem : D3D11
     {
         #region Structures
         [StructLayout(LayoutKind.Sequential)]
@@ -76,11 +72,9 @@ namespace VSViewer.Rendering
         int deleteme = 70;
         bool m_isPendingVertexBufferUpdate;
 
-        public void SetCamera(BaseCamera newCamera) { Camera = newCamera; }
-
         public void Load()
         {
-            string file = @"C:\Users\Oliver\Desktop\VSDump\OBJ\" + deleteme.ToString("X2") + ".WEP";
+            string file = @"E:\CloudServices\GoogleDrive\VSTools\OBJ\" + deleteme.ToString("X2") + ".WEP";
             Console.WriteLine(deleteme.ToString("X2"));
             deleteme++;
 
@@ -168,12 +162,13 @@ namespace VSViewer.Rendering
             Camera = new FirstPersonCamera();
             Camera.EnableYAxisMovement = false;
             Camera.SetProjParams(65, 1, 0.01f, 2000);
-            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -5.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0, 0, -1));
+            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -50.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0, 0, -1));
             return true;
         }
 
         public override void RenderScene(DrawEventArgs args)
         {
+            //Camera.LookAt = Vector3.Zero;
             // fill the back buffer with solid black
             Device.ImmediateContext.ClearRenderTargetView(RenderTargetView, new Color4(0, 0, 0, 1));
 
@@ -250,7 +245,7 @@ namespace VSViewer.Rendering
             MatrixBuffer projectionModel = new MatrixBuffer
             {
                 World = Matrix.Transpose(g_World),
-                View = Matrix.Transpose(Camera.View),
+                View = Matrix.Transpose((Camera.View)),
                 Projection = Matrix.Transpose(Camera.Projection)
             };
             m_matrixBuffer.Value = projectionModel;

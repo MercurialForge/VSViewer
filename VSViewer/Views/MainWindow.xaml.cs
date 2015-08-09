@@ -14,29 +14,24 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VSViewer;
+using VSViewer.Views;
 
 namespace VSViewer
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void Read_Click(object sender, RoutedEventArgs e)
+        private void OpenAboutWindow(object sender, RoutedEventArgs e)
         {
-            ((MainWindowViewModel)DataContext).Read_Click();
+            Window about = new AboutWindow();
+            about.Show();
         }
     }
 }

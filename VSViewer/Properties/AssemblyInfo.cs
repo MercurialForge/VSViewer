@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("VSViewer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Vagrant Story Viewer")]
+[assembly: AssemblyDescription("a Vagrant Story model viewer and exporter")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("VSViewer")]
+[assembly: AssemblyCompany("Mercurial Forge")]
+[assembly: AssemblyProduct("Vagrant Story Viewer")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

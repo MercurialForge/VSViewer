@@ -13,41 +13,48 @@ using SharpDX.WPF;
 using SharpDX.Direct3D11;
 using VSViewer.Rendering;
 using System.Windows;
+using System.Collections.ObjectModel;
+using VSViewer.Common;
+using System.Windows.Input;
+using System.Windows.Media;
 
-namespace VSViewer
+namespace VSViewer.ViewModels
 {
-    class MainWindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel : ViewModelBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        // The main viewport
+        public ViewportViewModel ViewportView { get; private set; }
 
-        public RenderSystem Viewport { get; private set; }
-
-        public MainWindowViewModel()
+        // The tool bar stack
+        public ObservableCollection<ViewModelBase> ToolBarViewModels 
         {
-            Viewport = new RenderSystem();
-            if(!Viewport.Initialize())
+            get
             {
-                Application.Current.Shutdown();
+                if(m_toolBarViewModels == null)
+                {
+                    m_toolBarViewModels = new ObservableCollection<ViewModelBase>();
+                }
+                return m_toolBarViewModels;
             }
         }
 
-        public void Read_Click()
+        ObservableCollection<ViewModelBase> m_toolBarViewModels;
+
+        public MainWindowViewModel()
         {
-            Viewport.Load();
-            //string file = "";
-
-            //// open file
-            //OpenFileDialog openFileDialog = new OpenFileDialog();
-            //if (openFileDialog.ShowDialog() == true)
-            //{
-            //    file = openFileDialog.FileName;
-            //}
-
-            //using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
-            //{
-            //    WEP wep = WEPLoader.FromStream(reader);
-            //    wep.textures[0].Save("Bronze");
-            //}
+            ViewportView = new ViewportViewModel();
+            AddToolBarTool(new ImporterViewModel());
         }
+
+        public void AddToolBarTool (ViewModelBase tool)
+        {
+            if(m_toolBarViewModels == null)
+            {
+                m_toolBarViewModels = new ObservableCollection<ViewModelBase>();
+            }
+
+            m_toolBarViewModels.Add(tool);
+        }
+
     }
 }
