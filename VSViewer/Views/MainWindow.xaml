@@ -40,7 +40,8 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto" MinWidth="300"/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
+            <Grid Background="Black" Grid.Column="0">
+                <!--This is a alpha stencil hack using the black color as a black multiplyer-->
                 <view:ViewportView DataContext="{Binding ViewportView}"/>
             </Grid>
             <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Pink"/>

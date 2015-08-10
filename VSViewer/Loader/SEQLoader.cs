@@ -2,6 +2,7 @@
 using SharpDX;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,7 @@ namespace VSViewer.Loader
         {
             SHP targetSHP = (SHP)activeSHP;
             /*=====================================================================
-                WEP HEADER (0x50) 80 bytes long
+                TODO: add lenght
             =====================================================================*/
             // base ptr neede because the SEQ could be embedded.
             uint ptrBase = (uint)reader.BaseStream.Position;
@@ -69,11 +70,16 @@ namespace VSViewer.Loader
                     animHeader.ptrBones[p] = reader.ReadUInt16();
                 }
 
-                reader.Skip(2 * numBones); //TODO: this is 0 for all SEQs?
+                for (int j = 0; j < numBones; j++)
+                {
+                    var unknownBoneValues = reader.ReadUInt16(); //TODO: this is 0 for all SEQs?
+                    Trace.Assert(unknownBoneValues == 0); // will show if value is ever NOT zero
+                }
 
                 headers.Add(animHeader);
             }
 
+            // TODO: Never used!?
             sbyte[] frames = new sbyte[numFrames];
             for (int i = 0; i < numFrames; i++)
             {
@@ -133,8 +139,14 @@ namespace VSViewer.Loader
 
                     while (true)
                     {
+                        //Vector4 outData;
+                        //if(ReadOPCode(reader, out outData))
+                        //{
+
+                        //}
+
                         NullableVector4 op = ReadOPCode(reader);
-                        if (op == null) break; // this abort vector is a sucky way to do it.
+                        if (op == null) break;
 
                         f += op.W;
 
@@ -159,6 +171,7 @@ namespace VSViewer.Loader
                     Vector3 pose = animations[a].poses[i];
 
                     // multiplication by two at 0xad25c, 0xad274, 0xad28c
+                    // value * (180f / uint16.max);
                     float rx = pose.X * 2;
                     float ry = pose.Y * 2;
                     float rz = pose.Z * 2;
@@ -178,6 +191,7 @@ namespace VSViewer.Loader
 			            if ( keyframe.Y == null ) keyframe.Y = keyframes[ j - 1 ].Y;
 			            if ( keyframe.Z == null ) keyframe.Z = keyframes[ j - 1 ].Z;
 
+                        // if always positive can use - value as key changer?
                         rx += (float)keyframe.X * f;
                         ry += (float)keyframe.Y * f;
                         rz += (float)keyframe.Z * f;

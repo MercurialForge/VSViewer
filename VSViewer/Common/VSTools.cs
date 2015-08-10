@@ -11,7 +11,7 @@ namespace VSViewer
         public const float Deg2Rad = (float)(Math.PI / 180.0);
 
         // convert 13-bit rotation to radians
-        public const float Rot13ToRad = (1f / 4096f) * (float)Math.PI;
+        public const float Rot13ToRad = (1f / 4096f) * MathUtil.Pi;
 
         public static Vector3 UnitX = new Vector3(1, 0, 0);
         public static Vector3 UnitY = new Vector3(0, 1, 0);

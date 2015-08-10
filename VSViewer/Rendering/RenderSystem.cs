@@ -66,6 +66,8 @@ namespace VSViewer.Rendering
         Buffer vertexBuffer;
         Buffer indexBuffer;
         DepthStencilState depthStencilState;
+        BlendState blendState;
+        RasterizerState rasterizerState;
 
         private Geometry geometry;
         private SEQ seq;
@@ -140,17 +142,28 @@ namespace VSViewer.Rendering
                 Device.ImmediateContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
                 RasterizerStateDescription rasterDesc = new RasterizerStateDescription()
-            {
-                CullMode = CullMode.None,
-                FillMode = FillMode.Solid,
-                DepthBias = 0,
-                DepthBiasClamp = 0,
-                SlopeScaledDepthBias = 0,
-                IsDepthClipEnabled = true,
-                IsMultisampleEnabled = true,
-            };
+                {
+                    CullMode = CullMode.Back,
+                    FillMode = FillMode.Solid,
+                    DepthBias = 0,
+                    DepthBiasClamp = 0,
+                    SlopeScaledDepthBias = 0,
+                    IsDepthClipEnabled = true,
+                    IsMultisampleEnabled = true,
+                    IsScissorEnabled = false,
+                    IsAntialiasedLineEnabled = true,
+                };
 
-                Device.ImmediateContext.Rasterizer.State = new RasterizerState(Device, rasterDesc);
+                rasterizerState = new RasterizerState(Device, rasterDesc);
+                Device.ImmediateContext.Rasterizer.State = rasterizerState;
+
+                RenderTargetBlendDescription RTBDesc = new RenderTargetBlendDescription(true, BlendOption.SourceAlpha, BlendOption.InverseSourceAlpha,
+                    BlendOperation.Add, BlendOption.One, BlendOption.Zero, BlendOperation.Add, ColorWriteMaskFlags.All);
+                BlendStateDescription bsDesc = new BlendStateDescription();
+                bsDesc.RenderTarget[0] = RTBDesc;
+
+                blendState = new BlendState(Device, bsDesc);
+                Device.ImmediateContext.OutputMerger.SetBlendState(blendState, null, -1);
 
                 // Create constant matrix buffer
                 m_matrixBuffer = new ConstantBuffer<MatrixBuffer>(Device);
@@ -215,7 +228,15 @@ namespace VSViewer.Rendering
             Device.ImmediateContext.ClearRenderTargetView(RenderTargetView, new Color4(0, 0, 0, 1));
             // clear depth buffer
             Device.ImmediateContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
-            //Device.ImmediateContext.OutputMerger.SetDepthStencilState(depthStencilState);
+            // something
+            Device.ImmediateContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
+            // blend state application
+            Device.ImmediateContext.OutputMerger.SetBlendState(blendState, null, -1);
+            // rasteriser application
+            Device.ImmediateContext.Rasterizer.State = rasterizerState;
+
+            // TODO: A fix for the resize bug.
+            //m_device.ImmediateContext.Rasterizer.SetViewports(new Viewport(0, 0, w, h, 0.0f, 1.0f));
 
             // stall renderer if there is Geometry.
             if (geometry == null) { return; }
@@ -289,18 +310,23 @@ namespace VSViewer.Rendering
             for (int i = 0; i < geometry.skeleton.Count; i++)
             {
 
-                    float f1 = m_currentKeyframe[i].Time;
-                    float f2 = m_nextKeyframe[i].Time;
-                    float query = frameQueryTime;
+                float f1 = m_currentKeyframe[i].Time;
+                float f2 = m_nextKeyframe[i].Time;
+                float query = frameQueryTime;
 
-                    float a = query - f1;
-                    float b = f2 - f1;
+                float a = query - f1;
+                float b = f2 - f1;
 
-                    float t = MathUtil.Clamp(a / b, 0, 1);
+                float t = MathUtil.Clamp(a / b, 0, 1);
 
-                    m_instanceJoints[i].position = Vector3.Lerp(m_currentKeyframe[i].Position, m_nextKeyframe[i].Position, t);
-                    m_instanceJoints[i].quaternion = Quaternion.Lerp(m_currentKeyframe[i].Rotation, m_nextKeyframe[i].Rotation, t);
-                    m_instanceJoints[i].scale = Vector3.Lerp(m_currentKeyframe[i].Scale, m_nextKeyframe[i].Scale, t);
+                if (float.IsNaN(t))
+                {
+                    t = 0;
+                }
+
+                m_instanceJoints[i].position = Vector3.Lerp(m_currentKeyframe[i].Position, m_nextKeyframe[i].Position, t);
+                m_instanceJoints[i].quaternion = Quaternion.Slerp(m_currentKeyframe[i].Rotation, m_nextKeyframe[i].Rotation, t);
+                m_instanceJoints[i].scale = Vector3.Lerp(m_currentKeyframe[i].Scale, m_nextKeyframe[i].Scale, t);
             }
 
         }
