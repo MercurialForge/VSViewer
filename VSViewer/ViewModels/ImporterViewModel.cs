@@ -158,7 +158,7 @@ namespace VSViewer.ViewModels
                     {
                         case ".SEQ":
                             SEQ seq = SEQLoader.FromStream(reader, m_loadedContent);
-                            m_mainWindow.AddToolBarTool(new TexturesViewModel(m_viewport));
+                            m_viewport.RenderSystem.PushSequence(seq);
                             break;
                     }
                 }

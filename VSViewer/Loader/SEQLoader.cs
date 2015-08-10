@@ -101,10 +101,11 @@ namespace VSViewer.Loader
 
                 if (headers[i].idOtherAnimation != -1)
                 {
+                    // TODO: FIX THIS
                     // should store other animation inside as base
                     // I assume it only references animations that
                     // have been constructed first otherwise it will hold a dead copy.
-                    animation.baseAnimation = animations[i];
+                    // animation.baseAnimation = animations[i];
                 }
 
                 // read base pose and keyframes
@@ -189,7 +190,7 @@ namespace VSViewer.Loader
                         keys.Add(key);
                     }
                     animations[a].keys.Add(keys);
-
+                    animations[a].SetLength();
                 }
 
                 // root's translation bone

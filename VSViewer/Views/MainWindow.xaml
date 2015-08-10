@@ -17,14 +17,18 @@
         <DockPanel VerticalAlignment="Top" Height="20">
             <Menu DockPanel.Dock="Top" Background="LightGray">
                 <MenuItem Header="_File">
-                    <MenuItem Header="_Open" Command="{Binding OnRequestMapOpen}"/>
-                    <MenuItem Header="_Close" Command="{Binding OnRequestMapClose}"/>
-                    <MenuItem Header="_Save" Command="{Binding OnRequestMapSave}"/>
+                    <MenuItem Header="_Open"/>
+                    <MenuItem Header="_Close"/>
+                    <MenuItem Header="_Save"/>
                     <Separator/>
-                    <MenuItem Header="E_xit" Command="{Binding OnRequestApplicationClose}"/>
+                    <MenuItem Header="E_xit"/>
                 </MenuItem>
-                <MenuItem Header="_Edit">
-                    <MenuItem Header="_Delete" Command="{Binding OnRequestDelete}"/>
+                <MenuItem Header="_Tools">
+                    <MenuItem Header="_Import" IsCheckable="True"/>
+                    <MenuItem Header="_Animation" IsCheckable="True"/>
+                    <MenuItem Header="_Texture" IsCheckable="True"/>
+                    <MenuItem Header="_Viewport" IsCheckable="True"/>
+                    <MenuItem Header="_Export" IsCheckable="True"/>
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="_About" Click="OpenAboutWindow"/>

@@ -19,8 +19,8 @@ namespace VSViewer
 
 	        Geometry geometry = new Geometry();
 
-	        for ( int i = 0; i < polygons.Count; i++ ) {
-
+	        for ( int i = 0; i < polygons.Count; i++ ) 
+            {
 		        Polygon p = polygons[ i ];
 
 		        Vertex v1 = vertices[ p.vertex1 ];
@@ -57,17 +57,16 @@ namespace VSViewer
 
 			        geometry.boneID.Add( v4.boneID );
 
-                    geometry.indices.Add((UInt16)(iv + 2));
-                    geometry.indices.Add((UInt16)(iv + 1));
-                    geometry.indices.Add((UInt16)(iv + 0));
-
                     geometry.indices.Add((UInt16)(iv + 1));
                     geometry.indices.Add((UInt16)(iv + 2));
                     geometry.indices.Add((UInt16)(iv + 3));
 
+                    geometry.indices.Add((UInt16)(iv + 2));
+                    geometry.indices.Add((UInt16)(iv + 1));
+                    geometry.indices.Add((UInt16)(iv + 0));
+
 			        if ( p.BaceFaceMode == FaceMode.Back ) 
                     {
-
                         geometry.indices.Add((UInt16)(iv + 0));
                         geometry.indices.Add((UInt16)(iv + 1));
                         geometry.indices.Add((UInt16)(iv + 2));
@@ -75,11 +74,6 @@ namespace VSViewer
                         geometry.indices.Add((UInt16)(iv + 3));
                         geometry.indices.Add((UInt16)(iv + 2));
                         geometry.indices.Add((UInt16)(iv + 1));
-
-                        geometry.uv1.Add(new Vector2(p.u4 / tw, p.v4 / th));
-                        geometry.uv1.Add(new Vector2(p.u3 / tw, p.v3 / th));
-                        geometry.uv1.Add(new Vector2(p.u2 / tw, p.v2 / th));
-                        geometry.uv1.Add(new Vector2(p.u1 / tw, p.v1 / th));
 			        }
 
 		        } else {
@@ -92,15 +86,11 @@ namespace VSViewer
                     geometry.indices.Add((UInt16)(iv + 1));
                     geometry.indices.Add((UInt16)(iv + 0));
 
-			        if ( p.BaceFaceMode == FaceMode.Back ) {
-
+			        if ( p.BaceFaceMode == FaceMode.Back ) 
+                    {
                         geometry.indices.Add((UInt16)(iv + 0));
                         geometry.indices.Add((UInt16)(iv + 1));
                         geometry.indices.Add((UInt16)(iv + 2));
-
-                        geometry.uv1.Add(new Vector2(p.u3 / tw, p.v3 / th));
-                        geometry.uv1.Add(new Vector2(p.u2 / tw, p.v2 / th));
-                        geometry.uv1.Add(new Vector2(p.u1 / tw, p.v1 / th));
 			        }
 		        }
 	        }

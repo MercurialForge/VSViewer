@@ -65,9 +65,20 @@ namespace VSViewer.Rendering
         SamplerState m_samplerState;
         Buffer vertexBuffer;
         Buffer indexBuffer;
+        DepthStencilState depthStencilState;
 
         private Geometry geometry;
+        private SEQ seq;
+        private int m_currentAnimation;
+        private float m_animFrameTimer;
+
+        private Keyframe[] m_previousKeyframe;
+        private Keyframe[] m_currentKeyframe;
+        private Keyframe[] m_nextKeyframe;
+
         private InputVertex[] m_instanceVertices;
+        private SkeletalBone[] m_instanceJoints;
+
         bool m_isPendingVertexBufferUpdate;
 
         // Render system initialize all initialization should be done here.
@@ -80,7 +91,16 @@ namespace VSViewer.Rendering
         {
             geometry = newGeometry;
             m_instanceVertices = new InputVertex[geometry.vertices.Count];
+            m_instanceJoints = geometry.skeleton.ToArray();
             m_isPendingVertexBufferUpdate = true;
+        }
+
+        public void PushSequence(SEQ newSEQ)
+        {
+            seq = newSEQ;
+            m_previousKeyframe = new Keyframe[geometry.skeleton.Count];
+            m_currentKeyframe = new Keyframe[geometry.skeleton.Count];
+            m_nextKeyframe = new Keyframe[geometry.skeleton.Count];
         }
 
         public bool InitializeShader(string shaderName)
@@ -90,9 +110,9 @@ namespace VSViewer.Rendering
                 // Set shader flags
                 ShaderFlags sFlags = ShaderFlags.EnableStrictness;
 
-                #if DEBUG
+#if DEBUG
                 sFlags |= ShaderFlags.Debug;
-                #endif
+#endif
 
                 // Compile shader code
                 CompilationResult vertexShaderByteCode = ShaderBytecode.CompileFromFile(shaderName, "VS", "vs_4_0", sFlags, EffectFlags.None);
@@ -119,6 +139,19 @@ namespace VSViewer.Rendering
                 // Vagrant Story meshes are written as TriangleLists
                 Device.ImmediateContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
+                RasterizerStateDescription rasterDesc = new RasterizerStateDescription()
+            {
+                CullMode = CullMode.None,
+                FillMode = FillMode.Solid,
+                DepthBias = 0,
+                DepthBiasClamp = 0,
+                SlopeScaledDepthBias = 0,
+                IsDepthClipEnabled = true,
+                IsMultisampleEnabled = true,
+            };
+
+                Device.ImmediateContext.Rasterizer.State = new RasterizerState(Device, rasterDesc);
+
                 // Create constant matrix buffer
                 m_matrixBuffer = new ConstantBuffer<MatrixBuffer>(Device);
                 Device.ImmediateContext.VertexShader.SetConstantBuffer(0, m_matrixBuffer.Buffer);
@@ -135,6 +168,33 @@ namespace VSViewer.Rendering
                     MaximumLod = 0,
                 };
                 m_samplerState = new SamplerState(Device, samplerDesc);
+
+                DepthStencilStateDescription depthStencilStateDesc = new DepthStencilStateDescription
+                {
+                    IsDepthEnabled = true,
+                    DepthWriteMask = DepthWriteMask.All,
+                    DepthComparison = Comparison.Less,
+
+                    IsStencilEnabled = true,
+
+                    FrontFace = new DepthStencilOperationDescription
+                    {
+                        FailOperation = StencilOperation.Keep,
+                        DepthFailOperation = StencilOperation.Increment,
+                        PassOperation = StencilOperation.Keep,
+                        Comparison = Comparison.Always,
+                    },
+
+                    BackFace = new DepthStencilOperationDescription
+                    {
+                        FailOperation = StencilOperation.Keep,
+                        DepthFailOperation = StencilOperation.Decrement,
+                        PassOperation = StencilOperation.Keep,
+                        Comparison = Comparison.Always,
+                    },
+                };
+                depthStencilState = new DepthStencilState(Device, depthStencilStateDesc);
+
             }
             catch (Exception ex)
             {
@@ -144,8 +204,8 @@ namespace VSViewer.Rendering
 
             Camera = new FirstPersonCamera();
             Camera.EnableYAxisMovement = false;
-            Camera.SetProjParams(65, 1, 0.01f, 2000);
-            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -500.0f), new Vector3(0.0f, 1.0f, 0.0f));
+            Camera.SetProjParams(65 * VSTools.Deg2Rad, 1, 5.0f, 500f);
+            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -500.0f), new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0, 0, -1));
             return true;
         }
 
@@ -153,17 +213,96 @@ namespace VSViewer.Rendering
         {
             // fill the back buffer with solid black
             Device.ImmediateContext.ClearRenderTargetView(RenderTargetView, new Color4(0, 0, 0, 1));
+            // clear depth buffer
+            Device.ImmediateContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
+            //Device.ImmediateContext.OutputMerger.SetDepthStencilState(depthStencilState);
 
             // stall renderer if there is Geometry.
             if (geometry == null) { return; }
 
-            ApplySkinning();
+            UpdateAnimation(args.DeltaTime);
 
-            SetShaderParameters(args);
+            ApplySkinning();
 
             UpdateVertexAndIndiceBuffers();
 
+            SetShaderParameters(args);
+
             PushShaders();
+        }
+
+        private void UpdateAnimation(TimeSpan timeSpan)
+        {
+            if (seq == null) { return; }
+
+            m_animFrameTimer += (float)timeSpan.Milliseconds;
+            bool loopFrame = false;
+
+            if (seq.animations[m_currentAnimation].length <= m_animFrameTimer / 1000)
+            {
+                loopFrame = true;
+                // wrap timer
+                m_animFrameTimer = m_animFrameTimer - seq.animations[m_currentAnimation].length * 1000;
+                m_animFrameTimer += 0.01f;
+            }
+
+            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, seq.animations[m_currentAnimation].length);
+
+            // query frames
+            for (int i = 0; i < geometry.skeleton.Count; i++)
+            {
+                int totalKeysForJoint = seq.animations[m_currentAnimation].keys[i].Count;
+                if (loopFrame)
+                {
+                    m_previousKeyframe[i] = seq.animations[m_currentAnimation].keys[i][totalKeysForJoint - 1];
+                    m_currentKeyframe[i] = seq.animations[m_currentAnimation].keys[i][0];
+                    if (totalKeysForJoint > 1)
+                    {
+                        m_nextKeyframe[i] = seq.animations[m_currentAnimation].keys[i][1];
+                    }
+                    else
+                    {
+                        m_nextKeyframe[i] = seq.animations[m_currentAnimation].keys[i][0];
+                    }
+                }
+                else
+                {
+                    for (int k = 0; k < totalKeysForJoint; k++)
+                    {
+                        Keyframe keyframe = seq.animations[m_currentAnimation].keys[i][k];
+                        if (m_currentKeyframe[i] == null) { m_currentKeyframe[i] = keyframe; m_nextKeyframe[i] = keyframe; }
+
+                        if (frameQueryTime >= m_nextKeyframe[i].Time)
+                        {
+                            if (keyframe.Time >= frameQueryTime)
+                            {
+                                m_previousKeyframe[i] = m_currentKeyframe[i];
+                                m_currentKeyframe[i] = m_nextKeyframe[i];
+                                m_nextKeyframe[i] = keyframe;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < geometry.skeleton.Count; i++)
+            {
+
+                    float f1 = m_currentKeyframe[i].Time;
+                    float f2 = m_nextKeyframe[i].Time;
+                    float query = frameQueryTime;
+
+                    float a = query - f1;
+                    float b = f2 - f1;
+
+                    float t = MathUtil.Clamp(a / b, 0, 1);
+
+                    m_instanceJoints[i].position = Vector3.Lerp(m_currentKeyframe[i].Position, m_nextKeyframe[i].Position, t);
+                    m_instanceJoints[i].quaternion = Quaternion.Lerp(m_currentKeyframe[i].Rotation, m_nextKeyframe[i].Rotation, t);
+                    m_instanceJoints[i].scale = Vector3.Lerp(m_currentKeyframe[i].Scale, m_nextKeyframe[i].Scale, t);
+            }
+
         }
 
         private void UpdateVertexAndIndiceBuffers()
@@ -171,14 +310,15 @@ namespace VSViewer.Rendering
             if (!m_isPendingVertexBufferUpdate) { return; }
 
             Set(ref m_textureResourceView, new ShaderResourceView(Device, geometry.textures[0].GetTexture2D(Device)));
+            Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
 
             // Setup vertex buffer
-            vertexBuffer = DXUtils.CreateBuffer(Device, m_instanceVertices);
+            Set(ref vertexBuffer, DXUtils.CreateBuffer(Device, m_instanceVertices));
             VertexBufferBinding vertexBufferBinding = new VertexBufferBinding(vertexBuffer, InputVertex.SizeInBytes, 0);
             Device.ImmediateContext.InputAssembler.SetVertexBuffers(0, vertexBufferBinding);
 
             // Setup index buffer
-            indexBuffer = DXUtils.CreateBuffer(Device, geometry.indices.ToArray());
+            Set(ref indexBuffer, DXUtils.CreateBuffer(Device, geometry.indices.ToArray()));
             Device.ImmediateContext.InputAssembler.SetIndexBuffer(indexBuffer, Format.R16_UInt, 0);
             m_isPendingVertexBufferUpdate = false;
         }
@@ -187,15 +327,15 @@ namespace VSViewer.Rendering
         {
             // Construct the matrices of each bone from it's many parents
             Matrix[] boneTransforms = new Matrix[geometry.skeleton.Count];
-            for (int i = 0; i < geometry.skeleton.Count; i++)
+            for (int i = 0; i < m_instanceJoints.Length; i++)
             {
-                SkeletalBone bone = geometry.skeleton[i];
+                SkeletalBone bone = m_instanceJoints[i];
                 Matrix cumulativeTransform = Matrix.Identity;
 
                 while (bone != null)
                 {
                     cumulativeTransform = cumulativeTransform * Matrix.Scaling(bone.scale) * Matrix.RotationQuaternion(bone.quaternion) * Matrix.Translation(bone.position);
-                    bone = (bone.parentIndex != -1) ? geometry.skeleton[bone.parentIndex] : null;
+                    bone = (bone.parentIndex != -1) ? m_instanceJoints[bone.parentIndex] : null;
                 }
 
                 boneTransforms[i] = cumulativeTransform;
@@ -224,7 +364,7 @@ namespace VSViewer.Rendering
         {
             // Rotate the object for debugging
             float t = (float)args.TotalTime.TotalSeconds;
-            var g_World = Matrix.RotationY(t);
+            var g_World = Matrix.RotationY(0);
 
             // Update matrices in the constant buffer
             MatrixBuffer projectionModel = new MatrixBuffer
@@ -237,6 +377,7 @@ namespace VSViewer.Rendering
 
             // Set Vertex shader resources
             Device.ImmediateContext.VertexShader.SetConstantBuffer(0, m_matrixBuffer.Buffer);
+            Device.ImmediateContext.UpdateSubresource(m_instanceVertices, vertexBuffer);
 
             // Set pixel shader resources
             Device.ImmediateContext.PixelShader.SetShaderResource(0, m_textureResourceView);
@@ -248,7 +389,6 @@ namespace VSViewer.Rendering
             Device.ImmediateContext.VertexShader.Set(m_vertexShader);
             Device.ImmediateContext.PixelShader.Set(m_pixelShader);
 
-            Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
             Device.ImmediateContext.DrawIndexed(geometry.indices.Count, 0, 0);
         }
 
@@ -265,7 +405,7 @@ namespace VSViewer.Rendering
         public override void Reset(int w, int h)
         {
             base.Reset(w, h);
-            Camera.SetProjParams(90 * VSTools.Deg2Rad, w / (float)h, 0.01f, 2000);
+            Camera.SetProjParams(65 * VSTools.Deg2Rad, w / (float)h, 25f, 2000f);
         }
     }
 }

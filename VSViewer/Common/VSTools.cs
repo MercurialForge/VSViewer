@@ -5,7 +5,7 @@ namespace VSViewer
 {
     static partial class VSTools
     {
-        public const float TimeScale = 0.04f;
+        public const float TimeScale = 0.08f;
 
         public const float Rad2Deg = (float)(180.0 / Math.PI);
         public const float Deg2Rad = (float)(Math.PI / 180.0);
@@ -31,7 +31,7 @@ namespace VSViewer
             Quaternion qw = new Quaternion();
             qw = Quaternion.RotationAxis(new Vector3(0, 0, 1), rz);
 
-            return qw * (qv * qu);
+            return qu * qv * qw;
         }
 
         // convert 16 bit color values to 32RGBA
