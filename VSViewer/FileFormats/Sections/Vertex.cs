@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VSViewer.FileFormats
 {
-    class Vertex
+    public class Vertex
     {
         public Int16 x;
         public Int16 y;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VSViewer.Common
 {
-    class SkeletalBone
+    public class SkeletalBone
     {
         public string name = "bone";
         public Vector3 position;

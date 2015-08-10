@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace VSViewer.Common
 {
-    class EditorCamera : BaseCamera
+    public class EditorCamera : BaseCamera
     {
         public override void SetViewParams(Vector3 eye, Vector3 lookAt, Vector3 vUp)
         {

@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VSViewer</RootNamespace>
-    <AssemblyName>VSViewer</AssemblyName>
+    <AssemblyName>Vagrant Story Viewer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -105,7 +105,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Common\Keyframe.cs" />
+    <Compile Include="Common\NullableVector4.cs" />
     <Compile Include="Common\RelayCommand.cs" />
+    <Compile Include="FileFormats\AssetBase.cs" />
+    <Compile Include="FileFormats\ContentBase.cs" />
+    <Compile Include="FileFormats\Sections\Animation.cs" />
+    <Compile Include="FileFormats\SEQ.cs" />
+    <Compile Include="FileFormats\SHP.cs" />
+    <Compile Include="Loader\SEQLoader.cs" />
+    <Compile Include="Loader\SHPLoader.cs" />
     <Compile Include="Rendering\EditorCamera.cs" />
     <Compile Include="Rendering\Geometry.cs" />
     <Compile Include="Rendering\SkeletalBone.cs" />
@@ -124,6 +133,7 @@
     <Compile Include="Rendering\RenderSystem.cs" />
     <Compile Include="ViewModels\ImporterViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\TexturesViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\ViewportViewModel.cs" />
     <Compile Include="Views\AboutWindow.xaml.cs">
@@ -131,6 +141,12 @@
     </Compile>
     <Compile Include="Views\ImporterView.xaml.cs">
       <DependentUpon>ImporterView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TexturesView.xaml.cs">
+      <DependentUpon>TexturesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ViewportOptionsView.xaml.cs">
+      <DependentUpon>ViewportOptionsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ViewportView.xaml.cs">
       <DependentUpon>ViewportView.xaml</DependentUpon>
@@ -155,6 +171,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\TexturesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ViewportOptionsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ViewportView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -215,15 +239,15 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\AboutWindowLogo.png" />
+    <Resource Include="Resources\AboutWindowLogo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\VSViewerIcon.ico" />
     <Content Include="VagrantStoryMaterial.fx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

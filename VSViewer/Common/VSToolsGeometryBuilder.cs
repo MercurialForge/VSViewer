@@ -12,10 +12,10 @@ namespace VSViewer
 {
     static partial class VSTools
     {
-        static public Geometry CreateGeometry (List<Vertex> vertices, List<Polygon> polygons, List<Joint> bones, TextureMap textureMap)
+        static public Geometry CreateGeometry (List<Vertex> vertices, List<Polygon> polygons, List<Joint> bones, List<TextureMap> textureMaps)
         {
-            float tw = textureMap.Width;
-	        float th = textureMap.Height;
+            float tw = textureMaps[0].Width;
+	        float th = textureMaps[0].Height;
 
 	        Geometry geometry = new Geometry();
 
@@ -133,6 +133,8 @@ namespace VSViewer
                 geometry.skeleton[i].position.X = bones[i - bones.Count].boneLength;
             }
 
+
+            geometry.textures = textureMaps;
             return geometry;
         }
     }

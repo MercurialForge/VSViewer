@@ -9,7 +9,7 @@ namespace VSViewer.FileFormats
     /// <summary>
     /// A group identifies a sequence of vertices that are weighted to a bone.
     /// </summary>
-    class Group
+    public class Group
     {
         // The bone all vertices in the group or weighted to
         public Int16 boneID;

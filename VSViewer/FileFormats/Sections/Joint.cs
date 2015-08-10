@@ -9,7 +9,7 @@ namespace VSViewer.FileFormats
     /// <summary>
     /// A joint within a skeletal hierarchy.
     /// </summary>
-    class Joint
+    public class Joint
     {
         // relative distance from parent joint.
         public int boneLength;

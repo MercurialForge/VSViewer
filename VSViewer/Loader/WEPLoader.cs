@@ -19,7 +19,6 @@ namespace VSViewer.Loader
             /*=====================================================================
                 WEP HEADER (0x50) 80 bytes long
             =====================================================================*/
-            reader.BaseStream.Seek(0, SeekOrigin.Begin);
             reader.Skip(0x04); // TODO: skip magic 0x04 (4 dec) "H01" check for file type?
 
             byte numJoints = reader.ReadByte();
@@ -27,14 +26,14 @@ namespace VSViewer.Loader
             ushort numTriangles = reader.ReadUInt16();
             ushort numQuads = reader.ReadUInt16();
             ushort numPolygons = reader.ReadUInt16();
-            int ptrTexture1 = (int)(reader.ReadUInt32() + 0x10); // same as ptrTexture... why?
+            uint ptrTexture1 = (uint)(reader.ReadUInt32() + 0x10); // same as ptrTexture... why?
 
             reader.Skip(0x30); // header padding?
 
-            int ptrTexture = (int)(reader.ReadUInt32() + 0x10);
-            int ptrGroups = (int)(reader.ReadUInt32() + 0x10);
-            int ptrVertices = (int)(reader.ReadUInt32() + 0x10);
-            int ptrPolygons = (int)(reader.ReadUInt32() + 0x10);
+            uint ptrTexture = (uint)(reader.ReadUInt32() + 0x10);
+            uint ptrGroups = (uint)(reader.ReadUInt32() + 0x10);
+            uint ptrVertices = (uint)(reader.ReadUInt32() + 0x10);
+            uint ptrPolygons = (uint)(reader.ReadUInt32() + 0x10);
 
             /*=====================================================================
                 LOCALS

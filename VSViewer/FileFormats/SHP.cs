@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VSViewer.FileFormats;
 
 namespace VSViewer.FileFormats
 {
-    class WEP : ContentBase
+    public class SHP : ContentBase
     {
         public List<Joint> joints = new List<Joint>();
         public List<Group> groups = new List<Group>();
         public List<Vertex> vertices = new List<Vertex>();
         public List<Polygon> polygons = new List<Polygon>();
+        //AKAO
+        //MAGIC EFFECT
         public List<TextureMap> textures = new List<TextureMap>();
     }
 }

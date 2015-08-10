@@ -8,12 +8,12 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Image Grid.Row="0" HorizontalAlignment="Center" Width="580" Height="299" VerticalAlignment="Top" Source="/VSViewer;component/Resources/AboutWindowLogo.png"/>
+        <Image Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top" Source="/Vagrant Story Viewer;component/Resources/AboutWindowLogo.png"/>
         <Grid Grid.Row="1">
             <TextBlock Text="Vagrant Story Viewer - a Vagrant Story model viewer and exporter" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,10,0,0" TextWrapping="Wrap"/>
             <TextBlock Text="{Binding BuildInformation}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,33,0,0" Height="18" Width="307" TextWrapping="Wrap"/>
             <TextBlock TextWrapping="Wrap" Margin="20,65,10,35">
-                Written by Mercurial Forge .<LineBreak/>
+                Written by Mercurial Forge.<LineBreak/>
                 <LineBreak/>
                 Inspired by VSTools by Morris Brodersen.<LineBreak/>
                 <LineBreak/>

@@ -6,10 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using VSViewer;
 using VSViewer.Common;
+using VSViewer.FileFormats;
 
 namespace VSViewer
 {
-    class Geometry
+    public class Geometry
     {
         // all skin weights in Vagrant Story are 1
         public const int skinWeight = 1;
@@ -26,6 +27,8 @@ namespace VSViewer
         public List<int> boneID = new List<int>();
         // skeleton
         public List<SkeletalBone> skeleton = new List<SkeletalBone>();
+
+        public List<TextureMap> textures = new List<TextureMap>();
 
         // TODO: generate normals for faces and verts
         // generate normals

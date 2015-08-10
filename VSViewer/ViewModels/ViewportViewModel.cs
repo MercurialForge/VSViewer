@@ -21,5 +21,10 @@ namespace VSViewer.ViewModels
                 Application.Current.Shutdown();
             }
         }
+
+        public void PushGeometry (Geometry geometryToRender)
+        {
+            RenderSystem.PushGeometry(geometryToRender);
+        }
     }
 }

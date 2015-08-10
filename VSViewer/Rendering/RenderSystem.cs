@@ -68,33 +68,19 @@ namespace VSViewer.Rendering
 
         private Geometry geometry;
         private InputVertex[] m_instanceVertices;
-        private WEP wep;
-        int deleteme = 70;
         bool m_isPendingVertexBufferUpdate;
-
-        public void Load()
-        {
-            string file = @"E:\CloudServices\GoogleDrive\VSTools\OBJ\" + deleteme.ToString("X2") + ".WEP";
-            Console.WriteLine(deleteme.ToString("X2"));
-            deleteme++;
-
-            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
-            {
-                // should this return a Geometry, should they all return Geometries? But then where do I keep others like textures etc?
-                wep = WEPLoader.FromStream(reader);
-                wep.textures[0].Save("Bronze");
-                geometry = VSTools.CreateGeometry(wep.vertices, wep.polygons, wep.joints, wep.textures[0]);
-                m_instanceVertices = new InputVertex[geometry.vertices.Count];
-            }
-            m_isPendingVertexBufferUpdate = true;
-        }
 
         // Render system initialize all initialization should be done here.
         public bool Initialize()
         {
-            Load();
-            ApplySkinning();
             return InitializeShader("VagrantStoryMaterial.fx");
+        }
+
+        public void PushGeometry(Geometry newGeometry)
+        {
+            geometry = newGeometry;
+            m_instanceVertices = new InputVertex[geometry.vertices.Count];
+            m_isPendingVertexBufferUpdate = true;
         }
 
         public bool InitializeShader(string shaderName)
@@ -137,9 +123,6 @@ namespace VSViewer.Rendering
                 m_matrixBuffer = new ConstantBuffer<MatrixBuffer>(Device);
                 Device.ImmediateContext.VertexShader.SetConstantBuffer(0, m_matrixBuffer.Buffer);
 
-                // Create texture resource.
-                m_textureResourceView = new ShaderResourceView(Device, wep.textures[0].GetTexture2D(Device));
-
                 // Create a texture sampler state description.
                 SamplerStateDescription samplerDesc = new SamplerStateDescription
                 {
@@ -162,15 +145,17 @@ namespace VSViewer.Rendering
             Camera = new FirstPersonCamera();
             Camera.EnableYAxisMovement = false;
             Camera.SetProjParams(65, 1, 0.01f, 2000);
-            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -50.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0, 0, -1));
+            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -500.0f), new Vector3(0.0f, 1.0f, 0.0f));
             return true;
         }
 
         public override void RenderScene(DrawEventArgs args)
         {
-            //Camera.LookAt = Vector3.Zero;
             // fill the back buffer with solid black
             Device.ImmediateContext.ClearRenderTargetView(RenderTargetView, new Color4(0, 0, 0, 1));
+
+            // stall renderer if there is Geometry.
+            if (geometry == null) { return; }
 
             ApplySkinning();
 
@@ -185,7 +170,7 @@ namespace VSViewer.Rendering
         {
             if (!m_isPendingVertexBufferUpdate) { return; }
 
-            Set(ref m_textureResourceView, new ShaderResourceView(Device, wep.textures[0].GetTexture2D(Device)));
+            Set(ref m_textureResourceView, new ShaderResourceView(Device, geometry.textures[0].GetTexture2D(Device)));
 
             // Setup vertex buffer
             vertexBuffer = DXUtils.CreateBuffer(Device, m_instanceVertices);

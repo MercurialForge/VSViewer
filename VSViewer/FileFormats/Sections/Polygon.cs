@@ -9,7 +9,7 @@ namespace VSViewer.FileFormats
     /// <summary>
     /// Used to easily cast byte to determined polygon type
     /// </summary>
-    enum PolygonType : byte
+    public enum PolygonType : byte
     {
         Triangle = 0x24,
         Quad = 0x2c
@@ -18,7 +18,7 @@ namespace VSViewer.FileFormats
     /// <summary>
     /// Used to easily cast byte to determined bace face mode
     /// </summary>
-    enum FaceMode : byte
+    public enum FaceMode : byte
     {
         Front = 0x04,
         Back = 0x05
@@ -27,7 +27,7 @@ namespace VSViewer.FileFormats
     /// <summary>
     /// A polygon contains the information needed to construct it
     /// </summary>
-    class Polygon
+    public class Polygon
     {
         // triangle or quad, determines of forth vertex and uv set is expected
         public PolygonType polygonType;

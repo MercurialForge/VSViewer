@@ -12,7 +12,7 @@ namespace VSViewer.FileFormats
     /// The first palette seems to always be the original from the artists and the subsequent palettes appear
     /// to have been generated procedurally at build time. This is evidenced in the artifacts in some palettes > 0.
     /// </summary>
-    class Palette
+    public class Palette
     {
         public List<byte[]> colors = new List<byte[]>();
 

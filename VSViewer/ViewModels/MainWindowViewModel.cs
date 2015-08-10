@@ -1,22 +1,4 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GameFormatReader.Common;
-using System.IO;
-using VSViewer.FileFormats;
-using VSViewer.Loader;
-using SharpDX.WPF;
-using SharpDX.Direct3D11;
-using VSViewer.Rendering;
-using System.Windows;
-using System.Collections.ObjectModel;
-using VSViewer.Common;
-using System.Windows.Input;
-using System.Windows.Media;
+﻿using System.Collections.ObjectModel;
 
 namespace VSViewer.ViewModels
 {
@@ -30,31 +12,32 @@ namespace VSViewer.ViewModels
         {
             get
             {
-                if(m_toolBarViewModels == null)
-                {
-                    m_toolBarViewModels = new ObservableCollection<ViewModelBase>();
-                }
                 return m_toolBarViewModels;
+            }
+            private set
+            {
+                m_toolBarViewModels = value;
+                OnPropertyChanged("ToolBarViewModels");
             }
         }
 
-        ObservableCollection<ViewModelBase> m_toolBarViewModels;
+        ObservableCollection<ViewModelBase> m_toolBarViewModels = new ObservableCollection<ViewModelBase>();
 
         public MainWindowViewModel()
         {
             ViewportView = new ViewportViewModel();
-            AddToolBarTool(new ImporterViewModel());
+            AddToolBarTool(new ImporterViewModel(ViewportView, this));
         }
 
         public void AddToolBarTool (ViewModelBase tool)
         {
-            if(m_toolBarViewModels == null)
+            ObservableCollection<ViewModelBase> updatedToolBarCollection = new ObservableCollection<ViewModelBase>();
+            for (int i = 0; i < ToolBarViewModels.Count; i++ )
             {
-                m_toolBarViewModels = new ObservableCollection<ViewModelBase>();
+                updatedToolBarCollection.Add(ToolBarViewModels[i]);
             }
-
-            m_toolBarViewModels.Add(tool);
+            updatedToolBarCollection.Add(tool);
+            ToolBarViewModels = updatedToolBarCollection;
         }
-
     }
 }

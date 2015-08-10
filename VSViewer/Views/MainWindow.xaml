@@ -7,7 +7,10 @@
         Title="Vagrant Story Viewer">
     <Window.Resources>
         <DataTemplate DataType="{x:Type model:ImporterViewModel}">
-            <view:ImporterView></view:ImporterView>
+            <view:ImporterView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type model:TexturesViewModel}">
+            <view:TexturesView/>
         </DataTemplate>
     </Window.Resources>
     <Grid>
@@ -34,7 +37,7 @@
                 <ColumnDefinition Width="auto" MinWidth="300"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
-                <!--<view:ViewportView DataContext="{Binding ViewportView}"/>-->
+                <view:ViewportView DataContext="{Binding ViewportView}"/>
             </Grid>
             <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Pink"/>
             <Grid Grid.Column="2" Background="LightGray">

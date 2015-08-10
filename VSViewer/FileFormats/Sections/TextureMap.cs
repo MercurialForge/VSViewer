@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 
 namespace VSViewer.FileFormats
 {
-    class TextureMap
+    public class TextureMap
     {
         public ushort Width
         {
