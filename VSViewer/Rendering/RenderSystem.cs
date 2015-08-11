@@ -71,20 +71,13 @@ namespace VSViewer.Rendering
         DepthStencilState depthStencilState;
         BlendState blendState;
         RasterizerState rasterizerState;
-        ViewportViewModel m_viewportViewModel;
         RenderCore core;
 
         private float m_animFrameTimer;
 
-        private Keyframe[] m_previousKeyframe;
-        private Keyframe[] m_currentKeyframe;
-        private Keyframe[] m_nextKeyframe;
-
         public RenderSystem(RenderCore theCore)
         {
             core = theCore;
-            m_device.ImmediateContext.Rasterizer.SetViewports(new Viewport(0, 0, 1000, 1000, 0.0f, 1.0f));
-
         }
 
         // Render system initialize all initialization should be done here.
@@ -204,8 +197,7 @@ namespace VSViewer.Rendering
             };
 
             Camera = new FirstPersonCamera();
-            Camera.EnableYAxisMovement = false;
-            Camera.SetProjParams(65 * VSTools.Deg2Rad, 1, 5.0f, 500f);
+            Camera.SetProjParams(65 * VSTools.Deg2Rad, 1.5f, 25.0f, 10000f);
             Camera.SetViewParams(new Vector3(0.0f, 0.0f, -500.0f), new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0, 0, -1));
             return true;
         }
@@ -216,12 +208,6 @@ namespace VSViewer.Rendering
             Device.ImmediateContext.ClearRenderTargetView(RenderTargetView, new Color4(0, 0, 0, 1));
             // clear depth buffer
             Device.ImmediateContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
-            // something
-            Device.ImmediateContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
-            // blend state application
-            Device.ImmediateContext.OutputMerger.SetBlendState(blendState, null, -1);
-            // rasteriser application
-            Device.ImmediateContext.Rasterizer.State = rasterizerState;
 
             if (core.Actor.Shape == null) { return; }
 
@@ -318,7 +304,6 @@ namespace VSViewer.Rendering
             Set(ref indexBuffer, DXUtils.CreateBuffer(Device, core.Actor.Shape.indices.ToArray()));
             Device.ImmediateContext.InputAssembler.SetIndexBuffer(indexBuffer, Format.R16_UInt, 0);
         }
-
 
         private void InterleaveVerticesWithUVs(Vector3[] vertices)
         {

@@ -35,7 +35,7 @@
             </Grid.ColumnDefinitions>
             <Grid Background="Black" Grid.Column="0">
                 <!--This is a alpha stencil hack using the black color as a black multiplyer-->
-                <view:ViewportView DataContext="{Binding ViewportView}"/>
+                <view:ViewportView DataContext="{Binding ViewportViewModel}"/>
             </Grid>
             <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Pink"/>
             <Grid Grid.Column="2" Background="LightGray">

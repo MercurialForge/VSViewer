@@ -124,14 +124,14 @@ namespace VSViewer.ViewModels
                         Geometry wepGeometry = VSTools.CreateGeometry(WEPLoader.FromStream(reader));
                         core.Actor = new Actor(wepGeometry);
                         // push extra tools
-                        m_mainWindow.EnableImporter();
+                        m_mainWindow.EnableImportTool();
                         break;
 
                     case ".SHP":
                         Geometry shpGeometry = VSTools.CreateGeometry(SHPLoader.FromStream(reader));
                         core.Actor = new Actor(shpGeometry);
                         // push extra tools
-                        m_mainWindow.EnableImporter();
+                        m_mainWindow.EnableImportTool();
                         break;
                 }
             }

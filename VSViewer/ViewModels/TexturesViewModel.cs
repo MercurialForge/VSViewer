@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VSViewer.Models;
 
 namespace VSViewer.ViewModels
 {
     class TexturesViewModel : ViewModelBase
     {
 
-        ViewportViewModel m_viewport;
+        MainWindowViewModel m_mainWindowModelView;
 
-        public TexturesViewModel(ViewportViewModel viewport)
+        public TexturesViewModel(MainWindowViewModel mainWindowModelView, RenderCore renderCore)
         {
-            m_viewport = viewport;
+            m_mainWindowModelView = mainWindowModelView;
         }
     }
 }
