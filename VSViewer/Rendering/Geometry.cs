@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using VSViewer;
 using VSViewer.Common;
 using VSViewer.FileFormats;
+using VSViewer.Rendering;
 
 namespace VSViewer
 {
@@ -33,9 +34,9 @@ namespace VSViewer
         // all skin weights in Vagrant Story are 1
         public const int skinWeight = 1;
         // the render systems instanced vertices for skinning
-        public List<Vector3> instancedVertices = new List<Vector3>();
+        public InputVertex[] instancedVertices;
         // the render system's instance joints for skinning
-        public List<SkeletalJoint> instancedSkeleton = new List<SkeletalJoint>(); 
+        public SkeletalJoint[] instancedSkeleton; 
 
         public List<TextureMap> Textures
         {

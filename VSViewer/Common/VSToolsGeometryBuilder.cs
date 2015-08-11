@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using VSViewer;
 using VSViewer.Common;
 using VSViewer.FileFormats;
+using VSViewer.Rendering;
 
 namespace VSViewer
 {
@@ -122,6 +123,9 @@ namespace VSViewer
 
                 geometry.skeleton[i].position.X = sourceObject.joints[i - sourceObject.joints.Count].boneLength;
             }
+
+            geometry.instancedSkeleton = geometry.skeleton.ToArray();
+            geometry.instancedVertices = new InputVertex[geometry.vertices.Count];
 
             geometry.coreObject = sourceObject;
             return geometry;

@@ -11,8 +11,6 @@
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="60"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
@@ -43,16 +41,6 @@
                         </WrapPanel>
                     </Grid>
                 </WrapPanel>
-            </Grid>
-            
-            <!--Show skeleton-->
-            <Grid Grid.Row="3">
-                <CheckBox Content="Show Skeleton" IsChecked="{Binding IsActive, Mode = TwoWay}" Command="{Binding OnShowSkeleton}" FontSize="15" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            </Grid>
-            
-            <!--Load button-->
-            <Grid Grid.Row="4" VerticalAlignment="Top">
-                <Button Content="Load" Command="{Binding OnRequestLoad}" Height="25" HorizontalAlignment="Left" Width="70"/>
             </Grid>
             
             <!--Simple separator-->

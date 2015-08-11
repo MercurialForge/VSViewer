@@ -12,34 +12,37 @@ using System.Windows;
 using VSViewer.Common;
 using VSViewer.FileFormats;
 using VSViewer.Loader;
+using VSViewer.Models;
+using VSViewer.ViewModels;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
 
 namespace VSViewer.Rendering
 {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct InputVertex
+    {
+        public Vector3 Position;
+        public Vector2 Texture;
+
+        public InputVertex(Vector3 p, Vector2 t)
+        {
+            Position = p;
+            Texture = t;
+        }
+
+        public void SetToZero()
+        {
+            Position = Vector3.Zero;
+            Texture = Vector2.Zero;
+        }
+
+        public const int SizeInBytes = (3 + 2) * 4;
+    }
+
     public class RenderSystem : D3D11
     {
         #region Structures
-        [StructLayout(LayoutKind.Sequential)]
-        public struct InputVertex
-        {
-            public Vector3 Position;
-            public Vector2 Texture;
-
-            public InputVertex(Vector3 p, Vector2 t)
-            {
-                Position = p;
-                Texture = t;
-            }
-
-            public void SetToZero()
-            {
-                Position = Vector3.Zero;
-                Texture = Vector2.Zero;
-            }
-
-            public const int SizeInBytes = (3 + 2) * 4;
-        }
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct MatrixBuffer
@@ -68,41 +71,26 @@ namespace VSViewer.Rendering
         DepthStencilState depthStencilState;
         BlendState blendState;
         RasterizerState rasterizerState;
+        ViewportViewModel m_viewportViewModel;
+        RenderCore core;
 
-        private Geometry geometry;
-        private SEQ seq;
-        private int m_currentAnimation;
         private float m_animFrameTimer;
 
         private Keyframe[] m_previousKeyframe;
         private Keyframe[] m_currentKeyframe;
         private Keyframe[] m_nextKeyframe;
 
-        private InputVertex[] m_instanceVertices;
-        private SkeletalJoint[] m_instanceJoints;
+        public RenderSystem(RenderCore theCore)
+        {
+            core = theCore;
+            m_device.ImmediateContext.Rasterizer.SetViewports(new Viewport(0, 0, 1000, 1000, 0.0f, 1.0f));
 
-        bool m_isPendingVertexBufferUpdate;
+        }
 
         // Render system initialize all initialization should be done here.
         public bool Initialize()
         {
             return InitializeShader("VagrantStoryMaterial.fx");
-        }
-
-        public void PushGeometry(Geometry newGeometry)
-        {
-            geometry = newGeometry;
-            m_instanceVertices = new InputVertex[geometry.vertices.Count];
-            m_instanceJoints = geometry.skeleton.ToArray();
-            m_isPendingVertexBufferUpdate = true;
-        }
-
-        public void PushSequence(SEQ newSEQ)
-        {
-            seq = newSEQ;
-            m_previousKeyframe = new Keyframe[geometry.skeleton.Count];
-            m_currentKeyframe = new Keyframe[geometry.skeleton.Count];
-            m_nextKeyframe = new Keyframe[geometry.skeleton.Count];
         }
 
         public bool InitializeShader(string shaderName)
@@ -235,15 +223,16 @@ namespace VSViewer.Rendering
             // rasteriser application
             Device.ImmediateContext.Rasterizer.State = rasterizerState;
 
+            if (core.Actor.Shape == null) { return; }
+
             // TODO: A fix for the resize bug.
             //m_device.ImmediateContext.Rasterizer.SetViewports(new Viewport(0, 0, w, h, 0.0f, 1.0f));
-
-            // stall renderer if there is Geometry.
-            if (geometry == null) { return; }
 
             UpdateAnimation(args.DeltaTime);
 
             ApplySkinning();
+
+            UpdateTexture();
 
             UpdateVertexAndIndiceBuffers();
 
@@ -254,114 +243,44 @@ namespace VSViewer.Rendering
 
         private void UpdateAnimation(TimeSpan timeSpan)
         {
+            SEQ seq = core.Actor.SEQ;
+            Geometry shape = core.Actor.Shape;
+
             if (seq == null) { return; }
-
             m_animFrameTimer += (float)timeSpan.Milliseconds;
-            bool loopFrame = false;
 
-            if (seq.animations[m_currentAnimation].length <= m_animFrameTimer / 1000)
+            if (seq.animations[seq.CurrentAnimationIndex].length <= m_animFrameTimer / 1000)
             {
-                loopFrame = true;
-                // wrap timer
-                m_animFrameTimer = m_animFrameTimer - seq.animations[m_currentAnimation].length * 1000;
-                m_animFrameTimer += 0.01f;
+                m_animFrameTimer = m_animFrameTimer - seq.animations[seq.CurrentAnimationIndex].length * 1000;
             }
 
-            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, seq.animations[m_currentAnimation].length);
+            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, seq.animations[seq.CurrentAnimationIndex].length);
 
-            // query frames
-            for (int i = 0; i < geometry.skeleton.Count; i++)
+            for(int i = 0; i < shape.skeleton.Count; i++)
             {
-                int totalKeysForJoint = seq.animations[m_currentAnimation].keys[i].Count;
-                if (loopFrame)
-                {
-                    m_previousKeyframe[i] = seq.animations[m_currentAnimation].keys[i][totalKeysForJoint - 1];
-                    m_currentKeyframe[i] = seq.animations[m_currentAnimation].keys[i][0];
-                    if (totalKeysForJoint > 1)
-                    {
-                        m_nextKeyframe[i] = seq.animations[m_currentAnimation].keys[i][1];
-                    }
-                    else
-                    {
-                        m_nextKeyframe[i] = seq.animations[m_currentAnimation].keys[i][0];
-                    }
-                }
-                else
-                {
-                    for (int k = 0; k < totalKeysForJoint; k++)
-                    {
-                        Keyframe keyframe = seq.animations[m_currentAnimation].keys[i][k];
-                        if (m_currentKeyframe[i] == null) { m_currentKeyframe[i] = keyframe; m_nextKeyframe[i] = keyframe; }
-
-                        if (frameQueryTime >= m_nextKeyframe[i].Time)
-                        {
-                            if (keyframe.Time >= frameQueryTime)
-                            {
-                                m_previousKeyframe[i] = m_currentKeyframe[i];
-                                m_currentKeyframe[i] = m_nextKeyframe[i];
-                                m_nextKeyframe[i] = keyframe;
-                                break;
-                            }
-                        }
-                    }
-                }
+                Frame f = seq.QueryAnimationTime(frameQueryTime, i);
+                shape.instancedSkeleton[i].position = f.Position;
+                shape.instancedSkeleton[i].quaternion = f.Rotation;
+                shape.instancedSkeleton[i].scale = f.Scale;
             }
 
-            for (int i = 0; i < geometry.skeleton.Count; i++)
-            {
-
-                float f1 = m_currentKeyframe[i].Time;
-                float f2 = m_nextKeyframe[i].Time;
-                float query = frameQueryTime;
-
-                float a = query - f1;
-                float b = f2 - f1;
-
-                float t = MathUtil.Clamp(a / b, 0, 1);
-
-                if (float.IsNaN(t))
-                {
-                    t = 0;
-                }
-
-                m_instanceJoints[i].position = Vector3.Lerp(m_currentKeyframe[i].Position, m_nextKeyframe[i].Position, t);
-                m_instanceJoints[i].quaternion = Quaternion.Slerp(m_currentKeyframe[i].Rotation, m_nextKeyframe[i].Rotation, t);
-                m_instanceJoints[i].scale = Vector3.Lerp(m_currentKeyframe[i].Scale, m_nextKeyframe[i].Scale, t);
-            }
-
-        }
-
-        private void UpdateVertexAndIndiceBuffers()
-        {
-            if (!m_isPendingVertexBufferUpdate) { return; }
-
-            Set(ref m_textureResourceView, new ShaderResourceView(Device, geometry.Textures[0].GetTexture2D(Device)));
-            Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
-
-            // Setup vertex buffer
-            Set(ref vertexBuffer, DXUtils.CreateBuffer(Device, m_instanceVertices));
-            VertexBufferBinding vertexBufferBinding = new VertexBufferBinding(vertexBuffer, InputVertex.SizeInBytes, 0);
-            Device.ImmediateContext.InputAssembler.SetVertexBuffers(0, vertexBufferBinding);
-
-            // Setup index buffer
-            Set(ref indexBuffer, DXUtils.CreateBuffer(Device, geometry.indices.ToArray()));
-            Device.ImmediateContext.InputAssembler.SetIndexBuffer(indexBuffer, Format.R16_UInt, 0);
-            m_isPendingVertexBufferUpdate = false;
         }
 
         private void ApplySkinning()
         {
+            Geometry shape = core.Actor.Shape;
+
             // Construct the matrices of each bone from it's many parents
-            Matrix[] boneTransforms = new Matrix[geometry.skeleton.Count];
-            for (int i = 0; i < m_instanceJoints.Length; i++)
+            Matrix[] boneTransforms = new Matrix[shape.skeleton.Count];
+            for (int i = 0; i < shape.skeleton.Count; i++)
             {
-                SkeletalJoint bone = m_instanceJoints[i];
+                SkeletalJoint bone = shape.skeleton[i];
                 Matrix cumulativeTransform = Matrix.Identity;
 
                 while (bone != null)
                 {
                     cumulativeTransform = cumulativeTransform * Matrix.Scaling(bone.scale) * Matrix.RotationQuaternion(bone.quaternion) * Matrix.Translation(bone.position);
-                    bone = (bone.parentIndex != -1) ? m_instanceJoints[bone.parentIndex] : null;
+                    bone = (bone.parentIndex != -1) ? shape.skeleton[bone.parentIndex] : null;
                 }
 
                 boneTransforms[i] = cumulativeTransform;
@@ -369,25 +288,52 @@ namespace VSViewer.Rendering
 
             // Each bone is now in it's final position, so we can apply that to the vertices based on their bone weighting.
             // However, in Vagrant Story all vertices have a max influence of 1, so this is very simple.
-            Vector3[] temporarySkinnedVertices = new Vector3[geometry.vertices.Count];
-            for (int v = 0; v < m_instanceVertices.Length; v++)
+            Vector3[] temporarySkinnedVertices = new Vector3[shape.vertices.Count];
+            for (int v = 0; v < shape.vertices.Count; v++)
             {
-                temporarySkinnedVertices[v] = Vector3.TransformCoordinate(geometry.vertices[v], boneTransforms[geometry.jointID[v]]);
+                temporarySkinnedVertices[v] = Vector3.TransformCoordinate(shape.vertices[v], boneTransforms[shape.jointID[v]]);
             }
 
             InterleaveVerticesWithUVs(temporarySkinnedVertices);
         }
 
+        private void UpdateTexture ()
+        {
+            //if (!core.RenderRequiresUpdate) { return; }
+        }
+
+        private void UpdateVertexAndIndiceBuffers()
+        {
+            if (!core.RenderRequiresUpdate) { return; }
+            core.RenderRequiresUpdate = false;
+            Set(ref m_textureResourceView, new ShaderResourceView(Device, core.Actor.Shape.Textures[0].GetTexture2D(Device)));
+            Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
+
+            // Setup vertex buffer
+            Set(ref vertexBuffer, DXUtils.CreateBuffer(Device, core.Actor.Shape.instancedVertices));
+            VertexBufferBinding vertexBufferBinding = new VertexBufferBinding(vertexBuffer, InputVertex.SizeInBytes, 0);
+            Device.ImmediateContext.InputAssembler.SetVertexBuffers(0, vertexBufferBinding);
+
+            // Setup index buffer
+            Set(ref indexBuffer, DXUtils.CreateBuffer(Device, core.Actor.Shape.indices.ToArray()));
+            Device.ImmediateContext.InputAssembler.SetIndexBuffer(indexBuffer, Format.R16_UInt, 0);
+        }
+
+
         private void InterleaveVerticesWithUVs(Vector3[] vertices)
         {
-            for (int i = 0; i < m_instanceVertices.Length; i++)
+            Geometry shape = core.Actor.Shape;
+
+            for (int i = 0; i < shape.instancedVertices.Length; i++)
             {
-                m_instanceVertices[i] = new InputVertex(vertices[i], geometry.uv1[i]);
+                shape.instancedVertices[i] = new InputVertex(vertices[i], shape.uv1[i]);
             }
         }
 
         private void SetShaderParameters(DrawEventArgs args)
         {
+            Geometry shape = core.Actor.Shape;
+
             // Rotate the object for debugging
             float t = (float)args.TotalTime.TotalSeconds;
             var g_World = Matrix.RotationY(0);
@@ -403,7 +349,7 @@ namespace VSViewer.Rendering
 
             // Set Vertex shader resources
             Device.ImmediateContext.VertexShader.SetConstantBuffer(0, m_matrixBuffer.Buffer);
-            Device.ImmediateContext.UpdateSubresource(m_instanceVertices, vertexBuffer);
+            Device.ImmediateContext.UpdateSubresource(shape.instancedVertices, vertexBuffer);
 
             // Set pixel shader resources
             Device.ImmediateContext.PixelShader.SetShaderResource(0, m_textureResourceView);
@@ -415,7 +361,7 @@ namespace VSViewer.Rendering
             Device.ImmediateContext.VertexShader.Set(m_vertexShader);
             Device.ImmediateContext.PixelShader.Set(m_pixelShader);
 
-            Device.ImmediateContext.DrawIndexed(geometry.indices.Count, 0, 0);
+            Device.ImmediateContext.DrawIndexed(core.Actor.Shape.indices.Count, 0, 0);
         }
 
         private void ShutdownShader()
@@ -431,7 +377,7 @@ namespace VSViewer.Rendering
         public override void Reset(int w, int h)
         {
             base.Reset(w, h);
-            Camera.SetProjParams(65 * VSTools.Deg2Rad, w / (float)h, 25f, 2000f);
+            Camera.SetProjParams(65 * VSTools.Deg2Rad, w / (float)h, 25f, 10000f);
         }
     }
 }

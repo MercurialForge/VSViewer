@@ -17,17 +17,17 @@ namespace VSViewer.FileFormats.Sections
         // length of the animation
         public float length;
         // A list for each bone and a list of keys
-        public List<List<Keyframe>> keys = new List<List<Keyframe>>();
+        public List<List<Keyframe>> jointKeys = new List<List<Keyframe>>();
 
         public void SetLength()
         {
-            for(int i = 0; i < keys.Count; i++)
+            for(int i = 0; i < jointKeys.Count; i++)
             {
-                for(int j = 0; j < keys[i].Count; j++)
+                for(int j = 0; j < jointKeys[i].Count; j++)
                 {
-                    if(keys[i][j].Time > length)
+                    if(jointKeys[i][j].Time > length)
                     {
-                        length = keys[i][j].Time;
+                        length = jointKeys[i][j].Time;
                     }
                 }
             }

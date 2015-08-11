@@ -35,11 +35,14 @@ namespace VSViewer.Loader
             // base ptr neede because the SEQ could be embedded.
             uint ptrBase = (uint)reader.BaseStream.Position;
 
-            ushort numFrames = reader.ReadUInt16(); // total number of frames?
+            ushort numFrames = reader.ReadByte(); // total number of frames?
+            var unknownPaddingValue1 = reader.ReadByte(); // padding
+            Trace.Assert(unknownPaddingValue1 == 0);
             byte numBones = reader.ReadByte();
-            reader.Skip(1); // padding
-
+            var unknownPaddingValue2 = reader.ReadByte(); // padding
+            Trace.Assert(unknownPaddingValue2 == 0);
             uint size = reader.ReadUInt32();
+
             reader.Skip(4); // unknown
             uint ptrFrames = (uint)reader.ReadUInt32() + 8; // pointer to the frames data section
             uint ptrSequence = ptrFrames + (uint)numFrames; // pointer to the sequence section
@@ -73,7 +76,7 @@ namespace VSViewer.Loader
                 for (int j = 0; j < numBones; j++)
                 {
                     var unknownBoneValues = reader.ReadUInt16(); //TODO: this is 0 for all SEQs?
-                    Trace.Assert(unknownBoneValues == 0); // will show if value is ever NOT zero
+                    //Trace.Assert(unknownBoneValues == 0); // will show if value is ever NOT zero
                 }
 
                 headers.Add(animHeader);
@@ -159,9 +162,6 @@ namespace VSViewer.Loader
             }
 
             // build useable animation data
-            
-            SEQ seq = new SEQ();
-            seq.animations = animations;
             for (int a = 0; a < numAnimations; a++)
             {
                 // rotation bones
@@ -187,9 +187,9 @@ namespace VSViewer.Loader
 
                         t += f;
 
-                        if ( keyframe.X == null ) keyframe.X = keyframes[ j - 1 ].X;
-			            if ( keyframe.Y == null ) keyframe.Y = keyframes[ j - 1 ].Y;
-			            if ( keyframe.Z == null ) keyframe.Z = keyframes[ j - 1 ].Z;
+                        if (keyframe.X == null) keyframe.X = keyframes[j - 1].X;
+                        if (keyframe.Y == null) keyframe.Y = keyframes[j - 1].Y;
+                        if (keyframe.Z == null) keyframe.Z = keyframes[j - 1].Z;
 
                         // if always positive can use - value as key changer?
                         rx += (float)keyframe.X * f;
@@ -203,14 +203,14 @@ namespace VSViewer.Loader
                         key.Rotation = q;
                         keys.Add(key);
                     }
-                    animations[a].keys.Add(keys);
+                    animations[a].jointKeys.Add(keys);
                     animations[a].SetLength();
                 }
 
                 // root's translation bone
                 List<Keyframe> rootKey = new List<Keyframe>();
                 rootKey.Add(new Keyframe());
-                animations[a].keys.Add(rootKey);
+                animations[a].jointKeys.Add(rootKey);
 
                 // translation bones
                 for (int t = 1; t < numBones; t++)
@@ -219,11 +219,11 @@ namespace VSViewer.Loader
                     Keyframe key = new Keyframe();
                     key.Position = new Vector3(targetSHP.joints[t].boneLength, 0, 0);
                     transBone.Add(key);
-                    animations[a].keys.Add(transBone);
+                    animations[a].jointKeys.Add(transBone);
                 }
 
             }
-                return seq;
+            return new SEQ(animations);
         }
 
         private static NullableVector4 ReadOPCode(EndianBinaryReader reader)

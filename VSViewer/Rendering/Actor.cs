@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpDX;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,12 +15,31 @@ namespace VSViewer.Rendering
     {
         public string name { get; set; }
         public Geometry Shape { get; set; }
-        public AssetBase Asset { get; set; }
+        public SEQ SEQ { get; set; }
         public int NumberOfAnimations { get; set; }
         public int CurrentAnimationIndex { get; set; }
         public int LoopWithTargetIndex { get; set; }
         public int TotalAnimationsFrames { get; set; }
         public int CurrentAnimationFrame { get; set; }
+
+        public Actor()
+        {
+        }
+
+        public Actor(Geometry theGeometry)
+        {
+            Shape = theGeometry;
+        }
+
+        public void AttachSEQ (SEQ sequence)
+        {
+            SEQ = sequence;
+            NumberOfAnimations = sequence.animations.Count;
+            CurrentAnimationIndex = 0;
+            LoopWithTargetIndex = 0;
+            TotalAnimationsFrames = (int)(sequence.animations[0].length * 25);
+            CurrentAnimationFrame = 0;
+        }
         //public 
     }
 }

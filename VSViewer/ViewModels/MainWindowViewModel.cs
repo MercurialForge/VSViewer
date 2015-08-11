@@ -1,4 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+using VSViewer.Common;
+using VSViewer.Models;
 
 namespace VSViewer.ViewModels
 {
@@ -6,6 +9,7 @@ namespace VSViewer.ViewModels
     {
         // The main viewport
         public ViewportViewModel ViewportView { get; private set; }
+        public RenderCore RenderCore { get; private set; }
 
         // The tool bar stack
         public ObservableCollection<ViewModelBase> ToolBarViewModels
@@ -25,7 +29,8 @@ namespace VSViewer.ViewModels
 
         public MainWindowViewModel()
         {
-            ViewportView = new ViewportViewModel();
+            RenderCore = new Models.RenderCore();
+            ViewportView = new ViewportViewModel(RenderCore);
             EnableImporter();
         }
 
@@ -35,7 +40,7 @@ namespace VSViewer.ViewModels
             {
                 if (vmb is ImporterViewModel) { return false; }
             }
-            AddToolBarTool(new ImporterViewModel(ViewportView, this));
+            AddToolBarTool(new ImporterViewModel(this, RenderCore));
             return true;
         }
 

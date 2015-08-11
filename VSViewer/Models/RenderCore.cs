@@ -18,9 +18,21 @@ namespace VSViewer.Models
     {
         #region Properties
 
-        public List<Actor> Actors
+        public Actor Actor
         {
-            get { return m_actors; }
+            get { return m_actor; }
+            set
+            {
+                m_actor = value;
+                m_renderRequiresUpdate = true;
+                OnPropertyChanged("Actor");
+            }
+        }
+
+        public bool RenderRequiresUpdate
+        {
+            get { return m_renderRequiresUpdate; }
+            set { m_renderRequiresUpdate = value; }
         }
 
         public FillMode FillMode
@@ -77,7 +89,8 @@ namespace VSViewer.Models
 
         #region BackingFields
 
-        List<Actor> m_actors;
+        Actor m_actor = new Actor();
+        bool m_renderRequiresUpdate = false;
         FillMode m_fillMode = FillMode.Solid;
         ShadingMode m_shadingMode = ShadingMode.Textured;
         bool m_showSkeleton = false;
@@ -85,16 +98,5 @@ namespace VSViewer.Models
         float m_turntableSpeed = 1; 
 
         #endregion
-
-        public void AddActor(Actor newActor)
-        {
-            m_actors.Add(newActor);
-        }
-
-        public void ClearActors ()
-        {
-            m_actors.Clear();
-            m_actors = null;
-        }
     }
 }

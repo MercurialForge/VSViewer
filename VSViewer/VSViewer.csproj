@@ -105,6 +105,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Common\Frame.cs" />
     <Compile Include="Common\Keyframe.cs" />
     <Compile Include="Common\NullableVector4.cs" />
     <Compile Include="Common\RelayCommand.cs" />

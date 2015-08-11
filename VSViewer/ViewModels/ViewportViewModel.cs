@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using VSViewer.Rendering;
 using System.Windows;
+using VSViewer.Models;
 
 namespace VSViewer.ViewModels
 {
@@ -13,18 +14,13 @@ namespace VSViewer.ViewModels
     {
         public RenderSystem RenderSystem { get; private set; }
 
-        public ViewportViewModel()
+        public ViewportViewModel(RenderCore core)
         {
-            RenderSystem = new RenderSystem();
+            RenderSystem = new RenderSystem(core);
             if (!RenderSystem.Initialize())
             {
                 Application.Current.Shutdown();
             }
-        }
-
-        public void PushGeometry (Geometry geometryToRender)
-        {
-            RenderSystem.PushGeometry(geometryToRender);
         }
     }
 }
