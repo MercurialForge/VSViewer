@@ -198,7 +198,8 @@ namespace VSViewer.Rendering
 
             Camera = new FirstPersonCamera();
             Camera.SetProjParams(65 * VSTools.Deg2Rad, 1.5f, 25.0f, 10000f);
-            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -500.0f), new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0, 0, -1));
+            // rotate all meshes by 180 to get them into proper y up?
+            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -500.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0, 0, -1));
             return true;
         }
 
@@ -278,6 +279,8 @@ namespace VSViewer.Rendering
             for (int v = 0; v < shape.vertices.Count; v++)
             {
                 temporarySkinnedVertices[v] = Vector3.TransformCoordinate(shape.vertices[v], boneTransforms[shape.jointID[v]]);
+                // is this the palce to apply transform information?
+                temporarySkinnedVertices[v] = Vector3.TransformCoordinate(temporarySkinnedVertices[v], Matrix.Translation(0, 100, 0));
             }
 
             InterleaveVerticesWithUVs(temporarySkinnedVertices);

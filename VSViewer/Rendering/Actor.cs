@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VSViewer.Common;
 using VSViewer.FileFormats;
 
 namespace VSViewer.Rendering
@@ -11,7 +12,7 @@ namespace VSViewer.Rendering
     /// <summary>
     /// An Actor is an object that can be read by the render system.
     /// </summary>
-    public class Actor
+    public class Actor : Transform
     {
         public string name { get; set; }
         public Geometry Shape { get; set; }
