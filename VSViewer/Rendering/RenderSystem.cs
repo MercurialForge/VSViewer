@@ -93,9 +93,9 @@ namespace VSViewer.Rendering
                 // Set shader flags
                 ShaderFlags sFlags = ShaderFlags.EnableStrictness;
 
-#if DEBUG
+                #if DEBUG
                 sFlags |= ShaderFlags.Debug;
-#endif
+                #endif
 
                 // Compile shader code
                 CompilationResult vertexShaderByteCode = ShaderBytecode.CompileFromFile(shaderName, "VS", "vs_4_0", sFlags, EffectFlags.None);
@@ -126,6 +126,7 @@ namespace VSViewer.Rendering
                 {
                     CullMode = CullMode.Back,
                     FillMode = FillMode.Solid,
+                    IsFrontCounterClockwise = true,
                     DepthBias = 0,
                     DepthBiasClamp = 0,
                     SlopeScaledDepthBias = 0,
@@ -198,8 +199,7 @@ namespace VSViewer.Rendering
 
             Camera = new FirstPersonCamera();
             Camera.SetProjParams(65 * VSTools.Deg2Rad, 1.5f, 25.0f, 10000f);
-            // rotate all meshes by 180 to get them into proper y up?
-            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -500.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0, 0, -1));
+            Camera.SetViewParams(new Vector3(0.0f, 0.0f, 500.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0, -1, 0));
             return true;
         }
 
@@ -279,8 +279,6 @@ namespace VSViewer.Rendering
             for (int v = 0; v < shape.vertices.Count; v++)
             {
                 temporarySkinnedVertices[v] = Vector3.TransformCoordinate(shape.vertices[v], boneTransforms[shape.jointID[v]]);
-                // is this the palce to apply transform information?
-                temporarySkinnedVertices[v] = Vector3.TransformCoordinate(temporarySkinnedVertices[v], Matrix.Translation(0, 100, 0));
             }
 
             InterleaveVerticesWithUVs(temporarySkinnedVertices);
@@ -325,11 +323,13 @@ namespace VSViewer.Rendering
             // Rotate the object for debugging
             float t = (float)args.TotalTime.TotalSeconds;
             var g_World = Matrix.RotationY(0);
+            core.Actor.Rotation = Quaternion.RotationAxis(VSTools.UnitY, t);
 
             // Update matrices in the constant buffer
+            Matrix modelMatrix = Matrix.Scaling(core.Actor.LocalScale) * Matrix.RotationQuaternion(core.Actor.Rotation) * Matrix.Translation(core.Actor.Position);
             MatrixBuffer projectionModel = new MatrixBuffer
             {
-                World = Matrix.Transpose(g_World),
+                World = Matrix.Transpose(modelMatrix),
                 View = Matrix.Transpose((Camera.View)),
                 Projection = Matrix.Transpose(Camera.Projection)
             };

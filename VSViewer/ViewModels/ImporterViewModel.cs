@@ -102,15 +102,23 @@ namespace VSViewer.ViewModels
         #region Command Methods
         internal void PrepMainFile()
         {
-            MainFilePath = OpenFile();
-            core.Actor.SEQ = null;
-            LoadShape();
+            string path = "";
+            if (OpenFile(out path))
+            {
+                MainFilePath = path;
+                core.Actor.SEQ = null;
+                LoadShape();
+            }
         }
 
         internal void PrepSubFile()
         {
-            SubFilePath = OpenFile();
-            LoadAsset();
+            string path = "";
+            if (OpenFile(out path))
+            {
+                SubFilePath = path;
+                LoadAsset();
+            }
         }
 
         private void LoadShape()
@@ -156,15 +164,16 @@ namespace VSViewer.ViewModels
         #endregion
 
         #region Local Methods
-        private string OpenFile()
+        private bool OpenFile(out string outPath)
         {
-            string temp = "";
             OpenFileDialog openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
-                temp = openFileDialog.FileName;
+                outPath = openFileDialog.FileName;
+                return true;
             }
-            return temp;
+            outPath = "";
+            return false;
         }
         #endregion
     }
