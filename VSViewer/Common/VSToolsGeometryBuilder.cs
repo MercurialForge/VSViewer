@@ -12,20 +12,20 @@ namespace VSViewer
 {
     static partial class VSTools
     {
-        static public Geometry CreateGeometry (List<Vertex> vertices, List<Polygon> polygons, List<Joint> bones, List<TextureMap> textureMaps)
+        static public Geometry CreateGeometry (WEP sourceObject)
         {
-            float tw = textureMaps[0].Width;
-	        float th = textureMaps[0].Height;
+            float tw = sourceObject.textures[0].Width;
+            float th = sourceObject.textures[0].Height;
 
 	        Geometry geometry = new Geometry();
 
-	        for ( int i = 0; i < polygons.Count; i++ ) 
+            for (int i = 0; i < sourceObject.polygons.Count; i++) 
             {
-		        Polygon p = polygons[ i ];
+                Polygon p = sourceObject.polygons[i];
 
-		        Vertex v1 = vertices[ p.vertex1 ];
-		        Vertex v2 = vertices[ p.vertex2 ];
-		        Vertex v3 = vertices[ p.vertex3 ];
+		        Vertex v1 = sourceObject.vertices[ p.vertex1 ];
+                Vertex v2 = sourceObject.vertices[p.vertex2];
+                Vertex v3 = sourceObject.vertices[p.vertex3];
 
 		        int iv = geometry.vertices.Count;
 
@@ -37,14 +37,14 @@ namespace VSViewer
                 // skip weights
 
                 // bone weight IDs
-                geometry.boneID.Add( v1.boneID );
-                geometry.boneID.Add( v2.boneID );
-                geometry.boneID.Add( v3.boneID );
+                geometry.jointID.Add( v1.boneID );
+                geometry.jointID.Add( v2.boneID );
+                geometry.jointID.Add( v3.boneID );
 
 		        if ( p.polygonType == PolygonType.Quad ) 
                 {
 
-			        Vertex v4 = vertices[ p.vertex4 ];
+                    Vertex v4 = sourceObject.vertices[p.vertex4];
 
 			        geometry.vertices.Add(v4.GetVector());
 
@@ -55,7 +55,7 @@ namespace VSViewer
 
                     // skip weights
 
-			        geometry.boneID.Add( v4.boneID );
+			        geometry.jointID.Add( v4.boneID );
 
                     geometry.indices.Add((UInt16)(iv + 1));
                     geometry.indices.Add((UInt16)(iv + 2));
@@ -98,33 +98,32 @@ namespace VSViewer
 	        //geometry.computeFaceNormals();
 	        //geometry.computeVertexNormals();
 
-            for ( var i = 0; i < bones.Count; i++ ) 
+            for ( var i = 0; i < sourceObject.joints.Count; i++ ) 
             {
-		        int parent = bones[ i ].parentID;
+                int parent = sourceObject.joints[i].parentID;
 
-                SkeletalBone bone = new SkeletalBone();
+                SkeletalJoint bone = new SkeletalJoint();
                 bone.name += i;
-                bone.parentIndex = (parent < bones.Count) ? parent + bones.Count : -1;
+                bone.parentIndex = (parent < sourceObject.joints.Count) ? parent + sourceObject.joints.Count : -1;
                 geometry.skeleton.Add(bone);
 	        }
 
 	        // translation bones
-	        for ( var i = bones.Count; i < bones.Count * 2; ++i ) 
+            for (var i = sourceObject.joints.Count; i < sourceObject.joints.Count * 2; ++i) 
             {
-                SkeletalBone bone = new SkeletalBone();
+                SkeletalJoint bone = new SkeletalJoint();
                 bone.name += i;
-                bone.parentIndex = i - bones.Count;
+                bone.parentIndex = i - sourceObject.joints.Count;
                 geometry.skeleton.Add(bone);
 	        }
 
-            for (var i = bones.Count; i < bones.Count * 2; ++i)
+            for (var i = sourceObject.joints.Count; i < sourceObject.joints.Count * 2; ++i)
             {
 
-                geometry.skeleton[i].position.X = bones[i - bones.Count].boneLength;
+                geometry.skeleton[i].position.X = sourceObject.joints[i - sourceObject.joints.Count].boneLength;
             }
 
-
-            geometry.textures = textureMaps;
+            geometry.coreObject = sourceObject;
             return geometry;
         }
     }

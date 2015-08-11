@@ -115,6 +115,9 @@
     <Compile Include="FileFormats\SHP.cs" />
     <Compile Include="Loader\SEQLoader.cs" />
     <Compile Include="Loader\SHPLoader.cs" />
+    <Compile Include="Models\ObservableBase.cs" />
+    <Compile Include="Models\RenderCore.cs" />
+    <Compile Include="Rendering\Actor.cs" />
     <Compile Include="Rendering\EditorCamera.cs" />
     <Compile Include="Rendering\Geometry.cs" />
     <Compile Include="Rendering\SkeletalBone.cs" />

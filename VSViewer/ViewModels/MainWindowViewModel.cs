@@ -8,7 +8,7 @@ namespace VSViewer.ViewModels
         public ViewportViewModel ViewportView { get; private set; }
 
         // The tool bar stack
-        public ObservableCollection<ViewModelBase> ToolBarViewModels 
+        public ObservableCollection<ViewModelBase> ToolBarViewModels
         {
             get
             {
@@ -26,13 +26,23 @@ namespace VSViewer.ViewModels
         public MainWindowViewModel()
         {
             ViewportView = new ViewportViewModel();
-            AddToolBarTool(new ImporterViewModel(ViewportView, this));
+            EnableImporter();
         }
 
-        public void AddToolBarTool (ViewModelBase tool)
+        public bool EnableImporter()
+        {
+            foreach (ViewModelBase vmb in ToolBarViewModels)
+            {
+                if (vmb is ImporterViewModel) { return false; }
+            }
+            AddToolBarTool(new ImporterViewModel(ViewportView, this));
+            return true;
+        }
+
+        private void AddToolBarTool(ViewModelBase tool)
         {
             ObservableCollection<ViewModelBase> updatedToolBarCollection = new ObservableCollection<ViewModelBase>();
-            for (int i = 0; i < ToolBarViewModels.Count; i++ )
+            for (int i = 0; i < ToolBarViewModels.Count; i++)
             {
                 updatedToolBarCollection.Add(ToolBarViewModels[i]);
             }

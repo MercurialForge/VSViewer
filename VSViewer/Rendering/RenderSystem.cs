@@ -79,7 +79,7 @@ namespace VSViewer.Rendering
         private Keyframe[] m_nextKeyframe;
 
         private InputVertex[] m_instanceVertices;
-        private SkeletalBone[] m_instanceJoints;
+        private SkeletalJoint[] m_instanceJoints;
 
         bool m_isPendingVertexBufferUpdate;
 
@@ -335,7 +335,7 @@ namespace VSViewer.Rendering
         {
             if (!m_isPendingVertexBufferUpdate) { return; }
 
-            Set(ref m_textureResourceView, new ShaderResourceView(Device, geometry.textures[0].GetTexture2D(Device)));
+            Set(ref m_textureResourceView, new ShaderResourceView(Device, geometry.Textures[0].GetTexture2D(Device)));
             Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
 
             // Setup vertex buffer
@@ -355,7 +355,7 @@ namespace VSViewer.Rendering
             Matrix[] boneTransforms = new Matrix[geometry.skeleton.Count];
             for (int i = 0; i < m_instanceJoints.Length; i++)
             {
-                SkeletalBone bone = m_instanceJoints[i];
+                SkeletalJoint bone = m_instanceJoints[i];
                 Matrix cumulativeTransform = Matrix.Identity;
 
                 while (bone != null)
@@ -372,7 +372,7 @@ namespace VSViewer.Rendering
             Vector3[] temporarySkinnedVertices = new Vector3[geometry.vertices.Count];
             for (int v = 0; v < m_instanceVertices.Length; v++)
             {
-                temporarySkinnedVertices[v] = Vector3.TransformCoordinate(geometry.vertices[v], boneTransforms[geometry.boneID[v]]);
+                temporarySkinnedVertices[v] = Vector3.TransformCoordinate(geometry.vertices[v], boneTransforms[geometry.jointID[v]]);
             }
 
             InterleaveVerticesWithUVs(temporarySkinnedVertices);

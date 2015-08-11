@@ -133,20 +133,22 @@ namespace VSViewer.ViewModels
                         // load type
                         WEP wep = WEPLoader.FromStream(reader);
                         m_loadedContent = wep;
-                        Geometry wepGeometry = VSTools.CreateGeometry(wep.vertices, wep.polygons, wep.joints, wep.textures);
+                        Geometry wepGeometry = VSTools.CreateGeometry(wep);
                         // push to viewport
                         m_viewport.PushGeometry(wepGeometry);
                         // push extra tools
-                        m_mainWindow.AddToolBarTool(new TexturesViewModel(m_viewport));
+                        m_mainWindow.EnableImporter();
                         break;
 
                     case ".SHP":
                         SHP shp = SHPLoader.FromStream(reader);
                         m_loadedContent = shp;
                         shp.textures[0].Save("Bronze");
-                        Geometry shpGeometry = VSTools.CreateGeometry(shp.vertices, shp.polygons, shp.joints, shp.textures);
+                        Geometry shpGeometry = VSTools.CreateGeometry(shp);
+                        // push to viewport
                         m_viewport.PushGeometry(shpGeometry);
-                        m_mainWindow.AddToolBarTool(new TexturesViewModel(m_viewport));
+                        // push extra tools
+                        m_mainWindow.EnableImporter();
                         break;
                 }
             }

@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace VSViewer.Common
 {
-    public class SkeletalBone
+    // this could almost just be a transform class.
+    public class SkeletalJoint
     {
         public string name = "bone";
         public Vector3 position;
@@ -15,7 +16,7 @@ namespace VSViewer.Common
         public Vector3 scale;
         public int parentIndex;
 
-        public SkeletalBone()
+        public SkeletalJoint()
         {
             position = Vector3.Zero;
             quaternion = Quaternion.Identity;

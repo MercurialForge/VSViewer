@@ -7,7 +7,7 @@ using VSViewer.FileFormats;
 
 namespace VSViewer.FileFormats
 {
-    class WEP : ContentBase
+    public class WEP : ContentBase
     {
         public List<Joint> joints = new List<Joint>();
         public List<Group> groups = new List<Group>();
