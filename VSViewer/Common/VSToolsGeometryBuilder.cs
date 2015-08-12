@@ -120,8 +120,9 @@ namespace VSViewer
 
             for (var i = sourceObject.joints.Count; i < sourceObject.joints.Count * 2; ++i)
             {
-
-                geometry.skeleton[i].position.X = sourceObject.joints[i - sourceObject.joints.Count].boneLength;
+                Vector3 tempPos = geometry.skeleton[i].LocalPosition;
+                tempPos.X = sourceObject.joints[i - sourceObject.joints.Count].boneLength;
+                geometry.skeleton[i].LocalPosition = tempPos;
             }
 
             geometry.instancedSkeleton = geometry.skeleton.ToArray();
