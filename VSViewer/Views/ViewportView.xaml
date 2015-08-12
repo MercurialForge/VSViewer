@@ -6,7 +6,7 @@
              xmlns:dxc="clr-namespace:SharpDX.WPF;assembly=SharpDX.WPF"
              mc:Ignorable="d" 
              d:DesignHeight="350" d:DesignWidth="350">
-    <Grid>
+    <Grid Background="Pink">
         <dxc:DXElement Renderer="{Binding RenderSystem}"/>
     </Grid>
 </UserControl>

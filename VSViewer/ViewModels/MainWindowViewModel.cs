@@ -6,8 +6,8 @@ namespace VSViewer.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         // The main viewport
-        public ViewportViewModel ViewportViewModel { get; private set; }
-        public RenderCore RenderCore { get; private set; }
+        public ViewportViewModel ViewportViewModel { get; set; }
+        public RenderCore RenderCore { get; set; }
 
         // The tool bar stack
         public ObservableCollection<ViewModelBase> ToolBarViewModels
@@ -27,7 +27,7 @@ namespace VSViewer.ViewModels
 
         public MainWindowViewModel()
         {
-            RenderCore = new Models.RenderCore();
+            RenderCore = new RenderCore();
             ViewportViewModel = new ViewportViewModel(RenderCore);
             EnableImportTool();
         }

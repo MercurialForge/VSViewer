@@ -12,7 +12,7 @@ namespace VSViewer.ViewModels
 {
     public class ViewportViewModel : ViewModelBase
     {
-        public RenderSystem RenderSystem { get; private set; }
+        public RenderSystem RenderSystem { get; set; }
 
         public ViewportViewModel(RenderCore core)
         {
