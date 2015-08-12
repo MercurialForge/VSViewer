@@ -5,7 +5,7 @@ namespace VSViewer
 {
     static partial class VSTools
     {
-        public const float TimeScale = 0.08f;
+        public const float TimeScale = 0.04f;
 
         public const float Rad2Deg = (float)(180.0 / Math.PI);
         public const float Deg2Rad = (float)(Math.PI / 180.0);
@@ -19,19 +19,22 @@ namespace VSViewer
 
         // convert XYZ rotation in radians to quaternion
         // first apply x, then y, then z rotation
-        // THREE.Quaternion.setFromEuler is not equivalent
-        public static Quaternion Rot2Quat(float rx, float ry, float rz)
+        // but in sharpdx for reason I cannot explain, in version 2.3.2+ the
+        // quaternions must be multiplied z * x * y
+        public static Quaternion Rot2Quat(float radX, float radY, float radZ)
         {
-            Quaternion qu = new Quaternion();
-            qu = Quaternion.RotationAxis(new Vector3(1, 0, 0), rx);
+            Quaternion quatX = new Quaternion();
+            quatX = Quaternion.RotationAxis(new Vector3(1, 0, 0), radX);
 
-            Quaternion qv = new Quaternion();
-            qv = Quaternion.RotationAxis(new Vector3(0, 1, 0), ry);
+            Quaternion quatY = new Quaternion();
+            quatY = Quaternion.RotationAxis(new Vector3(0, 1, 0), radY);
 
-            Quaternion qw = new Quaternion();
-            qw = Quaternion.RotationAxis(new Vector3(0, 0, 1), rz);
+            Quaternion quatZ = new Quaternion();
+            quatZ = Quaternion.RotationAxis(new Vector3(0, 0, 1), radZ);
 
-            return qu * qv * qw;
+            // updated to SDX 2.6.3 and this is backwards y x z... WHY?!?
+            return quatZ * quatY * quatX;
+
         }
 
         // convert 16 bit color values to 32RGBA

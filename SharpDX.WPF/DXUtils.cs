@@ -1,70 +1,65 @@
-﻿using SharpDX;
-using SharpDX.D3DCompiler;
-using SharpDX.Direct3D;
-using SharpDX.DXGI;
-using SharpDX.WPF;
-using System.Runtime.InteropServices;
-using System.IO;
+﻿using SharpDX.DXGI;
 using System;
+using System.Runtime.InteropServices;
 
 namespace SharpDX.WPF
 {
     public static class DXUtils
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
+        /// <param name="device"></param>
+        /// <param name="range"></param>
         /// <returns></returns>
-        public static T GetOrThrow<T>(this T obj)
-            where T : class, IDisposable
+        public static Direct3D11.Buffer CreateBuffer<T>(this Direct3D11.Device device, T[] range)
+            where T : struct
         {
-            if (obj == null)
-                throw new ObjectDisposedException(typeof(T).Name);
-            return obj;
-        } 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public static Vector3 TransformNormal(this Matrix m, Vector3 v)
-        {            
-            var v2 = Multiply(m, v.X, v.Y, v.Z, 0);
-            return new Vector3(v2.X, v2.Y, v2.Z);
+            int sizeInBytes = Marshal.SizeOf(typeof(T));
+            using (var stream = new DataStream(range.Length * sizeInBytes, true, true))
+            {
+                stream.WriteRange(range);
+                stream.Position = 0;
+                return new Direct3D11.Buffer(device, stream, new Direct3D11.BufferDescription
+                {
+                    BindFlags = Direct3D11.BindFlags.VertexBuffer,
+                    SizeInBytes = (int)stream.Length,
+                    CpuAccessFlags = Direct3D11.CpuAccessFlags.None,
+                    OptionFlags = Direct3D11.ResourceOptionFlags.None,
+                    StructureByteStride = 0,
+                    Usage = Direct3D11.ResourceUsage.Default,
+                });
+            }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        public static Vector3 TransformCoord(this Matrix m, Vector3 v)
+        /// <typeparam name="T"></typeparam>
+        /// <param name="device"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static Direct3D10.Buffer CreateBuffer<T>(this Direct3D10.Device device, T[] range)
+            where T : struct
         {
-            var v2 = Multiply(m, v.X, v.Y, v.Z, 1);
-            return new Vector3(v2.X, v2.Y, v2.Z);
+            int sizeInBytes = Marshal.SizeOf(typeof(T));
+            using (var stream = new DataStream(range.Length * sizeInBytes, true, true))
+            {
+                stream.WriteRange(range);
+                return new Direct3D10.Buffer(device, stream, new Direct3D10.BufferDescription
+                {
+                    BindFlags = Direct3D10.BindFlags.VertexBuffer,
+                    SizeInBytes = (int)stream.Length,
+                    CpuAccessFlags = Direct3D10.CpuAccessFlags.None,
+                    OptionFlags = Direct3D10.ResourceOptionFlags.None,
+                    Usage = Direct3D10.ResourceUsage.Default,
+                });
+            }
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public static Vector3 Multiply(this Matrix m, float x, float y, float z, float w)
-        {
-            return new Vector3(
-                m.M11 * x + m.M12 * y + m.M13 * z + m.M14 * w
-                , m.M21 * x + m.M22 * y + m.M23 * z + m.M24 * w
-                , m.M31 * x + m.M32 * y + m.M33 * z + m.M34 * w
-                );
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public static float DEG2RAD(this float degrees)
-        {
-            return degrees * (float)Math.PI / 180.0f;
-        }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="device"></param>
         /// <param name="w"></param>
@@ -96,7 +91,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="device"></param>
         /// <param name="w"></param>
@@ -128,54 +123,55 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="device"></param>
-        /// <param name="range"></param>
-        /// <returns></returns>
-        public static Direct3D11.Buffer CreateBuffer<T>(this Direct3D11.Device device, T[] range)
-            where T : struct
+        public static float DEG2RAD(this float degrees)
         {
-            int sizeInBytes = Marshal.SizeOf(typeof(T));
-            using (var stream = new DataStream(range.Length * sizeInBytes, true, true))
-            {
-                stream.WriteRange(range);
-                return new Direct3D11.Buffer(device, stream, new Direct3D11.BufferDescription
-                {
-                    BindFlags = Direct3D11.BindFlags.VertexBuffer,
-                    SizeInBytes = (int)stream.Length,
-                    CpuAccessFlags = Direct3D11.CpuAccessFlags.None,
-                    OptionFlags = Direct3D11.ResourceOptionFlags.None,
-                    StructureByteStride = 0,
-                    Usage = Direct3D11.ResourceUsage.Default,
-                });
-            }
+            return degrees * (float)Math.PI / 180.0f;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="device"></param>
-        /// <param name="range"></param>
+        /// <param name="obj"></param>
         /// <returns></returns>
-        public static Direct3D10.Buffer CreateBuffer<T>(this Direct3D10.Device device, T[] range)
-            where T : struct
+        public static T GetOrThrow<T>(this T obj)
+            where T : class, IDisposable
         {
-            int sizeInBytes = Marshal.SizeOf(typeof(T));
-            using (var stream = new DataStream(range.Length * sizeInBytes, true, true))
-            {
-                stream.WriteRange(range);
-                return new Direct3D10.Buffer(device, stream, new Direct3D10.BufferDescription
-                {
-                    BindFlags = Direct3D10.BindFlags.VertexBuffer,
-                    SizeInBytes = (int)stream.Length,
-                    CpuAccessFlags = Direct3D10.CpuAccessFlags.None,
-                    OptionFlags = Direct3D10.ResourceOptionFlags.None,
-                    Usage = Direct3D10.ResourceUsage.Default,
-                });
-            }
-        }       
+            if (obj == null)
+                throw new ObjectDisposedException(typeof(T).Name);
+            return obj;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public static Vector3 Multiply(this Matrix m, float x, float y, float z, float w)
+        {
+            return new Vector3(
+                m.M11 * x + m.M12 * y + m.M13 * z + m.M14 * w
+                , m.M21 * x + m.M22 * y + m.M23 * z + m.M24 * w
+                , m.M31 * x + m.M32 * y + m.M33 * z + m.M34 * w
+                );
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public static Vector3 TransformCoord(this Matrix m, Vector3 v)
+        {
+            var v2 = Multiply(m, v.X, v.Y, v.Z, 1);
+            return new Vector3(v2.X, v2.Y, v2.Z);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public static Vector3 TransformNormal(this Matrix m, Vector3 v)
+        {
+            var v2 = Multiply(m, v.X, v.Y, v.Z, 0);
+            return new Vector3(v2.X, v2.Y, v2.Z);
+        }
     }
 }

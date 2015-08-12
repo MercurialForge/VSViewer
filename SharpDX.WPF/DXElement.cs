@@ -8,7 +8,7 @@ using System.Windows.Media;
 namespace SharpDX.WPF
 {
     /// <summary>
-    /// A <see cref="UIElement"/> displaying DirectX scene. 
+    /// A <see cref="UIElement"/> displaying DirectX scene.
     /// Takes care of resizing and refreshing a <see cref="DXImageSource"/>.
     /// It does no Direct3D work, which is delegated to
     /// the <see cref="IDirect3D"/> <see cref="Renderer"/> object.
@@ -18,7 +18,7 @@ namespace SharpDX.WPF
         #region Init
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public DXElement()
         {
@@ -35,9 +35,19 @@ namespace SharpDX.WPF
             IsVisibleChanged += delegate { UpdateReallyLoopRendering(); };
         }
 
-        #endregion
+        #endregion Init
 
         #region Dependency Property
+
+        /// <summary>
+        ///
+        /// </summary>
+        public static readonly DependencyProperty RendererProperty =
+            DependencyProperty.Register(
+                "Renderer",
+                typeof(IDirect3D),
+                typeof(DXElement),
+                new PropertyMetadata((d, e) => ((DXElement)d).OnRendererChanged((IDirect3D)e.OldValue, (IDirect3D)e.NewValue)));
 
         /// <summary>
         /// The D3D device that will handle the drawing
@@ -49,17 +59,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public static readonly DependencyProperty RendererProperty =
-            DependencyProperty.Register(
-                "Renderer",
-                typeof(IDirect3D),
-                typeof(DXElement),
-                new PropertyMetadata((d, e) => ((DXElement)d).OnRendererChanged((IDirect3D)e.OldValue, (IDirect3D)e.NewValue)));
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="oldValue"></param>
         /// <param name="newValue"></param>
@@ -70,14 +70,18 @@ namespace SharpDX.WPF
             Focusable = newValue is IInteractiveDirect3D;
         }
 
-        #endregion
+        #endregion Dependency Property
 
         #region Public Properties
 
         /// <summary>
-        /// The image source where the DirectX scene (from the <see cref="Renderer"/>) will be rendered.
+        /// Gets a value indicating whether the control is in design mode
+        /// (running in Blend or Visual Studio).
         /// </summary>
-        public DXImageSource Surface { get { return m_surface; } } 
+        public bool IsInDesignMode
+        {
+            get { return DesignerProperties.GetIsInDesignMode(this); }
+        }
 
         /// <summary>
         /// Wether or not the DirectX scene will be redrawn continuously
@@ -96,30 +100,21 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// Gets a value indicating whether the control is in design mode
-        /// (running in Blend or Visual Studio).
+        /// The image source where the DirectX scene (from the <see cref="Renderer"/>) will be rendered.
         /// </summary>
-        public bool IsInDesignMode
-        {
-            get { return DesignerProperties.GetIsInDesignMode(this); }
-        }
+        public DXImageSource Surface { get { return m_surface; } }
 
-        #endregion
+        #endregion Public Properties
 
         #region Protected Size Overrides
 
         /// <summary>
-        /// 
-        /// </summary>        
-        protected override void OnVisualParentChanged(DependencyObject oldParent)
-        {
-            if (IsInDesignMode)
-                return;
-            UpdateReallyLoopRendering();
-        }
+        ///
+        /// </summary>
+        protected override int VisualChildrenCount { get { return 0; } }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         protected override System.Windows.Size ArrangeOverride(System.Windows.Size finalSize)
         {
@@ -129,7 +124,15 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        protected override Visual GetVisualChild(int index)
+        {
+            throw new ArgumentOutOfRangeException();
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         protected override System.Windows.Size MeasureOverride(System.Windows.Size availableSize)
         {
@@ -139,32 +142,39 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        protected override Visual GetVisualChild(int index)
-        {
-            throw new ArgumentOutOfRangeException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>        
         protected override void OnRender(DrawingContext dc)
         {
             dc.DrawImage(Surface, new Rect(RenderSize));
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        protected override int VisualChildrenCount { get { return 0; } }
-        
-        #endregion
+        protected override void OnVisualParentChanged(DependencyObject oldParent)
+        {
+            if (IsInDesignMode)
+                return;
+            UpdateReallyLoopRendering();
+        }
+
+        #endregion Protected Size Overrides
 
         #region Private: ..LoopRendering.., UpdateSize
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        private void OnLoopRendering(object sender, EventArgs e)
+        {
+            if (!m_isReallyLoopRendering)
+                return;
+            Render();
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         private void UpdateReallyLoopRendering()
         {
@@ -194,17 +204,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        private void OnLoopRendering(object sender, EventArgs e) 
-        {
-            if (!m_isReallyLoopRendering)
-                return;
-            Render(); 
-        }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         private void UpdateSize()
         {
@@ -213,24 +213,12 @@ namespace SharpDX.WPF
             Renderer.Reset(GetDrawEventArgs());
         }
 
-        #endregion
-        
+        #endregion Private: ..LoopRendering.., UpdateSize
+
         #region Render
 
         /// <summary>
-        /// Will redraw the underlying surface once.
-        /// </summary>
-        public void Render()
-        {
-            if (Renderer == null || IsInDesignMode)
-                return;
-
-            Renderer.Render(GetDrawEventArgs());
-            Surface.Invalidate();
-        }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public DrawEventArgs GetDrawEventArgs()
@@ -246,56 +234,24 @@ namespace SharpDX.WPF
             return eargs;
         }
 
-        #endregion
+        /// <summary>
+        /// Will redraw the underlying surface once.
+        /// </summary>
+        public void Render()
+        {
+            if (Renderer == null || IsInDesignMode)
+                return;
+
+            Renderer.Render(GetDrawEventArgs());
+            Surface.Invalidate();
+        }
+
+        #endregion Render
 
         #region Override Mouse and Key Events
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnMouseDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseDown(e);
-            if (Renderer is IInteractiveDirect3D)
-                ((IInteractiveDirect3D)Renderer).OnMouseDown(this, e);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            if (Renderer is IInteractiveDirect3D)
-                ((IInteractiveDirect3D)Renderer).OnMouseMove(this, e);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnMouseUp(MouseButtonEventArgs e)
-        {
-            base.OnMouseUp(e);
-            if (Renderer is IInteractiveDirect3D)
-                ((IInteractiveDirect3D)Renderer).OnMouseUp(this, e);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
-        {
-            base.OnMouseWheel(e);
-            if (Renderer is IInteractiveDirect3D)
-                ((IInteractiveDirect3D)Renderer).OnMouseWheel(this, e);
-        }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
@@ -306,7 +262,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="e"></param>
         protected override void OnKeyUp(KeyEventArgs e)
@@ -316,12 +272,61 @@ namespace SharpDX.WPF
                 ((IInteractiveDirect3D)Renderer).OnKeyUp(this, e);
         }
 
-        #endregion
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (Renderer is IInteractiveDirect3D)
+                ((IInteractiveDirect3D)Renderer).OnMouseDown(this, e);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            if (Renderer is IInteractiveDirect3D)
+                ((IInteractiveDirect3D)Renderer).OnMouseMove(this, e);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseUp(e);
+            if (Renderer is IInteractiveDirect3D)
+                ((IInteractiveDirect3D)Renderer).OnMouseUp(this, e);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            if (Renderer is IInteractiveDirect3D)
+                ((IInteractiveDirect3D)Renderer).OnMouseWheel(this, e);
+        }
+
+        #endregion Override Mouse and Key Events
 
         #region INotifyPropertyChanged Members
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="name"></param>
         private void OnPropertyChanged(string name)
@@ -331,19 +336,16 @@ namespace SharpDX.WPF
                 e(this, new PropertyChangedEventArgs(name));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
+        #endregion INotifyPropertyChanged Members
 
         #region Fields
+
         private bool m_isLoopRendering = true;
         private bool m_isReallyLoopRendering;
         private DrawEventArgs m_lastDrawEventArgs;
-        private DXImageSource m_surface;
         private Stopwatch m_renderTimer;
-        #endregion
+        private DXImageSource m_surface;
+
+        #endregion Fields
     }
 }

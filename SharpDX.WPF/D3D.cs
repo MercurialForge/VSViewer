@@ -1,10 +1,8 @@
-﻿using SharpDX;
+﻿using SharpDX.WPF.Cameras;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Windows.Input;
 using System.Windows;
+using System.Windows.Input;
 
 namespace SharpDX.WPF
 {
@@ -16,7 +14,7 @@ namespace SharpDX.WPF
         #region Init, Reset and Dispose Methods
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public D3D()
         {
@@ -24,12 +22,38 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        ~D3D() { Dispose(false); }
+        ~D3D()
+        {
+            Dispose(false);
+        }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        public event EventHandler<DrawEventArgs> Resetted;
+
+        /// <summary>
+        /// Size set with call to <see cref="Reset(DrawEventArgs)"/>
+        /// </summary>
+        public Vector2 RenderSize { get; protected set; }
+
+        /// <summary>
+        /// SharpDX 1.3 requires explicit dispose of all its ComObject.
+        /// This method makes it easy.
+        /// (Remark: I attempted to hack a correct Dispose implementation but it crashed the app on first GC!)
+        /// </summary>
+        public static void Set<T>(ref T field, T newValue)
+            where T : IDisposable
+        {
+            if (field != null)
+                field.Dispose();
+            field = newValue;
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         public void Dispose()
         {
@@ -38,19 +62,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing)
-        { }
-
-        /// <summary>
-        /// Size set with call to <see cref="Reset(DrawEventArgs)"/>
-        /// </summary>
-        public Vector2 RenderSize { get; protected set; }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="args"></param>
         public virtual void Reset(DrawEventArgs args)
@@ -75,7 +87,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="w"></param>
         /// <param name="h"></param>
@@ -84,38 +96,20 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        public event EventHandler<DrawEventArgs> Resetted;
+        /// <param name="disposing"></param>
+        protected virtual void Dispose(bool disposing)
+        { }
 
-        /// <summary>
-        /// SharpDX 1.3 requires explicit dispose of all its ComObject.
-        /// This method makes it easy.
-        /// (Remark: I attempted to hack a correct Dispose implementation but it crashed the app on first GC!)
-        /// </summary>
-        public static void Set<T>(ref T field, T newValue)
-            where T : IDisposable
-        {
-            if (field != null)
-                field.Dispose();
-            field = newValue;
-        } 
+        #endregion Init, Reset and Dispose Methods
 
-        #endregion
-        
         #region Rendering Methods
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public abstract System.Windows.Media.Imaging.WriteableBitmap ToImage();
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dximage"></param>
-        public abstract void SetBackBuffer(DXImageSource dximage);
+        public event EventHandler<DrawEventArgs> Rendering;
 
         /// <summary>
         /// Time in the last <see cref="DrawEventArgs"/> passed to <see cref="Render(DrawEventArgs)"/>
@@ -123,7 +117,23 @@ namespace SharpDX.WPF
         public TimeSpan RenderTime { get; protected set; }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        /// <param name="args"></param>
+        public virtual void BeginRender(DrawEventArgs args)
+        {
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="args"></param>
+        public virtual void EndRender(DrawEventArgs args)
+        {
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="args"></param>
         public void Render(DrawEventArgs args)
@@ -138,13 +148,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
-        public virtual void BeginRender(DrawEventArgs args) { }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="args"></param>
         public virtual void RenderScene(DrawEventArgs args)
@@ -154,29 +158,45 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <param name="args"></param>
-        public virtual void EndRender(DrawEventArgs args) { }
+        /// <param name="dximage"></param>
+        public abstract void SetBackBuffer(DXImageSource dximage);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        public event EventHandler<DrawEventArgs> Rendering; 
-        
-        #endregion
+        /// <returns></returns>
+        public abstract System.Windows.Media.Imaging.WriteableBitmap ToImage();
+
+        #endregion Rendering Methods
 
         #region Interaction Methods
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        private void OnInteractiveInit()
+        public virtual void OnKeyDown(UIElement ui, KeyEventArgs e)
         {
+            if (Camera != null)
+            {
+                Camera.HandleKeyDown(ui, e);
+            }
         }
 
         /// <summary>
-        /// Override this to focus the view, capture the mouse and select the <see cref="Camera"/> 
+        ///
+        /// </summary>
+        public virtual void OnKeyUp(UIElement ui, KeyEventArgs e)
+        {
+            if (Camera != null)
+            {
+                Camera.HandleKeyUp(ui, e);
+            }
+        }
+
+        /// <summary>
+        /// Override this to focus the view, capture the mouse and select the <see cref="Camera"/>
         /// </summary>
         public virtual void OnMouseDown(UIElement ui, MouseButtonEventArgs e)
         {
@@ -189,7 +209,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public virtual void OnMouseMove(UIElement ui, MouseEventArgs e)
         {
@@ -200,7 +220,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public virtual void OnMouseUp(UIElement ui, MouseButtonEventArgs e)
         {
@@ -212,7 +232,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public virtual void OnMouseWheel(UIElement ui, MouseWheelEventArgs e)
         {
@@ -223,51 +243,41 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        public virtual void OnKeyDown(UIElement ui, KeyEventArgs e)
+        private void OnInteractiveInit()
         {
-            if (Camera != null)
-            {
-                Camera.HandleKeyDown(ui, e);
-            }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public virtual void OnKeyUp(UIElement ui, KeyEventArgs e)
-        {
-            if (Camera != null)
-            {
-                Camera.HandleKeyUp(ui, e);
-            }
-        }
-
-        #endregion
+        #endregion Interaction Methods
 
         #region Camera
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        private BaseCamera m_camera;
+
+        /// <summary>
+        ///
         /// </summary>
         public BaseCamera Camera
-        {            
+        {
             get { return m_camera; }
             set { if (value == m_camera) return; m_camera = value; OnPropertyChanged("Camera"); }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private BaseCamera m_camera;
-
-        #endregion
+        #endregion Camera
 
         #region INotifyPropertyChanged Members
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        ///
         /// </summary>
         protected void OnPropertyChanged(string name)
         {
@@ -276,11 +286,6 @@ namespace SharpDX.WPF
                 e(this, new PropertyChangedEventArgs(name));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
+        #endregion INotifyPropertyChanged Members
     }
 }

@@ -23,7 +23,7 @@ namespace SharpDX.WPF
 		Factory2D factory2D;
 		FactoryDW factoryDW;
 
-		#region ctor()
+#region ctor()
 
 		public D3D11_2D1()
 			: this(null, null)
@@ -104,12 +104,12 @@ namespace SharpDX.WPF
 				device = drawdevice;
 				device10 = textdevice;
 			}
-			
+
 			factory2D = new SharpDX.Direct2D1.Factory();
 			factoryDW = new FactoryDW();
 		}
 
-		#endregion
+        #endregion ctor()
 
 		protected override void Dispose(bool disposing)
 		{

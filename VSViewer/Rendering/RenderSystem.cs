@@ -1,19 +1,16 @@
-﻿using GameFormatReader.Common;
-using SharpDX;
+﻿using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.WPF;
+using SharpDX.WPF.Cameras;
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using VSViewer.Common;
 using VSViewer.FileFormats;
-using VSViewer.Loader;
 using VSViewer.Models;
-using VSViewer.ViewModels;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
 
@@ -93,9 +90,9 @@ namespace VSViewer.Rendering
                 // Set shader flags
                 ShaderFlags sFlags = ShaderFlags.EnableStrictness;
 
-                #if DEBUG
+#if DEBUG
                 sFlags |= ShaderFlags.Debug;
-                #endif
+#endif
 
                 // Compile shader code
                 CompilationResult vertexShaderByteCode = ShaderBytecode.CompileFromFile(shaderName, "VS", "vs_4_0", sFlags, EffectFlags.None);
@@ -122,117 +119,12 @@ namespace VSViewer.Rendering
                 // Vagrant Story meshes are written as TriangleLists
                 Device.ImmediateContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error initializing shader. Error is " + ex.Message);
-                return false;
-            };
-
-            Camera = new FirstPersonCamera();
-            Camera.SetProjParams(65 * VSTools.Deg2Rad, 1.5f, 25.0f, 10000f);
-            Camera.SetViewParams(new Vector3(0.0f, 0.0f, 500.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0, -1, 0));
-            return true;
-        }
-
-        public override void RenderScene(DrawEventArgs args)
-        {
-            // fill the back buffer with solid black
-            Device.ImmediateContext.ClearRenderTargetView(RenderTargetView, new Color4(0, 0, 0, 1));
-            // clear depth buffer
-            Device.ImmediateContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
-
-
-            if (core.Actor.Shape != null)
-            {
-
-                // TODO: A fix for the resize bug.
-                //m_device.ImmediateContext.Rasterizer.SetViewports(new Viewport(0, 0, w, h, 0.0f, 1.0f));
-
-                UpdateAnimation(args.DeltaTime);
-
-                ApplySkinning();
-
-                UpdateTexture();
-
-                UpdateVertexAndIndiceBuffers();
-
-                SetShaderParameters(args);
-
-                PushShaders();
-            }
-        }
-
-        private void UpdateAnimation(TimeSpan timeSpan)
-        {
-            SEQ seq = core.Actor.SEQ;
-            Geometry shape = core.Actor.Shape;
-
-            if (seq == null) { return; }
-            m_animFrameTimer += (float)timeSpan.Milliseconds;
-
-            if (seq.animations[seq.CurrentAnimationIndex].length <= m_animFrameTimer / 1000)
-            {
-                m_animFrameTimer = m_animFrameTimer - seq.animations[seq.CurrentAnimationIndex].length * 1000;
-            }
-
-            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, seq.animations[seq.CurrentAnimationIndex].length);
-
-            for(int i = 0; i < shape.skeleton.Count; i++)
-            {
-                Frame f = seq.QueryAnimationTime(frameQueryTime, i);
-                shape.instancedSkeleton[i].position = f.Position;
-                shape.instancedSkeleton[i].quaternion = f.Rotation;
-                shape.instancedSkeleton[i].scale = f.Scale;
-            }
-
-        }
-
-        private void ApplySkinning()
-        {
-            Geometry shape = core.Actor.Shape;
-
-            // Construct the matrices of each bone from it's many parents
-            Matrix[] boneTransforms = new Matrix[shape.skeleton.Count];
-            for (int i = 0; i < shape.skeleton.Count; i++)
-            {
-                SkeletalJoint bone = shape.skeleton[i];
-                Matrix cumulativeTransform = Matrix.Identity;
-
-                while (bone != null)
-                {
-                    cumulativeTransform = cumulativeTransform * Matrix.Scaling(bone.scale) * Matrix.RotationQuaternion(bone.quaternion) * Matrix.Translation(bone.position);
-                    bone = (bone.parentIndex != -1) ? shape.skeleton[bone.parentIndex] : null;
-                }
-
-                boneTransforms[i] = cumulativeTransform;
-            }
-
-            // Each bone is now in it's final position, so we can apply that to the vertices based on their bone weighting.
-            // However, in Vagrant Story all vertices have a max influence of 1, so this is very simple.
-            Vector3[] temporarySkinnedVertices = new Vector3[shape.vertices.Count];
-            for (int v = 0; v < shape.vertices.Count; v++)
-            {
-                temporarySkinnedVertices[v] = Vector3.TransformCoordinate(shape.vertices[v], boneTransforms[shape.jointID[v]]);
-            }
-
-            InterleaveVerticesWithUVs(temporarySkinnedVertices);
-        }
-
-        private void UpdateTexture ()
-        {
-            //if (!core.RenderRequiresUpdate) { return; }
-        }
-
-        private void UpdateVertexAndIndiceBuffers()
-        {
-            if (!core.RenderRequiresUpdate) { return; }
-            
                 RasterizerStateDescription rasterDesc = new RasterizerStateDescription()
                 {
                     CullMode = CullMode.Back,
                     FillMode = FillMode.Solid,
-                    IsFrontCounterClockwise = true,
+                    // updated to SDX 2.6.3 and this is clockwise now.... why?
+                    IsFrontCounterClockwise = false,
                     DepthBias = 0,
                     DepthBiasClamp = 0,
                     SlopeScaledDepthBias = 0,
@@ -296,7 +188,108 @@ namespace VSViewer.Rendering
                 };
                 depthStencilState = new DepthStencilState(Device, depthStencilStateDesc);
 
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error initializing shader. Error is " + ex.Message);
+                return false;
+            };
+
+            Camera = new FirstPersonCamera();
+            Camera.SetProjParams(65 * VSTools.Deg2Rad, 1.5f, 25.0f, 10000f);
+            // vagrant story is -y up. Probably an artifact of the hardware restrictions.
+            Camera.SetViewParams(new Vector3(0.0f, 0.0f, -500.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0, -1, 0));
+            return true;
+        }
+
+        public override void RenderScene(DrawEventArgs args)
+        {
+            // fill the back buffer with solid black
+            Device.ImmediateContext.ClearRenderTargetView(RenderTargetView, new Color4(0, 0, 0, 1));
+            // clear depth buffer
+            Device.ImmediateContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
+
+            if (core.Actor.Shape == null) { return; }
+
+            UpdateAnimation(args.DeltaTime);
+
+            ApplySkinning();
+
+            UpdateTexture();
+
+            UpdateVertexAndIndiceBuffers();
+
+            SetShaderParameters(args);
+
+            PushShaders();
+        }
+
+        private void UpdateAnimation(TimeSpan timeSpan)
+        {
+            SEQ seq = core.Actor.SEQ;
+            Geometry shape = core.Actor.Shape;
+
+            if (seq == null) { return; }
+            m_animFrameTimer += (float)timeSpan.Milliseconds;
+
+            if (seq.animations[seq.CurrentAnimationIndex].length <= m_animFrameTimer / 1000)
+            {
+                m_animFrameTimer = m_animFrameTimer - seq.animations[seq.CurrentAnimationIndex].length * 1000;
+            }
+
+            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, seq.animations[seq.CurrentAnimationIndex].length);
+
+            for (int i = 0; i < shape.skeleton.Count; i++)
+            {
+                Frame f = seq.QueryAnimationTime(frameQueryTime, i);
+                shape.instancedSkeleton[i].Position = f.Position;
+                shape.instancedSkeleton[i].Rotation = f.Rotation;
+                shape.instancedSkeleton[i].LocalScale = f.Scale;
+            }
+
+        }
+
+        private void ApplySkinning()
+        {
+            Geometry shape = core.Actor.Shape;
+
+            // Construct the matrices of each bone from it's many parents
+            Matrix[] boneTransforms = new Matrix[shape.skeleton.Count];
+            for (int i = 0; i < shape.skeleton.Count; i++)
+            {
+                SkeletalJoint bone = shape.skeleton[i];
+                Matrix cumulativeTransform = Matrix.Identity;
+
+                while (bone != null)
+                {
+                    cumulativeTransform = cumulativeTransform * Matrix.Scaling(bone.LocalScale) * Matrix.RotationQuaternion(bone.Rotation) * Matrix.Translation(bone.Position);
+                    bone = (bone.parentIndex != -1) ? shape.skeleton[bone.parentIndex] : null;
+                }
+
+                boneTransforms[i] = cumulativeTransform;
+            }
+
+            // Each bone is now in it's final position, so we can apply that to the vertices based on their bone weighting.
+            // However, in Vagrant Story all vertices have a max influence of 1, so this is very simple.
+            Vector3[] temporarySkinnedVertices = new Vector3[shape.vertices.Count];
+            for (int v = 0; v < shape.vertices.Count; v++)
+            {
+                temporarySkinnedVertices[v] = Vector3.TransformCoordinate(shape.vertices[v], boneTransforms[shape.jointID[v]]);
+            }
+
+            InterleaveVerticesWithUVs(temporarySkinnedVertices);
+        }
+
+        private void UpdateTexture()
+        {
+            //if (!core.RenderRequiresUpdate) { return; }
+        }
+
+        private void UpdateVertexAndIndiceBuffers()
+        {
+            if (!core.RenderRequiresUpdate) { return; }
             core.RenderRequiresUpdate = false;
+
             Set(ref m_textureResourceView, new ShaderResourceView(Device, core.Actor.Shape.Textures[0].GetTexture2D(Device)));
             Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
 
@@ -327,7 +320,7 @@ namespace VSViewer.Rendering
             // Rotate the object for debugging
             float t = (float)args.TotalTime.TotalSeconds;
             var g_World = Matrix.RotationY(0);
-            core.Actor.Rotation = Quaternion.RotationAxis(VSTools.UnitY, t);
+            //core.Actor.Rotation = Quaternion.RotationAxis(VSTools.UnitY, t);
 
             // Update matrices in the constant buffer
             Matrix modelMatrix = Matrix.Scaling(core.Actor.LocalScale) * Matrix.RotationQuaternion(core.Actor.Rotation) * Matrix.Translation(core.Actor.Position);

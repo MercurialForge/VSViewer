@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
 
 namespace SharpDX.WPF
 {
     public class FPS : INotifyPropertyChanged
     {
+        private TimeSpan m_averagingInterval = TimeSpan.FromSeconds(1);
+
+        private List<TimeSpan> m_frames = new List<TimeSpan>();
+
+        private double m_value;
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public TimeSpan AveragingInterval
         {
@@ -20,14 +24,29 @@ namespace SharpDX.WPF
                     return;
                 if (value < TimeSpan.FromSeconds(0.1))
                     throw new ArgumentOutOfRangeException();
-                
+
                 m_averagingInterval = value;
                 OnPropertyChanged("AveragingInterval");
             }
         }
-        
+
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        public double Value
+        {
+            get { return m_value; }
+            private set
+            {
+                if (value == m_value)
+                    return;
+                m_value = value;
+                OnPropertyChanged("Value");
+            }
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="ts"></param>
         public void AddFrame(TimeSpan ts)
@@ -42,7 +61,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Clear()
         {
@@ -51,22 +70,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public double Value
-        {
-            get { return m_value; }
-            private set
-            {
-                if (value == m_value)
-                    return;
-                m_value = value;
-                OnPropertyChanged("Value");
-            }
-        }
-        
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         private void UpdateValue()
         {
@@ -83,20 +87,15 @@ namespace SharpDX.WPF
 
         #region INotifyPropertyChanged Members
 
-        void OnPropertyChanged(string name)
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string name)
         {
             var e = PropertyChanged;
             if (e != null)
                 e(this, new PropertyChangedEventArgs(name));
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
-        private double m_value;
-        private TimeSpan m_averagingInterval = TimeSpan.FromSeconds(1);
-        private List<TimeSpan> m_frames = new List<TimeSpan>();
-
+        #endregion INotifyPropertyChanged Members
     }
 }

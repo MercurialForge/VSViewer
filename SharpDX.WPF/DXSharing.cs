@@ -1,9 +1,9 @@
-﻿using System;
-using SharpDX.Direct3D9;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
-using System.Windows;
+﻿using SharpDX.Direct3D9;
+using System;
 using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace SharpDX.WPF
 {
@@ -17,18 +17,21 @@ namespace SharpDX.WPF
             {
                 case SharpDX.DXGI.Format.R10G10B10A2_UNorm:
                     return SharpDX.Direct3D9.Format.A2B10G10R10;
+
                 case SharpDX.DXGI.Format.B8G8R8A8_UNorm:
                     return SharpDX.Direct3D9.Format.A8R8G8B8;
+
                 case SharpDX.DXGI.Format.R16G16B16A16_Float:
                     return SharpDX.Direct3D9.Format.A16B16G16R16F;
 
-                    // not sure those one below will work...
+                // not sure those one below will work...
 
                 case SharpDX.DXGI.Format.R32G32B32A32_Float:
                     return SharpDX.Direct3D9.Format.A32B32G32R32F;
 
                 case SharpDX.DXGI.Format.R16G16B16A16_UNorm:
                     return SharpDX.Direct3D9.Format.A16B16G16R16;
+
                 case SharpDX.DXGI.Format.R32G32_Float:
                     return SharpDX.Direct3D9.Format.G32R32F;
 
@@ -40,6 +43,7 @@ namespace SharpDX.WPF
 
                 case SharpDX.DXGI.Format.R16G16_Float:
                     return SharpDX.Direct3D9.Format.G16R16F;
+
                 case SharpDX.DXGI.Format.R32_Float:
                     return SharpDX.Direct3D9.Format.R32F;
 
@@ -48,13 +52,16 @@ namespace SharpDX.WPF
 
                 case SharpDX.DXGI.Format.A8_UNorm:
                     return SharpDX.Direct3D9.Format.A8;
+
                 case SharpDX.DXGI.Format.R8_UNorm:
                     return SharpDX.Direct3D9.Format.L8;
 
                 case SharpDX.DXGI.Format.BC1_UNorm:
                     return SharpDX.Direct3D9.Format.Dxt1;
+
                 case SharpDX.DXGI.Format.BC2_UNorm:
                     return SharpDX.Direct3D9.Format.Dxt3;
+
                 case SharpDX.DXGI.Format.BC3_UNorm:
                     return SharpDX.Direct3D9.Format.Dxt5;
 
@@ -63,7 +70,7 @@ namespace SharpDX.WPF
             }
         }
 
-        #endregion
+        #endregion ToD3D9Format()
 
         #region GetD3D9(Direct3D10.Texture2D)
 
@@ -88,7 +95,7 @@ namespace SharpDX.WPF
             }
         }
 
-        #endregion
+        #endregion GetD3D9(Direct3D10.Texture2D)
 
         #region GetD3D9(Direct3D11.Texture2D)
 
@@ -113,17 +120,18 @@ namespace SharpDX.WPF
             }
         }
 
-        #endregion
+        #endregion GetD3D9(Direct3D11.Texture2D)
 
         #region D3D11.Texture2D: GetBitmap()
 
-#if UNSAFE            
+#if UNSAFE
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public static unsafe WriteableBitmap GetBitmap(this SharpDX.Direct3D11.Texture2D tex)
         {
-            DataRectangle db;            
+            DataRectangle db;
             using (var copy = tex.GetCopy())
             using (var surface = copy.QueryInterface<SharpDX.DXGI.Surface>())
             {
@@ -133,12 +141,12 @@ namespace SharpDX.WPF
 
                 int w = tex.Description.Width;
                 int h = tex.Description.Height;
-                var wb = new WriteableBitmap(w, h, 96.0, 96.0, PixelFormats.Bgra32, null);                
+                var wb = new WriteableBitmap(w, h, 96.0, 96.0, PixelFormats.Bgra32, null);
                 wb.Lock();
                 try
                 {
                     uint* wbb = (uint*)wb.BackBuffer;
-                    
+
                     ds.Position = 0;
                     for (int y = 0; y < h; y++)
                     {
@@ -159,15 +167,16 @@ namespace SharpDX.WPF
                 return wb;
             }
         }
+
 #else
         public static WriteableBitmap GetBitmap(this SharpDX.Direct3D11.Texture2D tex)
         {
             throw new NotImplementedException();
         }
 #endif
-        
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private static SharpDX.Direct3D11.Texture2D GetCopy(this SharpDX.Direct3D11.Texture2D tex)
         {
@@ -188,34 +197,10 @@ namespace SharpDX.WPF
             return teximg;
         }
 
-        #endregion
+        #endregion D3D11.Texture2D: GetBitmap()
 
         #region D3D10.Texture2D: GetBitmap()
 
-        [StructLayout(LayoutKind.Explicit, Pack = 4)]
-        struct FIXREAD
-        {
-            [FieldOffset(0)]
-            public byte B0;
-            [FieldOffset(1)]
-            public byte B1;
-            [FieldOffset(2)]
-            public byte B2;
-            [FieldOffset(3)]
-            public byte B3;
-
-            [FieldOffset(0)]
-            public uint UINT;
-
-            public void Fix()
-            {
-                // TODO there is a bug somewhere to fix!
-                if (UINT != 0 && B3 == 0)
-                    B3 = 255;
-            }
-        }
-
-#if UNSAFE
         public unsafe static WriteableBitmap GetBitmap(this SharpDX.Direct3D10.Texture2D tex)
         {
             DataStream ds;
@@ -226,7 +211,7 @@ namespace SharpDX.WPF
 
             int w = tex.Description.Width;
             int h = tex.Description.Height;
-            
+
             var wb = new WriteableBitmap(w, h, 96.0, 96.0, PixelFormats.Bgra32, null);
             wb.Lock();
             uint* wbb = (uint*)wb.BackBuffer;
@@ -243,17 +228,10 @@ namespace SharpDX.WPF
             }
             wb.AddDirtyRect(new Int32Rect(0, 0, w, h));
             wb.Unlock();
-            ds.Dispose();            
+            ds.Dispose();
             return wb;
         }
-#else
-        public static WriteableBitmap GetBitmap(this SharpDX.Direct3D10.Texture2D tex)
-        {
-            throw new NotImplementedException();
-        }
-#endif
 
-        
         internal static SharpDX.Direct3D10.Texture2D GetCopy(this SharpDX.Direct3D10.Texture2D tex)
         {
             var teximg = new SharpDX.Direct3D10.Texture2D(tex.Device, new SharpDX.Direct3D10.Texture2DDescription
@@ -273,6 +251,40 @@ namespace SharpDX.WPF
             return teximg;
         }
 
-        #endregion
+        [StructLayout(LayoutKind.Explicit, Pack = 4)]
+        private struct FIXREAD
+        {
+            [FieldOffset(0)]
+            public byte B0;
+
+            [FieldOffset(1)]
+            public byte B1;
+
+            [FieldOffset(2)]
+            public byte B2;
+
+            [FieldOffset(3)]
+            public byte B3;
+
+            [FieldOffset(0)]
+            public uint UINT;
+
+            public void Fix()
+            {
+                // TODO there is a bug somewhere to fix!
+                if (UINT != 0 && B3 == 0)
+                    B3 = 255;
+            }
+        }
+
+#if UNSAFE
+#else
+        public static WriteableBitmap GetBitmap(this SharpDX.Direct3D10.Texture2D tex)
+        {
+            throw new NotImplementedException();
+        }
+#endif
+
+        #endregion D3D10.Texture2D: GetBitmap()
     }
 }

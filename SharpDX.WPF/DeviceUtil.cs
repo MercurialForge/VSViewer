@@ -1,15 +1,17 @@
-﻿using System;
+﻿using SharpDX.DXGI;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX.DXGI;
 
 namespace SharpDX.WPF
 {
     public static class DeviceUtil
     {
         /// <summary>
-        /// 
+        ///  cache it, as the underlying code rely on Exception to find the value!!!
+        /// </summary>
+        private static int sAdapterCount = -1;
+
+        /// <summary>
+        ///
         /// </summary>
         public static int AdapterCount
         {
@@ -23,50 +25,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        ///  cache it, as the underlying code rely on Exception to find the value!!!
-        /// </summary>
-        private static int sAdapterCount = -1;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dg"></param>
-        /// <returns></returns>
-        public static IEnumerable<Adapter> GetAdapters(DisposeGroup dg)
-        {
-            // NOTE: SharpDX 1.3 requires explicit Dispose() of everything
-            // hence the DisposeGroup, to enforce it
-            using (var f = new Factory())
-            {
-                int n = AdapterCount;
-                for (int i = 0; i < n; i++)
-                    yield return dg.Add(f.GetAdapter(i));
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dg"></param>
-        /// <returns></returns>
-        public static Adapter GetBestAdapter(DisposeGroup dg)
-        {
-            Direct3D.FeatureLevel high = Direct3D.FeatureLevel.Level_9_1;
-            Adapter ada = null;
-            foreach (var item in GetAdapters(dg))
-            {
-                var level = Direct3D11.Device.GetSupportedFeatureLevel(item);
-                if (ada == null || level > high)
-                {
-                    ada = item;
-                    high = level;
-                }
-            }
-            return ada;
-        }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="cFlags"></param>
         /// <param name="minLevel"></param>
@@ -91,7 +50,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="cFlags"></param>
         /// <param name="minLevel"></param>
@@ -110,6 +69,44 @@ namespace SharpDX.WPF
                     return null;
                 return new Direct3D11.Device(ada, cFlags, level);
             }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="dg"></param>
+        /// <returns></returns>
+        public static IEnumerable<Adapter> GetAdapters(DisposeGroup dg)
+        {
+            // NOTE: SharpDX 1.3 requires explicit Dispose() of everything
+            // hence the DisposeGroup, to enforce it
+            using (var f = new Factory())
+            {
+                int n = AdapterCount;
+                for (int i = 0; i < n; i++)
+                    yield return dg.Add(f.GetAdapter(i));
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="dg"></param>
+        /// <returns></returns>
+        public static Adapter GetBestAdapter(DisposeGroup dg)
+        {
+            Direct3D.FeatureLevel high = Direct3D.FeatureLevel.Level_9_1;
+            Adapter ada = null;
+            foreach (var item in GetAdapters(dg))
+            {
+                var level = Direct3D11.Device.GetSupportedFeatureLevel(item);
+                if (ada == null || level > high)
+                {
+                    ada = item;
+                    high = level;
+                }
+            }
+            return ada;
         }
     }
 }

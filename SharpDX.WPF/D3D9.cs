@@ -1,13 +1,19 @@
-﻿using System;
+﻿using SharpDX.Direct3D9;
+using System;
 using System.Runtime.InteropServices;
-using SharpDX.Direct3D9;
 
 namespace SharpDX.WPF
 {
     public class D3D9 : D3D
     {
+        protected Direct3DEx m_context;
+
+        protected DeviceEx m_device;
+
+        private Texture m_renderTarget;
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public D3D9()
             : this(null)
@@ -15,10 +21,10 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="device"></param>
-        public D3D9(DeviceEx device) 
+        public D3D9(DeviceEx device)
         {
             if (device != null)
             {
@@ -42,37 +48,22 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="disposing"></param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                Set(ref m_device, null);
-                Set(ref m_context, null);
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool IsDisposed { get { return m_device == null; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [DllImport("user32.dll", SetLastError = false)]
-        static extern IntPtr GetDesktopWindow();
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         public DeviceEx Device { get { return m_device.GetOrThrow(); } }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        public bool IsDisposed { get { return m_device == null; } }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public Texture RenderTarget { get { return Prepared(ref m_renderTarget); } }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="w"></param>
         /// <param name="h"></param>
@@ -93,7 +84,38 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        /// <param name="dximage"></param>
+        public override void SetBackBuffer(DXImageSource dximage)
+        {
+            dximage.SetBackBuffer(RenderTarget);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public override System.Windows.Media.Imaging.WriteableBitmap ToImage()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Set(ref m_device, null);
+                Set(ref m_context, null);
+            }
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="property"></param>
@@ -107,25 +129,10 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public Texture RenderTarget { get { return Prepared(ref m_renderTarget); } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dximage"></param>
-        public override void SetBackBuffer(DXImageSource dximage) { dximage.SetBackBuffer(RenderTarget); }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
-        public override System.Windows.Media.Imaging.WriteableBitmap ToImage() { throw new NotImplementedException(); }
-
-
-        protected Direct3DEx m_context;
-        protected DeviceEx m_device;
-        private Texture m_renderTarget;
+        [DllImport("user32.dll", SetLastError = false)]
+        private static extern IntPtr GetDesktopWindow();
     }
 }

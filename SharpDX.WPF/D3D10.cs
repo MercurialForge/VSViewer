@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using SharpDX.Direct3D10;
+﻿using SharpDX.Direct3D10;
 using SharpDX.DXGI;
+using System;
 using Device = SharpDX.Direct3D10.Device;
 
 namespace SharpDX.WPF
@@ -9,7 +8,7 @@ namespace SharpDX.WPF
     public class D3D10 : D3D
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public D3D10()
             : this(null)
@@ -17,7 +16,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="minLevel"></param>
         public D3D10(Direct3D10.FeatureLevel minLevel)
@@ -28,7 +27,7 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="dev"></param>
         public D3D10(Device dev)
@@ -47,36 +46,56 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <param name="disposing"></param>
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            // NOTE: SharpDX 1.3 requires explicit Dispose() of everything
-            Set(ref m_device, null);
-            Set(ref m_renderTarget, null);
-            Set(ref m_renderTargetView, null);
-        }
+        public Texture2D DepthStencil { get { return Prepared(ref m_depthStencil); } }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        public DepthStencilView DepthStencilView { get { return Prepared(ref m_depthStencilView); } }
+
+        /// <summary>
+        ///
         /// </summary>
         public Device Device { get { return m_device.GetOrThrow(); } }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public bool IsDisposed { get { return m_device == null; } }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <param name="dximage"></param>
-        public override void SetBackBuffer(DXImageSource dximage) { dximage.SetBackBuffer(RenderTarget); }
+        public Texture2D RenderTarget { get { return Prepared(ref m_renderTarget); } }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        public RenderTargetView RenderTargetView { get { return Prepared(ref m_renderTargetView); } }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="args"></param>
+        public override void BeginRender(DrawEventArgs args)
+        {
+            m_device.GetOrThrow();
+            m_device.ClearDepthStencilView(this.DepthStencilView, DepthStencilClearFlags.Depth, 1.0f, 0);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="args"></param>
+        public override void EndRender(DrawEventArgs args)
+        {
+            Device.Flush();
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="w"></param>
         /// <param name="h"></param>
@@ -114,26 +133,38 @@ namespace SharpDX.WPF
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <param name="args"></param>
-        public override void BeginRender(DrawEventArgs args)
+        /// <param name="dximage"></param>
+        public override void SetBackBuffer(DXImageSource dximage)
         {
-            m_device.GetOrThrow();
-            m_device.ClearDepthStencilView(this.DepthStencilView, DepthStencilClearFlags.Depth, 1.0f, 0);
+            dximage.SetBackBuffer(RenderTarget);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <param name="args"></param>
-        public override void EndRender(DrawEventArgs args)
+        /// <returns></returns>
+        public override System.Windows.Media.Imaging.WriteableBitmap ToImage()
         {
-            Device.Flush();
+            return RenderTarget.GetBitmap();
         }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            // NOTE: SharpDX 1.3 requires explicit Dispose() of everything
+            Set(ref m_device, null);
+            Set(ref m_renderTarget, null);
+            Set(ref m_renderTargetView, null);
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="property"></param>
@@ -146,40 +177,14 @@ namespace SharpDX.WPF
             return property;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public Texture2D RenderTarget { get { return Prepared(ref m_renderTarget); } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public RenderTargetView RenderTargetView { get { return Prepared(ref m_renderTargetView); } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Texture2D DepthStencil { get { return Prepared(ref m_depthStencil); } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public DepthStencilView DepthStencilView { get { return Prepared(ref m_depthStencilView); } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public override System.Windows.Media.Imaging.WriteableBitmap ToImage() { return RenderTarget.GetBitmap(); }
-
         #region Fields
 
+        protected Texture2D m_depthStencil;
+        protected DepthStencilView m_depthStencilView;
         protected Device m_device;
         protected Texture2D m_renderTarget;
         protected RenderTargetView m_renderTargetView;
-        protected Texture2D m_depthStencil;
-        protected DepthStencilView m_depthStencilView;
 
-        #endregion
+        #endregion Fields
     }
 }
