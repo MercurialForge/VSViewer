@@ -6,7 +6,8 @@
         xmlns:view="clr-namespace:VSViewer.Views"
         xmlns:dxc="clr-namespace:SharpDX.WPF;assembly=SharpDX.WPF"
         xmlns:rnd="clr-namespace:VSViewer.Rendering"
-        Title="Vagrant Story Viewer">
+        Title="Vagrant Story Viewer"
+        Width="1500" Height="1000">
     <Window.Resources>
         <DataTemplate DataType="{x:Type model:ImporterViewModel}">
             <view:ImporterView/>
@@ -15,9 +16,6 @@
             <view:TexturesView/>
         </DataTemplate>
     </Window.Resources>
-    <Window.DataContext>
-        <model:MainWindowViewModel/>
-    </Window.DataContext>
     <Grid>
         <DockPanel VerticalAlignment="Top" Height="20">
             <Menu DockPanel.Dock="Top" Background="LightGray">
