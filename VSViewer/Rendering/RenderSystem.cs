@@ -241,10 +241,10 @@ namespace VSViewer.Rendering
 
             for (int i = 0; i < shape.skeleton.Count; i++)
             {
-                Frame f = seq.QueryAnimationTime(frameQueryTime, i);
+                Transform f = seq.QueryAnimationTime(frameQueryTime, i);
                 shape.instancedSkeleton[i].Position = f.Position;
                 shape.instancedSkeleton[i].Rotation = f.Rotation;
-                shape.instancedSkeleton[i].LocalScale = f.Scale;
+                shape.instancedSkeleton[i].LocalScale = f.LocalScale;
             }
 
         }
@@ -317,10 +317,11 @@ namespace VSViewer.Rendering
         {
             Geometry shape = core.Actor.Shape;
 
-            // Rotate the object for debugging
-            float t = (float)args.TotalTime.TotalSeconds;
-            var g_World = Matrix.RotationY(0);
-            //core.Actor.Rotation = Quaternion.RotationAxis(VSTools.UnitY, t);
+            if (core.UseTurntable)
+            {
+                float t = (float)args.TotalTime.TotalSeconds * core.TurntableSpeed;
+                core.Actor.Rotation = Quaternion.RotationAxis(VSTools.UnitY, t);
+            }
 
             // Update matrices in the constant buffer
             Matrix modelMatrix = Matrix.Scaling(core.Actor.LocalScale) * Matrix.RotationQuaternion(core.Actor.Rotation) * Matrix.Translation(core.Actor.Position);

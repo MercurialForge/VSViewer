@@ -492,19 +492,19 @@ namespace SharpDX.WPF.Cameras
             {
                 case Key.W:
                 case Key.Up:
-                    return new Vector3(0, 0, -1);
+                    return new Vector3(0, 0, 1);
 
                 case Key.S:
                 case Key.Down:
-                    return new Vector3(0, 0, 1);
+                    return new Vector3(0, 0, -1);
 
                 case Key.D:
                 case Key.Right:
-                    return new Vector3(1, 0, 0);
+                    return new Vector3(-1, 0, 0);
 
                 case Key.A:
                 case Key.Left:
-                    return new Vector3(-1, 0, 0);
+                    return new Vector3(1, 0, 0);
 
                 case Key.E:
                     return new Vector3(0, -1, 0);

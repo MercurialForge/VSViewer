@@ -34,12 +34,22 @@ namespace VSViewer.FileFormats
             get { return m_width * m_height * 4; }
         }
 
+        public BitmapSource Bitmap
+        {
+            get { return m_bitmap; }
+            set
+            {
+                m_bitmap = value;
+            }
+        }
+
         public Palette m_colorPalette;
         public byte[] map;
 
         SamplerStateDescription m_samplerDesc;
         ushort m_width;
         ushort m_height;
+        private BitmapSource m_bitmap;
 
         public TextureMap (int w, int h)
         {
@@ -136,10 +146,11 @@ namespace VSViewer.FileFormats
         public void Save (string name, string directory = "")
         {
             // write to disk
-            using (FileStream stream = new FileStream(name + ".png", FileMode.Create))
+            using (FileStream stream = new FileStream(directory + name + ".png", FileMode.Create))
             {
                 PngBitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(GetBitmap()));
+                Bitmap = GetBitmap();
+                encoder.Frames.Add(BitmapFrame.Create(Bitmap));
                 encoder.Save(stream);
             }
         }

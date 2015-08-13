@@ -10,17 +10,23 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="5"/>
             </Grid.RowDefinitions>
 
             <!--Import Label-->
             <Label Grid.Row="0" Content=" - TEXTURES" FontWeight="Bold" FontSize="15" />
-            <WrapPanel Grid.Row="1">
-                <ItemsControl DataContext="{Binding Textures}">
-                    
-                </ItemsControl>
-            </WrapPanel>
-
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding Core.Actor.Shape.Textures}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel MaxWidth="300" Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Image Source="{Binding Bitmap}" Margin="0,0,10,10" Stretch="None"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
             <!--Simple separator-->
             <Separator Grid.Row="2" VerticalAlignment="Bottom"/>
         </Grid>

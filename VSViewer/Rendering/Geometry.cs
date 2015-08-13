@@ -1,6 +1,7 @@
 ﻿using SharpDX;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,10 +39,10 @@ namespace VSViewer
         // the render system's instance joints for skinning
         public SkeletalJoint[] instancedSkeleton; 
 
-        public List<TextureMap> Textures
+        public ObservableCollection<TextureMap> Textures
         {
-            get { return coreObject.textures; }
-            set { coreObject.textures = value; }
+            get { return new ObservableCollection<TextureMap>(coreObject.textures); }
+            set { coreObject.textures = new List<TextureMap>(value.ToArray()); }
         }
 
         // TODO: generate normals for faces and verts

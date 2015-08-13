@@ -155,7 +155,8 @@ namespace VSViewer
 
             for (int i = 0; i < numOfPalettes; i++) 
             {
-                outTextures[i].map = paletteMap; 
+                outTextures[i].map = paletteMap;
+                outTextures[i].Save(i.ToString());
             }
 
         }

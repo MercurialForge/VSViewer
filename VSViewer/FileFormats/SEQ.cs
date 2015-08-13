@@ -33,10 +33,10 @@ namespace VSViewer.FileFormats
         int m_currentAnimationIndex;
         float lastQueryTime;
 
-        public Frame QueryAnimationTime(float time, int jointIndex)
+        public Transform QueryAnimationTime(float time, int jointIndex)
         {
             Animation anim = animations[CurrentAnimationIndex];
-            Frame f = new Frame();
+            Transform f = new Transform();
 
             if (time < lastQueryTime) { UpdateAnimationTo(m_currentAnimationIndex); }
 
@@ -78,7 +78,7 @@ namespace VSViewer.FileFormats
 
             f.Position = Vector3.Lerp(m_currentKeyframe[jointIndex].Position, m_nextKeyframe[jointIndex].Position, t);
             f.Rotation = Quaternion.Slerp(m_currentKeyframe[jointIndex].Rotation, m_nextKeyframe[jointIndex].Rotation, t);
-            f.Scale = Vector3.Lerp(m_currentKeyframe[jointIndex].Scale, m_nextKeyframe[jointIndex].Scale, t);
+            f.LocalScale = Vector3.Lerp(m_currentKeyframe[jointIndex].Scale, m_nextKeyframe[jointIndex].Scale, t);
 
             lastQueryTime = time;
             return f;
