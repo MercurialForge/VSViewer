@@ -36,11 +36,7 @@ namespace VSViewer.FileFormats
 
         public BitmapSource Bitmap
         {
-            get { return m_bitmap; }
-            set
-            {
-                m_bitmap = value;
-            }
+            get { return GetBitmap(); }
         }
 
         public Palette m_colorPalette;
@@ -49,7 +45,6 @@ namespace VSViewer.FileFormats
         SamplerStateDescription m_samplerDesc;
         ushort m_width;
         ushort m_height;
-        private BitmapSource m_bitmap;
 
         public TextureMap (int w, int h)
         {
@@ -138,7 +133,7 @@ namespace VSViewer.FileFormats
             return buffer;
         }
 
-        public BitmapSource GetBitmap()
+        private BitmapSource GetBitmap()
         {
             return BitmapSource.Create(m_width, m_height, 96d, 96d, PixelFormats.Bgra32, null, GetPixelData(), 4 * ((m_width * 4 + 3) / 4));
         }
@@ -149,8 +144,7 @@ namespace VSViewer.FileFormats
             using (FileStream stream = new FileStream(directory + name + ".png", FileMode.Create))
             {
                 PngBitmapEncoder encoder = new PngBitmapEncoder();
-                Bitmap = GetBitmap();
-                encoder.Frames.Add(BitmapFrame.Create(Bitmap));
+                encoder.Frames.Add(BitmapFrame.Create(GetBitmap()));
                 encoder.Save(stream);
             }
         }

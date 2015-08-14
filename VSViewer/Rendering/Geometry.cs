@@ -39,10 +39,10 @@ namespace VSViewer
         // the render system's instance joints for skinning
         public SkeletalJoint[] instancedSkeleton; 
 
-        public ObservableCollection<TextureMap> Textures
+        public List<TextureMap> Textures
         {
-            get { return new ObservableCollection<TextureMap>(coreObject.textures); }
-            set { coreObject.textures = new List<TextureMap>(value.ToArray()); }
+            get { return coreObject.textures; }
+            set { coreObject.textures = value; }
         }
 
         // TODO: generate normals for faces and verts
