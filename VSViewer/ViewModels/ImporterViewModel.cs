@@ -80,6 +80,11 @@ namespace VSViewer.ViewModels
         {
             get { return new RelayCommand(x => PrepSubFile()); }
         }
+
+        public ICommand FindNext
+        {
+            get { return new RelayCommand(x => FindNextCommand()); }
+        }
         #endregion
 
         #region Private Fields / Properties
@@ -98,8 +103,17 @@ namespace VSViewer.ViewModels
             core = theCore;
             m_mainWindow = mainWindowViewModel;
         }
-
+        int t = 1;
         #region Command Methods
+        internal void FindNextCommand()
+        {
+            string path = @"C:\Users\Oliver\Desktop\VSDump\OBJ\" + t.ToString("X2") + ".WEP" ;
+            Console.WriteLine("Viewing WEP:" + t.ToString("X2"));
+                core.Actor.SEQ = null;
+                LoadShape(path);
+                t++;
+        }
+
         internal void PrepMainFile()
         {
             string path = "";
@@ -118,6 +132,19 @@ namespace VSViewer.ViewModels
             {
                 SubFilePath = path;
                 LoadAsset();
+            }
+        }
+
+        private void LoadShape(string path)
+        {
+            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
+            {
+                        // load type
+                        Geometry wepGeometry = VSTools.CreateGeometry(WEPLoader.FromStream(reader));
+                        core.Actor = new Actor(wepGeometry);
+                        // push extra tools
+                        m_mainWindow.EnableTextureTool();
+                
             }
         }
 

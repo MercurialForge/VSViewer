@@ -1,6 +1,7 @@
 ﻿using GameFormatReader.Common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Media;
@@ -121,8 +122,9 @@ namespace VSViewer
         {
             UInt32 size = reader.ReadUInt32();
 
-            //reader.Skip(0x01); // unknown, always 1?
-            reader.ReadByte();
+            //reader.Skip(0x01); // version number, always 1 for WEPs. SHP?
+            byte temp = reader.ReadByte();
+            Trace.Assert(temp == 1);
 
             int width = reader.ReadByte() * 2;
             int height = reader.ReadByte() * 2;
@@ -158,6 +160,8 @@ namespace VSViewer
                 outTextures[i].map = paletteMap;
                 outTextures[i].Save(i.ToString());
             }
+
+            Console.WriteLine(reader.BaseStream.Length - reader.BaseStream.Position);
 
         }
     }

@@ -109,6 +109,11 @@ namespace VSViewer.FileFormats
                 {
                     int index = (y * m_width) + x;
                     int c = map[index];
+                    c -= m_colorPalette.GetColorCount() / 3;
+                    if(c < 0)
+                    {
+                        c += m_colorPalette.GetColorCount();
+                    }
 
                     if (c < m_colorPalette.GetColorCount())
                     {
@@ -123,12 +128,33 @@ namespace VSViewer.FileFormats
                         // A fall back for items 0x70 - 0x7F which do not support the final implemented palette format
                         // I have reason to believe these items were created first since they no longer follow the
                         // conventional format of the rest.
-                        buffer[index * 4 + 0] = (byte)204;
-                        buffer[index * 4 + 1] = (byte)102;
-                        buffer[index * 4 + 2] = (byte)255;
+                        buffer[index * 4 + 0] = (byte)0;
+                        buffer[index * 4 + 1] = (byte)255;
+                        buffer[index * 4 + 2] = (byte)0;
                         buffer[index * 4 + 3] = (byte)255;
                     }
+                    if(map[index] == 0)
+                    {
+                        buffer[index * 4 + 0] = (byte)0;
+                        buffer[index * 4 + 1] = (byte)0;
+                        buffer[index * 4 + 2] = (byte)0;
+                        buffer[index * 4 + 3] = (byte)0;
+                    }
                 }
+            }
+            return buffer;
+        }
+
+        public byte[] GetPalettePixels()
+        {
+            byte[] buffer = new byte[m_colorPalette.colors.Count * 4];
+            for (int y = 0; y < m_colorPalette.colors.Count; ++y)
+            {
+                        // swizzled to BGRA
+                        buffer[y * 4 + 0] = m_colorPalette.colors[y][2]; //b
+                        buffer[y * 4 + 1] = m_colorPalette.colors[y][1]; //g
+                        buffer[y * 4 + 2] = m_colorPalette.colors[y][0]; //r
+                        buffer[y * 4 + 3] = m_colorPalette.colors[y][3]; //a
             }
             return buffer;
         }
@@ -138,6 +164,11 @@ namespace VSViewer.FileFormats
             return BitmapSource.Create(m_width, m_height, 96d, 96d, PixelFormats.Bgra32, null, GetPixelData(), 4 * ((m_width * 4 + 3) / 4));
         }
 
+        private BitmapSource GetBitmapPalette()
+        {
+            return BitmapSource.Create(m_colorPalette.colors.Count, 1, 96d, 96d, PixelFormats.Bgra32, null, GetPalettePixels(), 4 * ((m_colorPalette.colors.Count * 4 + 3) / 4));
+        }
+
         public void Save (string name, string directory = "")
         {
             // write to disk
@@ -145,6 +176,14 @@ namespace VSViewer.FileFormats
             {
                 PngBitmapEncoder encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(GetBitmap()));
+                encoder.Save(stream);
+            }
+
+            // write to disk
+            using (FileStream stream = new FileStream(directory + name + "Palette.png", FileMode.Create))
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(GetBitmapPalette()));
                 encoder.Save(stream);
             }
         }

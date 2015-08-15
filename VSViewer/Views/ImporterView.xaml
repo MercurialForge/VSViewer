@@ -11,6 +11,7 @@
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="60"/>
+                <RowDefinition Height="60"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
@@ -42,9 +43,11 @@
                     </Grid>
                 </WrapPanel>
             </Grid>
-            
+            <Grid Grid.Row="3">
+                <Button Content="Next" Command="{Binding FindNext}"/>
+            </Grid>
             <!--Simple separator-->
-            <Separator Grid.Row="5" VerticalAlignment="Bottom"/>
+                <Separator Grid.Row="5" VerticalAlignment="Bottom"/>
         </Grid>
     </Grid>
 </UserControl>

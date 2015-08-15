@@ -290,7 +290,7 @@ namespace VSViewer.Rendering
             if (!core.RenderRequiresUpdate) { return; }
             core.RenderRequiresUpdate = false;
 
-            Set(ref m_textureResourceView, new ShaderResourceView(Device, core.Actor.Shape.Textures[0].GetTexture2D(Device)));
+            Set(ref m_textureResourceView, new ShaderResourceView(Device, core.Actor.Shape.Textures[1].GetTexture2D(Device)));
             Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
 
             // Setup vertex buffer
