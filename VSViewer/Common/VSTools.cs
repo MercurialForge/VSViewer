@@ -5,7 +5,7 @@ namespace VSViewer
 {
     static partial class VSTools
     {
-        public const float TimeScale = 0.04f;
+        public const float TimeScale = 0.08f;
 
         public const float Rad2Deg = (float)(180.0 / Math.PI);
         public const float Deg2Rad = (float)(Math.PI / 180.0);
@@ -50,7 +50,7 @@ namespace VSViewer
 
             if (a == 1)
             {
-                theColor = new byte[] { (byte)(r * 8), (byte)(g * 8), (byte)(b * 8), (byte)(255) };
+                theColor = new byte[] { (byte)(255), (byte)(0), (byte)(0), (byte)(255) };
                 return theColor;
             } 
 

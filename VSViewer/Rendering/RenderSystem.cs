@@ -282,16 +282,17 @@ namespace VSViewer.Rendering
 
         private void UpdateTexture()
         {
-            //if (!core.RenderRequiresUpdate) { return; }
+            if (!core.TextureRequiresUpdate) { return; }
+            core.TextureRequiresUpdate = false;
+
+            Set(ref m_textureResourceView, new ShaderResourceView(Device, core.Actor.Shape.Textures[core.TextureIndex].GetTexture2D(Device)));
+            Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
         }
 
         private void UpdateVertexAndIndiceBuffers()
         {
             if (!core.RenderRequiresUpdate) { return; }
             core.RenderRequiresUpdate = false;
-
-            Set(ref m_textureResourceView, new ShaderResourceView(Device, core.Actor.Shape.Textures[1].GetTexture2D(Device)));
-            Device.ImmediateContext.PixelShader.SetSampler(0, m_samplerState);
 
             // Setup vertex buffer
             Set(ref vertexBuffer, DXUtils.CreateBuffer(Device, core.Actor.Shape.instancedVertices));

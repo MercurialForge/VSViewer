@@ -101,6 +101,7 @@
     <Compile Include="Common\Keyframe.cs" />
     <Compile Include="Common\NullableVector4.cs" />
     <Compile Include="Common\RelayCommand.cs" />
+    <Compile Include="Common\Singleton.cs" />
     <Compile Include="Converters\TextureToBitmap.cs" />
     <Compile Include="FileFormats\AssetBase.cs" />
     <Compile Include="FileFormats\ContentBase.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Common\VSTools.cs" />
     <Compile Include="FileFormats\WEP.cs" />
     <Compile Include="Rendering\RenderSystem.cs" />
+    <Compile Include="ViewModels\AnimationViewModel.cs" />
     <Compile Include="ViewModels\ImporterViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\TexturesViewModel.cs" />
@@ -134,6 +136,9 @@
     <Compile Include="ViewModels\ViewportViewModel.cs" />
     <Compile Include="Views\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AnimationView.xaml.cs">
+      <DependentUpon>AnimationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ImporterView.xaml.cs">
       <DependentUpon>ImporterView.xaml</DependentUpon>
@@ -148,6 +153,10 @@
       <DependentUpon>ViewportView.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\AboutWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AnimationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

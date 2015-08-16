@@ -130,8 +130,6 @@ namespace VSViewer
             int height = reader.ReadByte() * 2;
             byte colorsPerPalette = reader.ReadByte();
 
-            List<TextureMap> textures = new List<TextureMap>();
-
             for (int p = 0; p < numOfPalettes; p++)
             {
                 TextureMap tex = new TextureMap(width, height);
@@ -140,7 +138,13 @@ namespace VSViewer
                 {
                     palette.colors.Add(VSTools.BitColorConverter(reader.ReadUInt16()));
                 }
-                tex.m_colorPalette = palette;
+                tex.ColorPalette = palette;
+                if (p % 2 != 0) // Is Odd Number
+                {
+                    tex.IsPaletteOffset = true;
+                }
+                if (p == 4) { tex.IsPaletteLast = true; }
+                tex.Index = p;
                 outTextures.Add(tex);
             }
 

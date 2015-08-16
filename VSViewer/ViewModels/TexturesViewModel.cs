@@ -7,20 +7,10 @@ using VSViewer.Models;
 
 namespace VSViewer.ViewModels
 {
-    class TexturesViewModel : ViewModelBase
+    public class TexturesViewModel : ViewModelBase
     {
         MainWindowViewModel m_mainWindowModelView;
-        private RenderCore m_core;
-        public RenderCore Core
-        {
-            get { return m_core; }
-            set
-            {
-                m_core = value;
-                OnPropertyChanged("Core");
-            }
-        }
-
+        public RenderCore Core { get; set; }
 
         public TexturesViewModel(MainWindowViewModel mainWindowModelView, RenderCore renderCore)
         {

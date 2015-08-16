@@ -87,6 +87,15 @@ namespace VSViewer.Models
 
         public string TEST { get { return "TEST"; } set { m_TEST = value; } }
 
+        public bool TextureRequiresUpdate { get; set; }
+
+        public int TextureIndex
+        {
+            get { return m_textureIndex; }
+            set { m_textureIndex = value; }
+        }
+
+
         #endregion
 
         #region BackingFields
@@ -98,7 +107,8 @@ namespace VSViewer.Models
         bool m_showSkeleton = false;
         bool m_useTurntable = true;
         float m_turntableSpeed = 1;
-        private string m_TEST; 
+        private string m_TEST;
+        private int m_textureIndex; 
 
         #endregion
     }

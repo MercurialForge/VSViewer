@@ -4,13 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using VSViewer.Common;
+using VSViewer.ViewModels;
 
 namespace VSViewer.FileFormats
 {
     public class TextureMap
     {
+        public int Index { get; set; }
+
         public ushort Width
         {
             private set { m_width = value; }
@@ -25,8 +30,8 @@ namespace VSViewer.FileFormats
 
         public Palette ColorPallette
         {
-            set { m_colorPalette = value; }
-            get { return m_colorPalette; }
+            set { ColorPalette = value; }
+            get { return ColorPalette; }
         }
 
         public int PixelCount
@@ -39,8 +44,23 @@ namespace VSViewer.FileFormats
             get { return GetBitmap(); }
         }
 
-        public Palette m_colorPalette;
+        public Palette ColorPalette { get; set; }
+
+        public bool IsPaletteOffset { get; set; }
+        public bool IsPaletteLast { get; set; }
+
         public byte[] map;
+
+        public ICommand TextureSelected
+        {
+            get { return new RelayCommand(x => SendTextureSelected()); }
+        }
+
+        internal void SendTextureSelected()
+        {
+            MainWindowViewModel.RenderCore.TextureRequiresUpdate = true;
+            MainWindowViewModel.RenderCore.TextureIndex = Index;
+        }
 
         SamplerStateDescription m_samplerDesc;
         ushort m_width;
@@ -109,19 +129,31 @@ namespace VSViewer.FileFormats
                 {
                     int index = (y * m_width) + x;
                     int c = map[index];
-                    c -= m_colorPalette.GetColorCount() / 3;
-                    if(c < 0)
+
+                    if (ColorPalette.colors[c][0] != 255)
                     {
-                        c += m_colorPalette.GetColorCount();
+                        // offset palette by -[palette color count / 3] to make up for strange wrapping
+                        if (IsPaletteOffset)
+                        {
+                            if (!IsPaletteLast)
+                            {
+                                c -= ColorPalette.GetColorCount() / 3;
+                            }
+                            else { c -= (int)(ColorPalette.GetColorCount() / 1.5f); } // if it's the last palette divide by 1.5f
+                            if (c < 0)
+                            {
+                                c += ColorPalette.GetColorCount();
+                            }
+                        }
                     }
 
-                    if (c < m_colorPalette.GetColorCount())
+                    if (c < ColorPalette.GetColorCount())
                     {
                         // swizzled to BGRA
-                        buffer[index * 4 + 0] = m_colorPalette.colors[c][2]; //b
-                        buffer[index * 4 + 1] = m_colorPalette.colors[c][1]; //g
-                        buffer[index * 4 + 2] = m_colorPalette.colors[c][0]; //r
-                        buffer[index * 4 + 3] = m_colorPalette.colors[c][3]; //a
+                        buffer[index * 4 + 0] = ColorPalette.colors[c][2]; //b
+                        buffer[index * 4 + 1] = ColorPalette.colors[c][1]; //g
+                        buffer[index * 4 + 2] = ColorPalette.colors[c][0]; //r
+                        buffer[index * 4 + 3] = ColorPalette.colors[c][3]; //a
                     }
                     else
                     {
@@ -147,14 +179,14 @@ namespace VSViewer.FileFormats
 
         public byte[] GetPalettePixels()
         {
-            byte[] buffer = new byte[m_colorPalette.colors.Count * 4];
-            for (int y = 0; y < m_colorPalette.colors.Count; ++y)
+            byte[] buffer = new byte[ColorPalette.colors.Count * 4];
+            for (int y = 0; y < ColorPalette.colors.Count; ++y)
             {
                         // swizzled to BGRA
-                        buffer[y * 4 + 0] = m_colorPalette.colors[y][2]; //b
-                        buffer[y * 4 + 1] = m_colorPalette.colors[y][1]; //g
-                        buffer[y * 4 + 2] = m_colorPalette.colors[y][0]; //r
-                        buffer[y * 4 + 3] = m_colorPalette.colors[y][3]; //a
+                        buffer[y * 4 + 0] = ColorPalette.colors[y][2]; //b
+                        buffer[y * 4 + 1] = ColorPalette.colors[y][1]; //g
+                        buffer[y * 4 + 2] = ColorPalette.colors[y][0]; //r
+                        buffer[y * 4 + 3] = ColorPalette.colors[y][3]; //a
             }
             return buffer;
         }
@@ -166,7 +198,7 @@ namespace VSViewer.FileFormats
 
         private BitmapSource GetBitmapPalette()
         {
-            return BitmapSource.Create(m_colorPalette.colors.Count, 1, 96d, 96d, PixelFormats.Bgra32, null, GetPalettePixels(), 4 * ((m_colorPalette.colors.Count * 4 + 3) / 4));
+            return BitmapSource.Create(ColorPalette.colors.Count, 1, 96d, 96d, PixelFormats.Bgra32, null, GetPalettePixels(), 4 * ((ColorPalette.colors.Count * 4 + 3) / 4));
         }
 
         public void Save (string name, string directory = "")

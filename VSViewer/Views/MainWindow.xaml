@@ -15,6 +15,9 @@
         <DataTemplate DataType="{x:Type model:TexturesViewModel}">
             <view:TexturesView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type model:AnimationViewModel}">
+            <view:AnimationView/>
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <DockPanel VerticalAlignment="Top" Height="20">
@@ -42,7 +45,9 @@
             </Grid>
             <Grid Grid.Column="1" Background="LightGray">
                 <StackPanel Orientation="Vertical">
-                    <ItemsControl ItemsSource="{Binding ToolBarViewModels}"/>
+                    <view:ImporterView DataContext="{Binding ImporterTool}"/>
+                    <view:TexturesView DataContext="{Binding TextureTool}"/>
+                    <view:AnimationView DataContext="{Binding AnimationTool}"/>
                 </StackPanel>
             </Grid>
         </Grid>

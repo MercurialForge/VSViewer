@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using VSViewer.Common;
 using VSViewer.FileFormats;
@@ -11,7 +12,7 @@ using VSViewer.Rendering;
 
 namespace VSViewer.ViewModels
 {
-    class ImporterViewModel : ViewModelBase
+    public class ImporterViewModel : ViewModelBase
     {
         #region Properties
         public string MainFileName
@@ -50,17 +51,7 @@ namespace VSViewer.ViewModels
             }
         }
 
-        public bool IsActive
-        {
-            get { return m_isActive; }
-            set
-            {
-                m_isActive = value;
-                OnPropertyChanged("IsActive");
-            }
-        }
-
-        bool QueryPrepedFiles
+        bool QueryMainStatus
         {
             get
             {
@@ -78,12 +69,7 @@ namespace VSViewer.ViewModels
 
         public ICommand OnSubFile
         {
-            get { return new RelayCommand(x => PrepSubFile()); }
-        }
-
-        public ICommand FindNext
-        {
-            get { return new RelayCommand(x => FindNextCommand()); }
+            get { return new RelayCommand(x => PrepSubFile(), x => QueryMainStatus); }
         }
         #endregion
 
@@ -103,97 +89,125 @@ namespace VSViewer.ViewModels
             core = theCore;
             m_mainWindow = mainWindowViewModel;
         }
-        int t = 1;
-        #region Command Methods
+
+        #region Debug Code
+        public ICommand FindNext
+        {
+            get { return new RelayCommand(x => FindNextCommand()); }
+        }
         internal void FindNextCommand()
         {
-            string path = @"C:\Users\Oliver\Desktop\VSDump\OBJ\" + t.ToString("X2") + ".WEP" ;
+            string path = @"E:\CloudServices\GoogleDrive\VSTools\OBJ\" + t.ToString("X2") + ".WEP";
             Console.WriteLine("Viewing WEP:" + t.ToString("X2"));
                 core.Actor.SEQ = null;
                 LoadShape(path);
                 t++;
         }
+        int t = 1;
+        private void LoadShape(string path)
+        {
+            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
+            {
+                // load type
+                Geometry wepGeometry = VSTools.CreateGeometry(WEPLoader.FromStream(reader));
+                core.Actor = new Actor(wepGeometry);
+                core.TextureRequiresUpdate = true;
+            }
+        } 
+        #endregion
 
+        #region Command Methods
         internal void PrepMainFile()
         {
             string path = "";
-            if (OpenFile(out path))
+            if (OpenMainFile(out path))
             {
                 MainFilePath = path;
                 core.Actor.SEQ = null;
-                LoadShape();
+            }
+            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(MainFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
+            {
+                LoadActor(reader);
             }
         }
 
         internal void PrepSubFile()
         {
             string path = "";
-            if (OpenFile(out path))
+            if (OpenSubFile(out path))
             {
                 SubFilePath = path;
-                LoadAsset();
             }
-        }
-
-        private void LoadShape(string path)
-        {
-            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
-            {
-                        // load type
-                        Geometry wepGeometry = VSTools.CreateGeometry(WEPLoader.FromStream(reader));
-                        core.Actor = new Actor(wepGeometry);
-                        // push extra tools
-                        m_mainWindow.EnableTextureTool();
-                
-            }
-        }
-
-        private void LoadShape()
-        {
-            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(MainFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
-            {
-                switch (m_mainFile.Extension)
-                {
-                    case ".WEP":
-                        // load type
-                        Geometry wepGeometry = VSTools.CreateGeometry(WEPLoader.FromStream(reader));
-                        core.Actor = new Actor(wepGeometry);
-                        // push extra tools
-                        m_mainWindow.EnableTextureTool();
-                        break;
-
-                    case ".SHP":
-                        Geometry shpGeometry = VSTools.CreateGeometry(SHPLoader.FromStream(reader));
-                        core.Actor = new Actor(shpGeometry);
-                        // push extra tools
-                        m_mainWindow.EnableTextureTool();
-                        break;
-                }
-            }
-        }
-
-        private void LoadAsset()
-        {
             using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(SubFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
             {
-                switch (m_subFile.Extension)
+                if (m_subFile.Extension == ".SEQ")
                 {
-                    case ".SEQ":
-                        if (core.Actor.Shape.IsSHP)
-                        {
-                            SEQ seq = SEQLoader.FromStream(reader, core.Actor.Shape.coreObject);
-                            core.Actor.AttachSEQ(seq);
-                        }
-                        break;
+                    if (LoadAsset(reader)) { return; }
+                    else 
+                    {
+                        SubFilePath = "No File Chosen";
+                        MessageBox.Show("A SEQ cannot be applied.", "Warning");
+                    }
                 }
             }
         }
         #endregion
 
         #region Local Methods
-        private bool OpenFile(out string outPath)
+        private void LoadActor(EndianBinaryReader reader)
+        {
+            switch (m_mainFile.Extension)
+            {
+                case ".WEP":
+                    Geometry wepGeometry = VSTools.CreateGeometry(WEPLoader.FromStream(reader));
+                    core.Actor = new Actor(wepGeometry);
+                    core.TextureRequiresUpdate = true;
+                    break;
+
+                case ".SHP":
+                    Geometry shpGeometry = VSTools.CreateGeometry(SHPLoader.FromStream(reader));
+                    if (core.TextureIndex >= 2) { core.TextureIndex = 0; }
+                    core.Actor = new Actor(shpGeometry);
+                    core.TextureRequiresUpdate = true;
+                    break;
+            }
+        }
+
+        private bool LoadAsset(EndianBinaryReader reader)
+        {
+            if (core.Actor.Shape != null)
+            {
+                if (core.Actor.Shape.IsSHP)
+                {
+                    SEQ seq = SEQLoader.FromStream(reader, core.Actor.Shape.coreObject);
+                    core.Actor.AttachSEQ(seq);
+                    m_mainWindow.AnimationTool.Reset();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool OpenMainFile(out string outPath)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = 
+                "Actors (*.WEP,*.SHP)|*.WEP;*.SHP|" +
+                "SHP (*.SHP)|*SHP|" +
+                "WEP (*.WEP)|*.WEP";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                outPath = openFileDialog.FileName;
+                return true;
+            }
+            outPath = "";
+            return false;
+        }
+
+        private bool OpenSubFile(out string outPath)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "SEQ (*.SEQ)|*.SEQ";
             if (openFileDialog.ShowDialog() == true)
             {
                 outPath = openFileDialog.FileName;

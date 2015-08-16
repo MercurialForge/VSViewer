@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="VSViewer.Views.AnimationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid Background="LightGray">
+        <Grid Margin="10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="5"/>
+            </Grid.RowDefinitions>
+
+            <!--Import Label-->
+            <Label Grid.Row="0" Content=" - ANIMATION" FontWeight="Bold" FontSize="15" />
+            <StackPanel Orientation="Horizontal" Grid.Row="1" VerticalAlignment="Top">
+                <Button Content="Prev" Command="{Binding PreviousAnim}" FontSize="12"/>
+                <Label Content="0" Width="30" HorizontalContentAlignment="Center"/>
+                <TextBox Text="{Binding AnimationIndex}" PreviewTextInput="ValidateNumber" AcceptsReturn="True" Width="50" />
+                <Label Content="{Binding MaxAnimationCount}" Width="30" HorizontalContentAlignment="Center"/>
+                <Button Content="Next" Command="{Binding NextAnim}" FontSize="12"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Row="2" VerticalAlignment="Top">
+                <Label Content="Playback Speed:" HorizontalContentAlignment="Center" FontSize="15"/>
+                <TextBox Text="{Binding PlaybackSpeed}" PreviewTextInput="ValidateNumber" AcceptsReturn="True" Width="50" />
+            </StackPanel>
+            <!--Simple separator-->
+            <Separator Grid.Row="3" VerticalAlignment="Bottom"/>
+        </Grid>
+    </Grid>
+</UserControl>

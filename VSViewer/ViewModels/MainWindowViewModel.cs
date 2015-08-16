@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using VSViewer.Models;
 
 namespace VSViewer.ViewModels
@@ -7,7 +8,10 @@ namespace VSViewer.ViewModels
     {
         // The main viewport
         public ViewportViewModel ViewportViewModel { get; set; }
-        public RenderCore RenderCore { get; set; }
+        public ImporterViewModel ImporterTool { get; set; }
+        public TexturesViewModel TextureTool { get; set; }
+        public AnimationViewModel AnimationTool { get; set; }
+        static public RenderCore RenderCore { get; set; }
 
         // The tool bar stack
         public ObservableCollection<ViewModelBase> ToolBarViewModels
@@ -29,27 +33,9 @@ namespace VSViewer.ViewModels
         {
             RenderCore = new RenderCore();
             ViewportViewModel = new ViewportViewModel(RenderCore);
-            EnableImportTool();
-        }
-
-        public bool EnableImportTool()
-        {
-            foreach (ViewModelBase vmb in ToolBarViewModels)
-            {
-                if (vmb is ImporterViewModel) { return false; }
-            }
-            AddToolBarTool(new ImporterViewModel(this, RenderCore));
-            return true;
-        }
-
-        public bool EnableTextureTool()
-        {
-            foreach (ViewModelBase vmb in ToolBarViewModels)
-            {
-                if (vmb is TexturesViewModel) { return false; }
-            }
-            AddToolBarTool(new TexturesViewModel(this, RenderCore));
-            return true;
+            ImporterTool = new ImporterViewModel(this, RenderCore);
+            TextureTool = new TexturesViewModel(this, RenderCore);
+            AnimationTool = new AnimationViewModel();
         }
 
         private void AddToolBarTool(ViewModelBase tool)
