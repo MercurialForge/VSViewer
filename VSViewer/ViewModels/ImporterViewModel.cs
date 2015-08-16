@@ -32,44 +32,12 @@ namespace VSViewer.ViewModels
                 OnPropertyChanged("MainFileName");
             }
         }
-
-        public string SubFileName
-        {
-            get
-            {
-                if (m_subFile == null) { return "No File Chosen"; }
-                return m_subFile.Name;
-            }
-        }
-        public string SubFilePath
-        {
-            get { return m_subFile.ToString(); }
-            set
-            {
-                m_subFile = new FileInfo(value);
-                OnPropertyChanged("SubFileName");
-            }
-        }
-
-        bool QueryMainStatus
-        {
-            get
-            {
-                if (m_mainFile != null) { return true; }
-                return false;
-            }
-        }
         #endregion
 
         #region Commands
         public ICommand OnMainFile
         {
             get { return new RelayCommand(x => PrepMainFile()); }
-        }
-
-        public ICommand OnSubFile
-        {
-            get { return new RelayCommand(x => PrepSubFile(), x => QueryMainStatus); }
         }
         #endregion
 
@@ -112,6 +80,8 @@ namespace VSViewer.ViewModels
                 Geometry wepGeometry = VSTools.CreateGeometry(WEPLoader.FromStream(reader));
                 core.Actor = new Actor(wepGeometry);
                 core.TextureRequiresUpdate = true;
+                m_mainWindow.TextureTool.ShowTool();
+                m_mainWindow.AnimationTool.HideTool();
             }
         } 
         #endregion
@@ -124,33 +94,13 @@ namespace VSViewer.ViewModels
             {
                 MainFilePath = path;
                 core.Actor.SEQ = null;
-            }
-            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(MainFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
-            {
-                LoadActor(reader);
-            }
-        }
-
-        internal void PrepSubFile()
-        {
-            string path = "";
-            if (OpenSubFile(out path))
-            {
-                SubFilePath = path;
-            }
-            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(SubFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
-            {
-                if (m_subFile.Extension == ".SEQ")
+                using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(MainFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
                 {
-                    if (LoadAsset(reader)) { return; }
-                    else 
-                    {
-                        SubFilePath = "No File Chosen";
-                        MessageBox.Show("A SEQ cannot be applied.", "Warning");
-                    }
+                    LoadActor(reader);
                 }
             }
         }
+
         #endregion
 
         #region Local Methods
@@ -162,30 +112,20 @@ namespace VSViewer.ViewModels
                     Geometry wepGeometry = VSTools.CreateGeometry(WEPLoader.FromStream(reader));
                     core.Actor = new Actor(wepGeometry);
                     core.TextureRequiresUpdate = true;
+                    m_mainWindow.TextureTool.ShowTool();
+                    m_mainWindow.AnimationTool.HideTool();
                     break;
 
                 case ".SHP":
                     Geometry shpGeometry = VSTools.CreateGeometry(SHPLoader.FromStream(reader));
                     if (core.TextureIndex >= 2) { core.TextureIndex = 0; }
+                    m_mainWindow.IsAnimationToolEnabled = true;
                     core.Actor = new Actor(shpGeometry);
                     core.TextureRequiresUpdate = true;
+                    m_mainWindow.TextureTool.ShowTool();
+                    m_mainWindow.AnimationTool.ShowTool();
                     break;
             }
-        }
-
-        private bool LoadAsset(EndianBinaryReader reader)
-        {
-            if (core.Actor.Shape != null)
-            {
-                if (core.Actor.Shape.IsSHP)
-                {
-                    SEQ seq = SEQLoader.FromStream(reader, core.Actor.Shape.coreObject);
-                    core.Actor.AttachSEQ(seq);
-                    m_mainWindow.AnimationTool.Reset();
-                    return true;
-                }
-            }
-            return false;
         }
 
         private bool OpenMainFile(out string outPath)
@@ -204,18 +144,6 @@ namespace VSViewer.ViewModels
             return false;
         }
 
-        private bool OpenSubFile(out string outPath)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "SEQ (*.SEQ)|*.SEQ";
-            if (openFileDialog.ShowDialog() == true)
-            {
-                outPath = openFileDialog.FileName;
-                return true;
-            }
-            outPath = "";
-            return false;
-        }
         #endregion
     }
 }

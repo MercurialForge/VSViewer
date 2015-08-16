@@ -24,6 +24,8 @@ namespace VSViewer.Loader
             ushort numQuads = reader.ReadUInt16();
             ushort numPolygons = reader.ReadUInt16();
 
+            // Overlay cords and size
+            // First is Eyes, Second is Mouth, 3-8 are? special frames?
             byte[] overlayX = new byte[8];
             byte[] overlayY = new byte[8];
             byte[] width = new byte[8];
@@ -84,7 +86,7 @@ namespace VSViewer.Loader
                 LOCALS
             =====================================================================*/
             int numAllPolygons = numTriangles + numQuads + numPolygons;
-            int numOfPalettes = 2; // all characters have 2 palettes. I wonder why?
+            int numOfPalettes = 2; // Enemies have two palettes that add variation. No use on main characters
 
             /*=====================================================================
                 STREAM READER

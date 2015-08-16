@@ -1,16 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GameFormatReader.Common;
+using Microsoft.Win32;
+using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using VSViewer.Common;
-using VSViewer.Rendering;
+using VSViewer.FileFormats;
+using VSViewer.Loader;
 
 namespace VSViewer.ViewModels
 {
     public class AnimationViewModel : ViewModelBase
     {
+        public string SubFileName
+        {
+            get
+            {
+                if (m_subFile == null) { return "No File Chosen"; }
+                return m_subFile.Name;
+            }
+        }
+        public string SubFilePath
+        {
+            get { return m_subFile.ToString(); }
+            set
+            {
+                m_subFile = new FileInfo(value);
+                OnPropertyChanged("SubFileName");
+            }
+        }
+        bool QueryMainStatus
+        {
+            get
+            {
+                if (MainWindowViewModel.RenderCore.Actor.Shape != null) 
+                {
+                    if (MainWindowViewModel.RenderCore.Actor.Shape.IsSHP)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         public int AnimationIndex
         {
             get { return m_currentIndex; }
@@ -53,14 +85,75 @@ namespace VSViewer.ViewModels
 
         }
 
+        public ICommand OnSubFile
+        {
+            get { return new RelayCommand(x => PrepSubFile(), x => QueryMainStatus); }
+        }
+
         private int m_currentIndex;
         private int m_maxAnimationCount;
         private int m_playbackSpeed;
+        private FileInfo m_subFile;
+        private MainWindowViewModel m_mainWindow;
+
+        public AnimationViewModel(MainWindowViewModel mainWindowViewModel)
+        {
+            m_mainWindow = mainWindowViewModel;
+        }
 
         public void Reset ()
         {
             AnimationIndex = 0;
             MaxAnimationCount = MainWindowViewModel.RenderCore.Actor.SEQ.NumberOfAnimations - 1;
+        }
+
+        private bool OpenSubFile(out string outPath)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "SEQ (*.SEQ)|*.SEQ";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                outPath = openFileDialog.FileName;
+                return true;
+            }
+            outPath = "";
+            return false;
+        }
+
+        internal void PrepSubFile()
+        {
+            string path = "";
+            if (OpenSubFile(out path))
+            {
+                SubFilePath = path;
+            }
+            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(SubFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
+            {
+                if (m_subFile.Extension == ".SEQ")
+                {
+                    if (LoadAsset(reader)) { return; }
+                    else
+                    {
+                        SubFilePath = "No File Chosen";
+                        MessageBox.Show("A SEQ cannot be applied.", "Warning");
+                    }
+                }
+            }
+        }
+
+        private bool LoadAsset(EndianBinaryReader reader)
+        {
+            if (MainWindowViewModel.RenderCore.Actor.Shape != null)
+            {
+                if (MainWindowViewModel.RenderCore.Actor.Shape.IsSHP)
+                {
+                    SEQ seq = SEQLoader.FromStream(reader, MainWindowViewModel.RenderCore.Actor.Shape.coreObject);
+                    MainWindowViewModel.RenderCore.Actor.AttachSEQ(seq);
+                    m_mainWindow.AnimationTool.Reset();
+                    return true;
+                }
+            }
+            return false;
         }
 
         internal void StepAnim_Prev()

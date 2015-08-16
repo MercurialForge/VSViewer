@@ -13,6 +13,16 @@ namespace VSViewer.ViewModels
         public AnimationViewModel AnimationTool { get; set; }
         static public RenderCore RenderCore { get; set; }
 
+        public bool IsAnimationToolEnabled
+        {
+            get { return m_isAnimationToolEnabled; }
+            set
+            {
+                m_isAnimationToolEnabled = value;
+                OnPropertyChanged("IsAnimationToolEnabled");
+            }
+        }
+
         // The tool bar stack
         public ObservableCollection<ViewModelBase> ToolBarViewModels
         {
@@ -28,6 +38,7 @@ namespace VSViewer.ViewModels
         }
 
         ObservableCollection<ViewModelBase> m_toolBarViewModels = new ObservableCollection<ViewModelBase>();
+        private bool m_isAnimationToolEnabled = false;
 
         public MainWindowViewModel()
         {
@@ -35,7 +46,10 @@ namespace VSViewer.ViewModels
             ViewportViewModel = new ViewportViewModel(RenderCore);
             ImporterTool = new ImporterViewModel(this, RenderCore);
             TextureTool = new TexturesViewModel(this, RenderCore);
-            AnimationTool = new AnimationViewModel();
+            AnimationTool = new AnimationViewModel(this);
+
+            TextureTool.HideTool();
+            AnimationTool.HideTool();
         }
 
         private void AddToolBarTool(ViewModelBase tool)

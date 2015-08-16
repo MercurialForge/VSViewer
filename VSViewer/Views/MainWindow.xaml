@@ -41,13 +41,13 @@
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
                 <!--This is a alpha stencil hack using the black color as a black multiplyer-->
-                <view:ViewportView DataContext="{Binding ViewportViewModel}"/>
+                <view:ViewportView DataContext="{Binding ViewportViewModel}" Visibility="{Binding ToolVisiblity}"/>
             </Grid>
             <Grid Grid.Column="1" Background="LightGray">
                 <StackPanel Orientation="Vertical">
-                    <view:ImporterView DataContext="{Binding ImporterTool}"/>
-                    <view:TexturesView DataContext="{Binding TextureTool}"/>
-                    <view:AnimationView DataContext="{Binding AnimationTool}"/>
+                    <view:ImporterView DataContext="{Binding ImporterTool}" Visibility="{Binding ToolVisiblity}"/>
+                    <view:AnimationView DataContext="{Binding AnimationTool}" Visibility="{Binding ToolVisiblity}"/>
+                    <view:TexturesView DataContext="{Binding TextureTool}" Visibility="{Binding ToolVisiblity}"/>
                 </StackPanel>
             </Grid>
         </Grid>

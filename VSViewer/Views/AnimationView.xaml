@@ -9,26 +9,44 @@
         <Grid Margin="10,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
+                <RowDefinition Height="65"/>
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="5"/>
             </Grid.RowDefinitions>
+            
 
             <!--Import Label-->
             <Label Grid.Row="0" Content=" - ANIMATION" FontWeight="Bold" FontSize="15" />
-            <StackPanel Orientation="Horizontal" Grid.Row="1" VerticalAlignment="Top">
+
+            <!--Sub file loader-->
+            <Grid Grid.Row="1">
+                <WrapPanel Orientation="Vertical">
+                    <Label Grid.Row="0" Content="Select SEQ" FontSize="15"/>
+                    <Grid>
+                        <WrapPanel Orientation="Horizontal">
+                            <Button Content="Choose File" Command="{Binding OnSubFile}" Height="25" HorizontalAlignment="Left" Width="70"/>
+                            <Label Grid.Row="0" Content="{Binding SubFileName}" FontSize="15"/>
+                        </WrapPanel>
+                    </Grid>
+                </WrapPanel>
+            </Grid>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Top">
                 <Button Content="Prev" Command="{Binding PreviousAnim}" FontSize="12"/>
                 <Label Content="0" Width="30" HorizontalContentAlignment="Center"/>
-                <TextBox Text="{Binding AnimationIndex}" PreviewTextInput="ValidateNumber" AcceptsReturn="True" Width="50" />
+                <TextBox Text="{Binding AnimationIndex}" PreviewTextInput="ValidateNumber" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" AcceptsReturn="True" Width="50" />
                 <Label Content="{Binding MaxAnimationCount}" Width="30" HorizontalContentAlignment="Center"/>
                 <Button Content="Next" Command="{Binding NextAnim}" FontSize="12"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Grid.Row="2" VerticalAlignment="Top">
+
+            <StackPanel Grid.Row="3" Orientation="Horizontal" VerticalAlignment="Top">
                 <Label Content="Playback Speed:" HorizontalContentAlignment="Center" FontSize="15"/>
-                <TextBox Text="{Binding PlaybackSpeed}" PreviewTextInput="ValidateNumber" AcceptsReturn="True" Width="50" />
+                <TextBox Text="{Binding PlaybackSpeed}" PreviewTextInput="ValidateNumber" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" AcceptsReturn="True" Width="50" />
             </StackPanel>
+            
             <!--Simple separator-->
-            <Separator Grid.Row="3" VerticalAlignment="Bottom"/>
+            <Separator Grid.Row="4" VerticalAlignment="Bottom"/>
         </Grid>
     </Grid>
 </UserControl>

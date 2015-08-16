@@ -38,17 +38,17 @@ namespace VSViewer.Loader
             byte numFrames = reader.ReadByte(); // total number of frames?
 
             var unknownPaddingValue1 = reader.ReadByte(); // padding
-            Trace.Assert(unknownPaddingValue1 == 0);
+            //Trace.Assert(unknownPaddingValue1 == 0);
 
             byte numBones = reader.ReadByte();
 
             var unknownPaddingValue2 = reader.ReadByte(); // padding
-            Trace.Assert(unknownPaddingValue2 == 0);
+            //Trace.Assert(unknownPaddingValue2 == 0);
 
             uint size = reader.ReadUInt32();
 
             var unknownPaddingValue3 = reader.ReadUInt32(); // unknown
-            Trace.Assert(unknownPaddingValue3 == 0);
+            //Trace.Assert(unknownPaddingValue3 == 0);
 
             uint ptrFrames = (uint)reader.ReadUInt32() + 8; // pointer to the frames data section
             uint ptrSequence = ptrFrames + (uint)numFrames; // pointer to the sequence section

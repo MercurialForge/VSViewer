@@ -139,11 +139,15 @@ namespace VSViewer
                     palette.colors.Add(VSTools.BitColorConverter(reader.ReadUInt16()));
                 }
                 tex.ColorPalette = palette;
-                if (p % 2 != 0) // Is Odd Number
+
+                if (numOfPalettes > 2)
                 {
-                    tex.IsPaletteOffset = true;
+                    if (p % 2 != 0) // Is Odd Number
+                    {
+                        tex.IsPaletteOffset = true;
+                    }
+                    if (p == 4) { tex.IsPaletteLast = true; }
                 }
-                if (p == 4) { tex.IsPaletteLast = true; }
                 tex.Index = p;
                 outTextures.Add(tex);
             }
@@ -159,7 +163,7 @@ namespace VSViewer
                 }
             }
 
-            for (int i = 0; i < numOfPalettes; i++) 
+            for (int i = 0; i < numOfPalettes; i++)
             {
                 outTextures[i].map = paletteMap;
                 outTextures[i].Save(i.ToString());

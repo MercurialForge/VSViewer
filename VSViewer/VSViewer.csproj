@@ -101,7 +101,6 @@
     <Compile Include="Common\Keyframe.cs" />
     <Compile Include="Common\NullableVector4.cs" />
     <Compile Include="Common\RelayCommand.cs" />
-    <Compile Include="Common\Singleton.cs" />
     <Compile Include="Converters\TextureToBitmap.cs" />
     <Compile Include="FileFormats\AssetBase.cs" />
     <Compile Include="FileFormats\ContentBase.cs" />

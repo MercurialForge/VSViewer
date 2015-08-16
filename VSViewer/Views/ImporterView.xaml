@@ -11,7 +11,6 @@
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="60"/>
-                <RowDefinition Height="60"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
@@ -21,7 +20,7 @@
             <!--Main file loader-->
             <Grid Grid.Row="1">
                 <WrapPanel Orientation="Vertical">
-                    <Label Grid.Row="0" Content="Select SHP, WEP, ZUD, ZND, or ARM" FontSize="15"/>
+                    <Label Grid.Row="0" Content="Select SHP, WEP" FontSize="15"/>
                     <Grid>
                         <WrapPanel Orientation="Horizontal">
                             <Button Content="Choose File" Command="{Binding OnMainFile}" Height="25" HorizontalAlignment="Left" Width="70"/>
@@ -31,23 +30,12 @@
                 </WrapPanel>
             </Grid>
             
-            <!--Sub file loader-->
             <Grid Grid.Row="2">
-                <WrapPanel Orientation="Vertical">
-                    <Label Grid.Row="0" Content="Select SEQ or MPD" FontSize="15"/>
-                    <Grid>
-                        <WrapPanel Orientation="Horizontal">
-                            <Button Content="Choose File" Command="{Binding OnSubFile}" Height="25" HorizontalAlignment="Left" Width="70"/>
-                            <Label Grid.Row="0" Content="{Binding SubFileName}" FontSize="15"/>
-                        </WrapPanel>
-                    </Grid>
-                </WrapPanel>
-            </Grid>
-            <Grid Grid.Row="3">
                 <Button Content="Next" Command="{Binding FindNext}"/>
             </Grid>
+            
             <!--Simple separator-->
-                <Separator Grid.Row="5" VerticalAlignment="Bottom"/>
+            <Separator Grid.Row="3" VerticalAlignment="Bottom"/>
         </Grid>
     </Grid>
 </UserControl>
