@@ -45,17 +45,6 @@ namespace VSViewer.FileFormats
 
         public byte[] map;
 
-        public ICommand TextureSelected
-        {
-            get { return new RelayCommand(x => SendTextureSelected()); }
-        }
-
-        internal void SendTextureSelected()
-        {
-            MainWindowViewModel.RenderCore.TextureRequiresUpdate = true;
-            MainWindowViewModel.RenderCore.TextureIndex = Index;
-        }
-
         SamplerStateDescription m_samplerDesc;
         ushort m_width;
         ushort m_height;

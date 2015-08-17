@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using VSViewer.Common;
+using VSViewer.FileFormats;
 using VSViewer.Models;
 
 namespace VSViewer.ViewModels
@@ -16,6 +19,17 @@ namespace VSViewer.ViewModels
         {
             m_mainWindowModelView = mainWindowModelView;
             Core = renderCore;
+        }
+
+        public ICommand TextureSelected
+        {
+            get { return new RelayCommand(x => SendTextureSelected(x)); }
+        }
+
+        internal void SendTextureSelected(object sentObject)
+        {
+            m_mainWindowModelView.RenderCore.TextureRequiresUpdate = true;
+            m_mainWindowModelView.RenderCore.TextureIndex = (int)sentObject;
         }
     }
 }

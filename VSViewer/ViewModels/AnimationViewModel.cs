@@ -33,9 +33,9 @@ namespace VSViewer.ViewModels
         {
             get
             {
-                if (MainWindowViewModel.RenderCore.Actor.Shape != null) 
+                if (m_mainWindow.RenderCore.Actor.Shape != null) 
                 {
-                    if (MainWindowViewModel.RenderCore.Actor.Shape.IsSHP)
+                    if (m_mainWindow.RenderCore.Actor.Shape.IsSHP)
                     {
                         return true;
                     }
@@ -113,7 +113,7 @@ namespace VSViewer.ViewModels
         public void Reset ()
         {
             AnimationIndex = 0;
-            MaxAnimationCount = MainWindowViewModel.RenderCore.Actor.SEQ.NumberOfAnimations - 1;
+            MaxAnimationCount = m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations - 1;
         }
 
         private bool OpenSubFile(out string outPath)
@@ -152,12 +152,12 @@ namespace VSViewer.ViewModels
 
         private bool LoadAsset(EndianBinaryReader reader)
         {
-            if (MainWindowViewModel.RenderCore.Actor.Shape != null)
+            if (m_mainWindow.RenderCore.Actor.Shape != null)
             {
-                if (MainWindowViewModel.RenderCore.Actor.Shape.IsSHP)
+                if (m_mainWindow.RenderCore.Actor.Shape.IsSHP)
                 {
-                    SEQ seq = SEQLoader.FromStream(reader, MainWindowViewModel.RenderCore.Actor.Shape.coreObject);
-                    MainWindowViewModel.RenderCore.Actor.AttachSEQ(seq);
+                    SEQ seq = SEQLoader.FromStream(reader, m_mainWindow.RenderCore.Actor.Shape.coreObject);
+                    m_mainWindow.RenderCore.Actor.AttachSEQ(seq);
                     m_mainWindow.AnimationTool.Reset();
                     return true;
                 }
@@ -169,27 +169,27 @@ namespace VSViewer.ViewModels
         {
             if (AnimationIndex >= 0)
             {
-                MainWindowViewModel.RenderCore.Actor.SEQ.CurrentAnimationIndex--;
-                AnimationIndex = MainWindowViewModel.RenderCore.Actor.SEQ.CurrentAnimationIndex;
+                m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex--;
+                AnimationIndex = m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex;
             }
         }
 
         internal void StepAnim_Next()
         {
-            if (AnimationIndex < MainWindowViewModel.RenderCore.Actor.SEQ.NumberOfAnimations - 1)
+            if (AnimationIndex < m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations - 1)
             {
-                MainWindowViewModel.RenderCore.Actor.SEQ.CurrentAnimationIndex++;
-                AnimationIndex = MainWindowViewModel.RenderCore.Actor.SEQ.CurrentAnimationIndex;
+                m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex++;
+                AnimationIndex = m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex;
             }
         }
 
         internal void MergeAndView()
         {
-            Animation anim1 = MainWindowViewModel.RenderCore.Actor.SEQ.animations[Anim1].Copy();
-            Animation anim2 = MainWindowViewModel.RenderCore.Actor.SEQ.animations[Anim2].Copy();
+            Animation anim1 = m_mainWindow.RenderCore.Actor.SEQ.animations[Anim1].Copy();
+            Animation anim2 = m_mainWindow.RenderCore.Actor.SEQ.animations[Anim2].Copy();
             Animation newAnim = Animation.MergeAnimations(anim1, anim2);
-            MainWindowViewModel.RenderCore.Actor.SEQ.animations.Add(newAnim);
-            MainWindowViewModel.RenderCore.Actor.SEQ.CurrentAnimationIndex = MainWindowViewModel.RenderCore.Actor.SEQ.NumberOfAnimations;
+            m_mainWindow.RenderCore.Actor.SEQ.animations.Add(newAnim);
+            m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex = m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations;
         }
 
     }

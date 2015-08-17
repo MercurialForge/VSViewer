@@ -11,7 +11,7 @@ namespace VSViewer.ViewModels
         public ImporterViewModel ImporterTool { get; set; }
         public TexturesViewModel TextureTool { get; set; }
         public AnimationViewModel AnimationTool { get; set; }
-        static public RenderCore RenderCore { get; set; }
+        public RenderCore RenderCore { get; set; }
 
         public bool IsAnimationToolEnabled
         {
