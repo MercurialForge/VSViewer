@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using VSViewer.Common;
 using VSViewer.FileFormats;
+using VSViewer.FileFormats.Sections;
 using VSViewer.Loader;
 
 namespace VSViewer.ViewModels
@@ -90,6 +91,14 @@ namespace VSViewer.ViewModels
             get { return new RelayCommand(x => PrepSubFile(), x => QueryMainStatus); }
         }
 
+        public ICommand Merge
+        {
+            get { return new RelayCommand(x => MergeAndView()); }
+        }
+
+        public int Anim1 { get; set; }
+        public int Anim2 { get; set; }
+
         private int m_currentIndex;
         private int m_maxAnimationCount;
         private int m_playbackSpeed;
@@ -172,6 +181,15 @@ namespace VSViewer.ViewModels
                 MainWindowViewModel.RenderCore.Actor.SEQ.CurrentAnimationIndex++;
                 AnimationIndex = MainWindowViewModel.RenderCore.Actor.SEQ.CurrentAnimationIndex;
             }
+        }
+
+        internal void MergeAndView()
+        {
+            Animation anim1 = MainWindowViewModel.RenderCore.Actor.SEQ.animations[Anim1].Copy();
+            Animation anim2 = MainWindowViewModel.RenderCore.Actor.SEQ.animations[Anim2].Copy();
+            Animation newAnim = Animation.MergeAnimations(anim1, anim2);
+            MainWindowViewModel.RenderCore.Actor.SEQ.animations.Add(newAnim);
+            MainWindowViewModel.RenderCore.Actor.SEQ.CurrentAnimationIndex = MainWindowViewModel.RenderCore.Actor.SEQ.NumberOfAnimations;
         }
 
     }

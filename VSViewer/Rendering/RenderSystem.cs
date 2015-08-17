@@ -232,12 +232,12 @@ namespace VSViewer.Rendering
             if (seq == null) { return; }
             m_animFrameTimer += (float)timeSpan.Milliseconds;
 
-            if (seq.animations[seq.CurrentAnimationIndex].length <= m_animFrameTimer / 1000)
+            if (seq.animations[seq.CurrentAnimationIndex].Length <= m_animFrameTimer / 1000)
             {
-                m_animFrameTimer = m_animFrameTimer - seq.animations[seq.CurrentAnimationIndex].length * 1000;
+                m_animFrameTimer = m_animFrameTimer - seq.animations[seq.CurrentAnimationIndex].Length * 1000;
             }
 
-            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, seq.animations[seq.CurrentAnimationIndex].length);
+            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, seq.animations[seq.CurrentAnimationIndex].Length);
 
             for (int i = 0; i < shape.skeleton.Count; i++)
             {

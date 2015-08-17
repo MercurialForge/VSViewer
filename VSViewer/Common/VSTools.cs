@@ -48,12 +48,6 @@ namespace VSViewer
             int g = (color & 0x03E0) >> 5;
             int r = (color & 0x001F);
 
-            //if (a == 1)
-            //{
-            //    theColor = new byte[] { (byte)(255), (byte)(0), (byte)(0), (byte)(255) };
-            //    return theColor;
-            //} 
-
             // 5bit -> 8bit is factor 2^3 = 8
             theColor = new byte[] { (byte)(r * 8), (byte)(g * 8), (byte)(b * 8), 255 };
             return theColor;

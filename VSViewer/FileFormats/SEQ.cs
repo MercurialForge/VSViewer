@@ -94,7 +94,7 @@ namespace VSViewer.FileFormats
             NumberOfAnimations = animations.Count;
             CurrentAnimationIndex = 0;
             LoopWithTargetIndex = 0;
-            TotalAnimationsFrames = (int)(animations[0].length * 25);
+            TotalAnimationsFrames = (int)(animations[0].Length * 25);
             CurrentAnimationFrame = 0;
 
         }

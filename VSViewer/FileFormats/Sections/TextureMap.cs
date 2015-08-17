@@ -28,12 +28,6 @@ namespace VSViewer.FileFormats
             get { return m_height; }
         }
 
-        public Palette ColorPallette
-        {
-            set { ColorPalette = value; }
-            get { return ColorPalette; }
-        }
-
         public int PixelCount
         {
             get { return m_width * m_height * 4; }
@@ -66,7 +60,7 @@ namespace VSViewer.FileFormats
         ushort m_width;
         ushort m_height;
 
-        public TextureMap (int w, int h)
+        public TextureMap(int w, int h)
         {
             m_width = (ushort)w;
             m_height = (ushort)h;
@@ -111,8 +105,8 @@ namespace VSViewer.FileFormats
             return texture;
         }
 
-        public byte[] GetPaletteMap ()
-        { 
+        public byte[] GetPaletteMap()
+        {
             return map;
         }
 
@@ -120,7 +114,7 @@ namespace VSViewer.FileFormats
         /// Get the texture as a byte stream
         /// </summary>
         /// <returns>byte[] stream of the texture as BGRA32</returns>
-        public byte[] GetPixelData ()
+        public byte[] GetPixelData()
         {
             byte[] buffer = new byte[m_width * m_height * 4];
             for (int y = 0; y < m_height; ++y)
@@ -130,20 +124,17 @@ namespace VSViewer.FileFormats
                     int index = (y * m_width) + x;
                     int c = map[index];
 
-                    if (ColorPalette.colors[c][0] != 255)
+                    // offset palette by -[palette color count / 3] to make up for strange wrapping
+                    if (IsPaletteOffset)
                     {
-                        // offset palette by -[palette color count / 3] to make up for strange wrapping
-                        if (IsPaletteOffset)
+                        if (!IsPaletteLast)
                         {
-                            if (!IsPaletteLast)
-                            {
-                                c -= ColorPalette.GetColorCount() / 3;
-                            }
-                            else { c -= (int)(ColorPalette.GetColorCount() / 1.5f); } // if it's the last palette divide by 1.5f
-                            if (c < 0)
-                            {
-                                c += ColorPalette.GetColorCount();
-                            }
+                            c -= ColorPalette.GetColorCount() / 3;
+                        }
+                        else { c -= (int)(ColorPalette.GetColorCount() / 1.5f); } // if it's the last palette divide by 1.5f
+                        if (c < 0)
+                        {
+                            c += ColorPalette.GetColorCount();
                         }
                     }
 
@@ -160,17 +151,20 @@ namespace VSViewer.FileFormats
                         // A fall back for items 0x70 - 0x7F which do not support the final implemented palette format
                         // I have reason to believe these items were created first since they no longer follow the
                         // conventional format of the rest.
-                        buffer[index * 4 + 0] = (byte)0;
-                        buffer[index * 4 + 1] = (byte)255;
-                        buffer[index * 4 + 2] = (byte)0;
-                        buffer[index * 4 + 3] = (byte)255;
+                        // Make fully green if out of range. // should be black in final build or transparent.
+                        buffer[index * 4 + 0] = (byte)0;    //b
+                        buffer[index * 4 + 1] = (byte)255;  //g
+                        buffer[index * 4 + 2] = (byte)0;    //r
+                        buffer[index * 4 + 3] = (byte)255;  //a
                     }
-                    if(map[index] == 0)
+
+                    // CLUT index of 0 is Fully Transparent Alpha
+                    if (map[index] == 0)
                     {
-                        buffer[index * 4 + 0] = (byte)0;
-                        buffer[index * 4 + 1] = (byte)0;
-                        buffer[index * 4 + 2] = (byte)0;
-                        buffer[index * 4 + 3] = (byte)0;
+                        buffer[index * 4 + 0] = (byte)0;    //b
+                        buffer[index * 4 + 1] = (byte)0;    //g
+                        buffer[index * 4 + 2] = (byte)0;    //r
+                        buffer[index * 4 + 3] = (byte)0;    //a
                     }
                 }
             }
@@ -182,11 +176,11 @@ namespace VSViewer.FileFormats
             byte[] buffer = new byte[ColorPalette.colors.Count * 4];
             for (int y = 0; y < ColorPalette.colors.Count; ++y)
             {
-                        // swizzled to BGRA
-                        buffer[y * 4 + 0] = ColorPalette.colors[y][2]; //b
-                        buffer[y * 4 + 1] = ColorPalette.colors[y][1]; //g
-                        buffer[y * 4 + 2] = ColorPalette.colors[y][0]; //r
-                        buffer[y * 4 + 3] = ColorPalette.colors[y][3]; //a
+                // swizzled to BGRA
+                buffer[y * 4 + 0] = ColorPalette.colors[y][2]; //b
+                buffer[y * 4 + 1] = ColorPalette.colors[y][1]; //g
+                buffer[y * 4 + 2] = ColorPalette.colors[y][0]; //r
+                buffer[y * 4 + 3] = ColorPalette.colors[y][3]; //a
             }
             return buffer;
         }
@@ -201,7 +195,7 @@ namespace VSViewer.FileFormats
             return BitmapSource.Create(ColorPalette.colors.Count, 1, 96d, 96d, PixelFormats.Bgra32, null, GetPalettePixels(), 4 * ((ColorPalette.colors.Count * 4 + 3) / 4));
         }
 
-        public void Save (string name, string directory = "")
+        public void Save(string name, string directory = "")
         {
             // write to disk
             using (FileStream stream = new FileStream(directory + name + ".png", FileMode.Create))

@@ -12,7 +12,8 @@
                 <RowDefinition Height="65"/>
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="35"/>
-                <RowDefinition Height="5"/>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
 
@@ -44,9 +45,17 @@
                 <Label Content="Playback Speed:" HorizontalContentAlignment="Center" FontSize="15"/>
                 <TextBox Text="{Binding PlaybackSpeed}" PreviewTextInput="ValidateNumber" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" AcceptsReturn="True" Width="50" />
             </StackPanel>
-            
+
+            <StackPanel Grid.Row="4" Orientation="Horizontal" VerticalAlignment="Top">
+                <Label Content="Merge:" HorizontalContentAlignment="Center" FontSize="15"/>
+                <TextBox Text="{Binding Anim1}" PreviewTextInput="ValidateNumber" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" AcceptsReturn="True" Width="50" />
+                <Label Content=":" HorizontalContentAlignment="Center" FontSize="15"/>
+                <TextBox Text="{Binding Anim2}" PreviewTextInput="ValidateNumber" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" AcceptsReturn="True" Width="50" />
+                <Button Content="View" Command="{Binding Merge}" FontSize="12" Margin="10,0,0,0"/>
+            </StackPanel>
+
             <!--Simple separator-->
-            <Separator Grid.Row="4" VerticalAlignment="Bottom"/>
+            <Separator Grid.Row="5" VerticalAlignment="Bottom"/>
         </Grid>
     </Grid>
 </UserControl>

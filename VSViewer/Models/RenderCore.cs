@@ -105,7 +105,7 @@ namespace VSViewer.Models
         FillMode m_fillMode = FillMode.Solid;
         ShadingMode m_shadingMode = ShadingMode.Textured;
         bool m_showSkeleton = false;
-        bool m_useTurntable = true;
+        bool m_useTurntable = false;
         float m_turntableSpeed = 1;
         private string m_TEST;
         private int m_textureIndex; 

@@ -50,7 +50,7 @@ namespace VSViewer.Rendering
             NumberOfAnimations = sequence.animations.Count;
             CurrentAnimationIndex = 0;
             LoopWithTargetIndex = 0;
-            TotalAnimationsFrames = (int)(sequence.animations[0].length * 25);
+            TotalAnimationsFrames = (int)(sequence.animations[0].Length * 25);
             CurrentAnimationFrame = 0;
         }
         //public 
