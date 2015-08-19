@@ -123,8 +123,7 @@ namespace VSViewer.Rendering
                 {
                     CullMode = CullMode.Back,
                     FillMode = FillMode.Solid,
-                    // updated to SDX 2.6.3 and this is clockwise now.... why?
-                    IsFrontCounterClockwise = false,
+                    IsFrontCounterClockwise = true,
                     DepthBias = 0,
                     DepthBiasClamp = 0,
                     SlopeScaledDepthBias = 0,

@@ -15,13 +15,13 @@ namespace VSViewer
     /// </summary>
     static partial class VSTools
     {
-
-        static public void GetJoints(EndianBinaryReader reader, List<Joint> outJoints, int numJoints)
+        static public List<Joint> GetJoints(EndianBinaryReader reader, int numJoints)
         {
+            List<Joint> joints = new List<Joint>();
+
             for (int i = 0; i < numJoints; i++)
             {
                 Joint joint = new Joint();
-
                 joint.boneLength = -reader.ReadInt16();
 
                 reader.Skip(2); // no effect on length, just padding
@@ -35,12 +35,14 @@ namespace VSViewer
                 reader.Skip(0x01); // unknown
                 reader.Skip(0x06); // always 0? padding?
 
-                outJoints.Add(joint);
+                joints.Add(joint);
             }
+            return joints;
         }
 
-        static public void GetGroups(EndianBinaryReader reader, List<Group> outGroups, int numGroups)
+        static public List<Group> GetGroups(EndianBinaryReader reader, int numGroups)
         {
+            List<Group> groups = new List<Group>();
             for (int i = 0; i < numGroups; i++)
             {
                 Group group = new Group();
@@ -48,12 +50,14 @@ namespace VSViewer
                 group.boneID = reader.ReadInt16();
                 group.lastVertex = reader.ReadUInt16();
 
-                outGroups.Add(group);
+                groups.Add(group);
             }
+            return groups;
         }
 
-        static public void GetVertices(EndianBinaryReader reader, List<Vertex> outVertices, List<Group> groups)
+        static public List<Vertex> GetVertices(EndianBinaryReader reader, List<Group> groups)
         {
+            List<Vertex> vertices = new List<Vertex>();
             for (int i = 0, g = 0; i < groups[groups.Count - 1].lastVertex; i++)
             {
                 if (i >= groups[g].lastVertex)
@@ -72,12 +76,14 @@ namespace VSViewer
                 vertex.groupID = g;
                 vertex.boneID = groups[g].boneID;
 
-                outVertices.Add(vertex);
+                vertices.Add(vertex);
             }
+            return vertices;
         }
 
-        static public void GetPolygons(EndianBinaryReader reader, List<Polygon> outPolygons, int numAllPolygons)
+        static public List<Polygon> GetPolygons(EndianBinaryReader reader, int numAllPolygons)
         {
+            List<Polygon> polygons = new List<Polygon>();
             for (int i = 0; i < numAllPolygons; i++)
             {
                 Polygon polygon = new Polygon();
@@ -114,14 +120,16 @@ namespace VSViewer
                     polygon.v4 = reader.ReadByte();
                 }
 
-                outPolygons.Add(polygon);
+                polygons.Add(polygon);
             }
+            return polygons;
         }
 
-        static public void GetTextures(EndianBinaryReader reader, List<TextureMap> outTextures, int numOfPalettes)
+        static public List<TextureMap> GetTextures(EndianBinaryReader reader, int numOfPalettes)
         {
-            UInt32 size = reader.ReadUInt32();
+            List<TextureMap> textures = new List<TextureMap>();
 
+            UInt32 size = reader.ReadUInt32();
             //reader.Skip(0x01); // version number, always 1 for WEPs. SHP?
             byte temp = reader.ReadByte();
             Trace.Assert(temp == 1);
@@ -130,26 +138,13 @@ namespace VSViewer
             int height = reader.ReadByte() * 2;
             byte colorsPerPalette = reader.ReadByte();
 
-            for (int p = 0; p < numOfPalettes; p++)
+            if (numOfPalettes != 2)
             {
-                TextureMap tex = new TextureMap(width, height);
-                Palette palette = new Palette();
-                for (int c = 0; c < colorsPerPalette; c++)
-                {
-                    palette.colors.Add(VSTools.BitColorConverter(reader.ReadUInt16()));
-                }
-                tex.ColorPalette = palette;
-
-                if (numOfPalettes > 2)
-                {
-                    if (p % 2 != 0) // Is Odd Number
-                    {
-                        tex.IsPaletteOffset = true;
-                    }
-                    if (p == 4) { tex.IsPaletteLast = true; }
-                }
-                tex.Index = p;
-                outTextures.Add(tex);
+                ConstructWeaponPalettes(reader, textures, numOfPalettes, width, height, colorsPerPalette);
+            }
+            else
+            {
+                ConstructCharacterPalettes(reader, textures, numOfPalettes, width, height, colorsPerPalette);
             }
 
             // A linear representation of the texture map, each byte is a palette index.
@@ -165,12 +160,64 @@ namespace VSViewer
 
             for (int i = 0; i < numOfPalettes; i++)
             {
-                outTextures[i].map = paletteMap;
-                outTextures[i].Save(i.ToString());
+                textures[i].map = paletteMap;
+                textures[i].SaveToDisk(i.ToString());
+            }
+            return textures;
+        }
+
+        private static void ConstructWeaponPalettes(EndianBinaryReader reader, List<TextureMap> outTextures, int numOfPalettes, int width, int height, byte colorsPerPalette)
+        {
+            // construct the handle palette the first 1/3 of the colors.
+            Palette handlePalette = new Palette();
+            for (int i = 0; i < colorsPerPalette / 3; i++)
+            {
+                handlePalette.colors.Add(VSTools.BitColorConverter(reader.ReadUInt16()));
             }
 
-            Console.WriteLine(reader.BaseStream.Length - reader.BaseStream.Position);
+            // construct the next 7 palettes out of the data stream that follows.
+            for (int p = 0; p < numOfPalettes; p++)
+            {
+                TextureMap tex = new TextureMap(width, height);
+                Palette palette = new Palette();
 
+                // pack first 1/3 with handle colors.
+                for (int h = 0; h < handlePalette.GetColorCount(); h++)
+                {
+                    palette.colors.Add(handlePalette.colors[h]);
+                }
+
+                int count = (int)(colorsPerPalette / 3);
+                count += count;
+
+                // read blade from stream
+                for (int c = 0; c < count; c++)
+                {
+                    palette.colors.Add(VSTools.BitColorConverter(reader.ReadUInt16()));
+                }
+                tex.ColorPalette = palette;
+
+                tex.Index = p;
+                outTextures.Add(tex);
+            }
+        }
+
+        private static void ConstructCharacterPalettes(EndianBinaryReader reader, List<TextureMap> outTextures, int numOfPalettes, int width, int height, byte colorsPerPalette)
+        {
+            for (int p = 0; p < numOfPalettes; p++)
+            {
+                TextureMap tex = new TextureMap(width, height);
+                Palette palette = new Palette();
+
+                for (int c = 0; c < colorsPerPalette; c++)
+                {
+                    palette.colors.Add(VSTools.BitColorConverter(reader.ReadUInt16()));
+                }
+                tex.ColorPalette = palette;
+
+                tex.Index = p;
+                outTextures.Add(tex);
+            }
         }
     }
 }

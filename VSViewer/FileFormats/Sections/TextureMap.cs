@@ -14,6 +14,8 @@ namespace VSViewer.FileFormats
 {
     public class TextureMap
     {
+        #region Properties
+
         public int Index { get; set; }
 
         public ushort Width
@@ -28,11 +30,6 @@ namespace VSViewer.FileFormats
             get { return m_height; }
         }
 
-        public int PixelCount
-        {
-            get { return m_width * m_height * 4; }
-        }
-
         public BitmapSource Bitmap
         {
             get { return GetBitmap(); }
@@ -45,9 +42,17 @@ namespace VSViewer.FileFormats
 
         public byte[] map;
 
+        private int PixelCount { get { return Width * Height * 4; } } 
+
+        #endregion
+
+        #region Private Fields
+
         SamplerStateDescription m_samplerDesc;
         ushort m_width;
-        ushort m_height;
+        ushort m_height; 
+
+        #endregion
 
         public TextureMap(int w, int h)
         {
@@ -66,6 +71,8 @@ namespace VSViewer.FileFormats
                 MaximumLod = 0,
             };
         }
+
+        #region Methods
 
         public Texture2D GetTexture2D(Device device)
         {
@@ -94,16 +101,18 @@ namespace VSViewer.FileFormats
             return texture;
         }
 
-        public byte[] GetPaletteMap()
+        public void SaveToDisk(string name, string directory = "")
         {
-            return map;
+            // write to disk
+            using (FileStream stream = new FileStream(directory + name + ".png", FileMode.Create))
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(GetBitmap()));
+                encoder.Save(stream);
+            }
         }
 
-        /// <summary>
-        /// Get the texture as a byte stream
-        /// </summary>
-        /// <returns>byte[] stream of the texture as BGRA32</returns>
-        public byte[] GetPixelData()
+        private byte[] GetPixelData()
         {
             byte[] buffer = new byte[m_width * m_height * 4];
             for (int y = 0; y < m_height; ++y)
@@ -160,47 +169,11 @@ namespace VSViewer.FileFormats
             return buffer;
         }
 
-        public byte[] GetPalettePixels()
-        {
-            byte[] buffer = new byte[ColorPalette.colors.Count * 4];
-            for (int y = 0; y < ColorPalette.colors.Count; ++y)
-            {
-                // swizzled to BGRA
-                buffer[y * 4 + 0] = ColorPalette.colors[y][2]; //b
-                buffer[y * 4 + 1] = ColorPalette.colors[y][1]; //g
-                buffer[y * 4 + 2] = ColorPalette.colors[y][0]; //r
-                buffer[y * 4 + 3] = ColorPalette.colors[y][3]; //a
-            }
-            return buffer;
-        }
-
         private BitmapSource GetBitmap()
         {
             return BitmapSource.Create(m_width, m_height, 96d, 96d, PixelFormats.Bgra32, null, GetPixelData(), 4 * ((m_width * 4 + 3) / 4));
-        }
+        } 
 
-        private BitmapSource GetBitmapPalette()
-        {
-            return BitmapSource.Create(ColorPalette.colors.Count, 1, 96d, 96d, PixelFormats.Bgra32, null, GetPalettePixels(), 4 * ((ColorPalette.colors.Count * 4 + 3) / 4));
-        }
-
-        public void Save(string name, string directory = "")
-        {
-            // write to disk
-            using (FileStream stream = new FileStream(directory + name + ".png", FileMode.Create))
-            {
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(GetBitmap()));
-                encoder.Save(stream);
-            }
-
-            // write to disk
-            using (FileStream stream = new FileStream(directory + name + "Palette.png", FileMode.Create))
-            {
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(GetBitmapPalette()));
-                encoder.Save(stream);
-            }
-        }
+        #endregion
     }
 }

@@ -468,7 +468,7 @@ namespace SharpDX.WPF.Cameras
         /// </summary>
         protected virtual void UpdateView()
         {
-            m_viewMat = Matrix.LookAtLH(m_position, m_lookAt, m_up);
+            m_viewMat = Matrix.LookAtRH(m_position, m_lookAt, m_up);
         }
 
         /// <summary>
@@ -528,7 +528,7 @@ namespace SharpDX.WPF.Cameras
         /// </summary>
         private void UpdateProj()
         {
-            m_projMat = Matrix.PerspectiveFovLH(m_fov, m_aspect, m_nearPlane, m_farPlane);
+            m_projMat = Matrix.PerspectiveFovRH(m_fov, m_aspect, m_nearPlane, m_farPlane);
         }
     }
 }

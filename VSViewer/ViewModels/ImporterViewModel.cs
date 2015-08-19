@@ -65,7 +65,8 @@ namespace VSViewer.ViewModels
         }
         internal void FindNextCommand()
         {
-            string path = @"E:\CloudServices\GoogleDrive\VSTools\OBJ\" + t.ToString("X2") + ".WEP";
+            string path = @"C:\Users\Oliver\Desktop\VSDump\OBJ\" + t.ToString("X2") + ".WEP";
+            //string path = @"E:\CloudServices\GoogleDrive\VSTools\OBJ\" + t.ToString("X2") + ".WEP";
             Console.WriteLine("Viewing WEP:" + t.ToString("X2"));
                 core.Actor.SEQ = null;
                 LoadShape(path);

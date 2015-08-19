@@ -91,23 +91,22 @@ namespace VSViewer.Loader
             /*=====================================================================
                 STREAM READER
             =====================================================================*/
-            SHP tempSHP = new SHP();
+            SHP shp = new SHP();
 
-            VSTools.GetJoints(reader, tempSHP.joints, numJoints);
-            VSTools.GetGroups(reader, tempSHP.groups, numGroups);
-            VSTools.GetVertices(reader, tempSHP.vertices, tempSHP.groups);
-            VSTools.GetPolygons(reader, tempSHP.polygons, numAllPolygons);
+            shp.joints = VSTools.GetJoints(reader, numJoints);
+            shp.groups = VSTools.GetGroups(reader, numGroups);
+            shp.vertices = VSTools.GetVertices(reader, shp.groups);
+            shp.polygons = VSTools.GetPolygons(reader, numAllPolygons);
 
             // skip AKAO
             reader.Skip(ptrMagic - ptrAkao);
-
             // skip magic section
             reader.Skip(4); // unknown
             reader.Skip(reader.ReadUInt32()); // skip length of the magic section.
 
-            VSTools.GetTextures(reader, tempSHP.textures, numOfPalettes);
+            shp.textures = VSTools.GetTextures(reader, numOfPalettes);
 
-            return tempSHP;
+            return shp;
         }
     }
 }

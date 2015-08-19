@@ -39,20 +39,20 @@ namespace VSViewer.Loader
                 LOCALS
             =====================================================================*/
             int numAllPolygons = numTriangles + numQuads + numPolygons;
-            int numOfPalettes = 5; // all items have 5 palettes for each material type.
+            int numOfPalettes = 7; // palettes of 2/3 color count.
 
             /*=====================================================================
                 STREAM READER
             =====================================================================*/
-            WEP tempWEP = new WEP();
+            WEP wep = new WEP();
 
-            VSTools.GetJoints(reader, tempWEP.joints, numJoints);
-            VSTools.GetGroups(reader, tempWEP.groups, numGroups);
-            VSTools.GetVertices(reader, tempWEP.vertices, tempWEP.groups);
-            VSTools.GetPolygons(reader, tempWEP.polygons, numAllPolygons);
-            VSTools.GetTextures(reader, tempWEP.textures, numOfPalettes);
+            wep.joints = VSTools.GetJoints(reader, numJoints);
+            wep.groups = VSTools.GetGroups(reader, numGroups);
+            wep.vertices = VSTools.GetVertices(reader, wep.groups);
+            wep.polygons = VSTools.GetPolygons(reader, numAllPolygons);
+            wep.textures = VSTools.GetTextures(reader, numOfPalettes);
 
-            return tempWEP;
+            return wep;
         }
     }
 }
