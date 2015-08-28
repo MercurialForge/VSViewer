@@ -37,9 +37,6 @@ namespace VSViewer.FileFormats
 
         public Palette ColorPalette { get; set; }
 
-        public bool IsPaletteOffset { get; set; }
-        public bool IsPaletteLast { get; set; }
-
         public byte[] map;
 
         private int PixelCount { get { return Width * Height * 4; } } 
@@ -121,20 +118,6 @@ namespace VSViewer.FileFormats
                 {
                     int index = (y * m_width) + x;
                     int c = map[index];
-
-                    // offset palette by -[palette color count / 3] to make up for strange wrapping
-                    if (IsPaletteOffset)
-                    {
-                        if (!IsPaletteLast)
-                        {
-                            c -= ColorPalette.GetColorCount() / 3;
-                        }
-                        else { c -= (int)(ColorPalette.GetColorCount() / 1.5f); } // if it's the last palette divide by 1.5f
-                        if (c < 0)
-                        {
-                            c += ColorPalette.GetColorCount();
-                        }
-                    }
 
                     if (c < ColorPalette.GetColorCount())
                     {
