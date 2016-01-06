@@ -1,9 +1,6 @@
 ﻿using SharpDX;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VSViewer.Common;
 
 namespace VSViewer.FileFormats.Sections
@@ -38,6 +35,23 @@ namespace VSViewer.FileFormats.Sections
         public Vector3[] poses;
         public List<NullableVector4>[] keyframes;
 
+        private bool bInitialized = false;
+        private void Initialize ()
+        {
+            if (!bInitialized)
+            {
+                bInitialized = true;
+                m_previousKeyframe = new Keyframe[jointKeys.Count];
+                m_currentKeyframe = new Keyframe[jointKeys.Count];
+                m_nextKeyframe = new Keyframe[jointKeys.Count];
+            }
+        }
+
+        Keyframe[] m_previousKeyframe;
+        Keyframe[] m_currentKeyframe;
+        Keyframe[] m_nextKeyframe;
+        float lastQueryTime;
+
         public Animation Copy ()
         {
             Animation copy = new Animation();
@@ -53,6 +67,76 @@ namespace VSViewer.FileFormats.Sections
             }
 
             return copy;
+        }
+
+        public Transform QueryAnimationTime(float time, int jointIndex)
+        {
+            Initialize();
+            Transform f = new Transform();
+
+            if (time < lastQueryTime) { UpdateAnimation(); }
+
+            // query frames
+            int totalKeysForJoint = jointKeys[jointIndex].Count;
+
+            for (int k = 0; k < totalKeysForJoint; k++)
+            {
+                Keyframe keyframe = jointKeys[jointIndex][k];
+                if (m_currentKeyframe[jointIndex] == null) { m_currentKeyframe[jointIndex] = keyframe; m_nextKeyframe[jointIndex] = keyframe; }
+
+                if (time >= m_nextKeyframe[jointIndex].Time)
+                {
+                    if (keyframe.Time >= time)
+                    {
+                        m_previousKeyframe[jointIndex] = m_currentKeyframe[jointIndex];
+                        m_currentKeyframe[jointIndex] = m_nextKeyframe[jointIndex];
+                        m_nextKeyframe[jointIndex] = keyframe;
+                        break;
+                    }
+                }
+
+            }
+
+
+            float f1 = m_currentKeyframe[jointIndex].Time;
+            float f2 = m_nextKeyframe[jointIndex].Time;
+            float query = time;
+
+            float a = query - f1;
+            float b = f2 - f1;
+
+            float t = MathUtil.Clamp(a / b, 0, 1);
+
+            if (float.IsNaN(t))
+            {
+                t = 0;
+            }
+
+            f.Position = Vector3.Lerp(m_currentKeyframe[jointIndex].Position, m_nextKeyframe[jointIndex].Position, t);
+            f.Rotation = Quaternion.Slerp(m_currentKeyframe[jointIndex].Rotation, m_nextKeyframe[jointIndex].Rotation, t);
+            f.LocalScale = Vector3.Lerp(m_currentKeyframe[jointIndex].Scale, m_nextKeyframe[jointIndex].Scale, t);
+
+            lastQueryTime = time;
+            return f;
+        }
+
+        private void UpdateAnimation()
+        {
+            Initialize();
+            for (int i = 0; i < jointKeys.Count; i++)
+            {
+                int totalKeysForJoint = jointKeys[i].Count;
+                m_previousKeyframe[i] = jointKeys[i][totalKeysForJoint - 1];
+                m_currentKeyframe[i] = jointKeys[i][0];
+                if (totalKeysForJoint > 1)
+                {
+                    m_nextKeyframe[i] = jointKeys[i][1];
+                }
+                else
+                {
+                    m_nextKeyframe[i] = jointKeys[i][0];
+                }
+            }
         }
 
         // TODO: this edits the original animation and ruins it.... Needs to copy the animations somehow.

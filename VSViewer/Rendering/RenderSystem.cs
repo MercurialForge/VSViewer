@@ -9,7 +9,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using VSViewer.Common;
-using VSViewer.FileFormats;
+using VSViewer.FileFormats.Sections;
 using VSViewer.Models;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
@@ -90,9 +90,9 @@ namespace VSViewer.Rendering
                 // Set shader flags
                 ShaderFlags sFlags = ShaderFlags.EnableStrictness;
 
-#if DEBUG
+                #if DEBUG
                 sFlags |= ShaderFlags.Debug;
-#endif
+                #endif
 
                 // Compile shader code
                 CompilationResult vertexShaderByteCode = ShaderBytecode.CompileFromFile(shaderName, "VS", "vs_4_0", sFlags, EffectFlags.None);
@@ -211,36 +211,31 @@ namespace VSViewer.Rendering
             if (core.Actor.Shape == null) { return; }
 
             UpdateAnimation(args.DeltaTime);
-
             ApplySkinning();
-
             UpdateTexture();
-
             UpdateVertexAndIndiceBuffers();
-
             SetShaderParameters(args);
-
             PushShaders();
         }
 
         private void UpdateAnimation(TimeSpan timeSpan)
         {
-            SEQ seq = core.Actor.SEQ;
+            Animation anim = core.Actor.CurrentAnimation;
             Geometry shape = core.Actor.Shape;
 
-            if (seq == null) { return; }
-            m_animFrameTimer += (float)timeSpan.Milliseconds;
+            if (anim == null) { return; }
+            m_animFrameTimer += timeSpan.Milliseconds; // milliseonds of time passsed
 
-            if (seq.animations[seq.CurrentAnimationIndex].Length <= m_animFrameTimer / 1000)
+            if (anim.Length <= m_animFrameTimer / 1000) // /1000 to get seconds and see if we passed the length,
             {
-                m_animFrameTimer = m_animFrameTimer - seq.animations[seq.CurrentAnimationIndex].Length * 1000;
+                m_animFrameTimer = 0; // if so reset timer the exact length, to cause perfect wrapping
             }
 
-            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, seq.animations[seq.CurrentAnimationIndex].Length);
+            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, anim.Length);
 
             for (int i = 0; i < shape.skeleton.Count; i++)
             {
-                Transform f = seq.QueryAnimationTime(frameQueryTime, i);
+                Transform f = anim.QueryAnimationTime(frameQueryTime, i);
                 shape.instancedSkeleton[i].Position = f.Position;
                 shape.instancedSkeleton[i].Rotation = f.Rotation;
                 shape.instancedSkeleton[i].LocalScale = f.LocalScale;

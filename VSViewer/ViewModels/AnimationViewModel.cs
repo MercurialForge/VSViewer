@@ -33,7 +33,7 @@ namespace VSViewer.ViewModels
         {
             get
             {
-                if (m_mainWindow.RenderCore.Actor.Shape != null) 
+                if (m_mainWindow.RenderCore.Actor.Shape != null)
                 {
                     if (m_mainWindow.RenderCore.Actor.Shape.IsSHP)
                     {
@@ -110,10 +110,26 @@ namespace VSViewer.ViewModels
             m_mainWindow = mainWindowViewModel;
         }
 
-        public void Reset ()
+        public void Reset()
         {
             AnimationIndex = 0;
             MaxAnimationCount = m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations - 1;
+        }
+
+        internal void PrepSubFile()
+        {
+            string path = "";
+            if (OpenSubFile(out path))
+            {
+                SubFilePath = path;
+                using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(SubFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
+                {
+                    if (m_subFile.Extension == ".SEQ")
+                    {
+                        LoadAsset(reader);
+                    }
+                }
+            }
         }
 
         private bool OpenSubFile(out string outPath)
@@ -129,48 +145,20 @@ namespace VSViewer.ViewModels
             return false;
         }
 
-        internal void PrepSubFile()
+        private void LoadAsset(EndianBinaryReader reader)
         {
-            string path = "";
-            if (OpenSubFile(out path))
-            {
-                SubFilePath = path;
-            }
-            using (EndianBinaryReader reader = new EndianBinaryReader(File.Open(SubFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Endian.Little))
-            {
-                if (m_subFile.Extension == ".SEQ")
-                {
-                    if (LoadAsset(reader)) { return; }
-                    else
-                    {
-                        SubFilePath = "No File Chosen";
-                        MessageBox.Show("A SEQ cannot be applied.", "Warning");
-                    }
-                }
-            }
-        }
-
-        private bool LoadAsset(EndianBinaryReader reader)
-        {
-            if (m_mainWindow.RenderCore.Actor.Shape != null)
-            {
-                if (m_mainWindow.RenderCore.Actor.Shape.IsSHP)
-                {
-                    SEQ seq = SEQLoader.FromStream(reader, m_mainWindow.RenderCore.Actor.Shape.coreObject);
-                    m_mainWindow.RenderCore.Actor.AttachSEQ(seq);
-                    m_mainWindow.AnimationTool.Reset();
-                    return true;
-                }
-            }
-            return false;
+            SEQ seq = SEQLoader.FromStream(reader, m_mainWindow.RenderCore.Actor.Shape.coreObject);
+            m_mainWindow.RenderCore.Actor.SEQ = seq;
+            m_mainWindow.RenderCore.Actor.CurrentAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[0];
+            m_mainWindow.AnimationTool.Reset();
         }
 
         internal void StepAnim_Prev()
         {
             if (AnimationIndex >= 0)
             {
-                m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex--;
-                AnimationIndex = m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex;
+                AnimationIndex--;
+                m_mainWindow.RenderCore.Actor.CurrentAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
             }
         }
 
@@ -178,18 +166,23 @@ namespace VSViewer.ViewModels
         {
             if (AnimationIndex < m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations - 1)
             {
-                m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex++;
-                AnimationIndex = m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex;
+                AnimationIndex++;
+                m_mainWindow.RenderCore.Actor.CurrentAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
             }
         }
 
         internal void MergeAndView()
         {
-            Animation anim1 = m_mainWindow.RenderCore.Actor.SEQ.animations[Anim1].Copy();
-            Animation anim2 = m_mainWindow.RenderCore.Actor.SEQ.animations[Anim2].Copy();
-            Animation newAnim = Animation.MergeAnimations(anim1, anim2);
-            m_mainWindow.RenderCore.Actor.SEQ.animations.Add(newAnim);
-            m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex = m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations;
+            // copy anim 1
+            // copy anim 2
+            // create new sequenced anim object with 1 & 2
+            // set current animation to new sequened anim.
+
+            //Animation anim1 = m_mainWindow.RenderCore.Actor.SEQ.animations[Anim1].Copy();
+            //Animation anim2 = m_mainWindow.RenderCore.Actor.SEQ.animations[Anim2].Copy();
+            //Animation newAnim = Animation.MergeAnimations(anim1, anim2);
+            //m_mainWindow.RenderCore.Actor.SEQ.animations.Add(newAnim);
+            //m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex = m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations;
         }
 
     }

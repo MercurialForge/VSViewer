@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VSViewer.FileFormats.Sections;
 using VSViewer.Rendering;
 
 namespace VSViewer.Models
@@ -108,7 +109,7 @@ namespace VSViewer.Models
         bool m_useTurntable = false;
         float m_turntableSpeed = 1;
         private string m_TEST;
-        private int m_textureIndex; 
+        private int m_textureIndex;
 
         #endregion
     }

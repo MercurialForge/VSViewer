@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VSViewer.Common;
 using VSViewer.FileFormats;
+using VSViewer.FileFormats.Sections;
 
 namespace VSViewer.Rendering
 {
@@ -19,21 +20,17 @@ namespace VSViewer.Rendering
         public string name { get; set; }
         public Geometry Shape { get; set; }
         public SEQ SEQ { get; set; }
-        public int NumberOfAnimations 
+
+        private Animation m_currentAnimation;
+        public Animation CurrentAnimation
         {
-            get { return m_numberOfAnimations; }
+            get { return m_currentAnimation; }
             set
             {
-                m_numberOfAnimations = value;
-                OnPropertyChanged("NumberOfAnimations");
+                m_currentAnimation = value;
+                OnPropertyChanged("CurrentAnimation");
             }
         }
-        public int CurrentAnimationIndex { get; set; }
-        public int LoopWithTargetIndex { get; set; }
-        public int TotalAnimationsFrames { get; set; }
-        public int CurrentAnimationFrame { get; set; }
-
-        private int m_numberOfAnimations;
 
         public Actor()
         {
@@ -47,11 +44,6 @@ namespace VSViewer.Rendering
         public void AttachSEQ (SEQ sequence)
         {
             SEQ = sequence;
-            NumberOfAnimations = sequence.animations.Count;
-            CurrentAnimationIndex = 0;
-            LoopWithTargetIndex = 0;
-            TotalAnimationsFrames = (int)(sequence.animations[0].Length * 25);
-            CurrentAnimationFrame = 0;
         }
         //public 
     }
