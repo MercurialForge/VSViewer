@@ -220,11 +220,14 @@ namespace VSViewer.Rendering
 
         private void UpdateAnimation(TimeSpan timeSpan)
         {
-            Animation anim = core.Actor.CurrentAnimation;
+            Animation anim = core.Actor.PlaybackAnimation;
             Geometry shape = core.Actor.Shape;
 
             if (anim == null) { return; }
-            m_animFrameTimer += timeSpan.Milliseconds; // milliseonds of time passsed
+
+            float timeScale = core.Actor.PlaybackSpeed;
+
+            m_animFrameTimer += timeSpan.Milliseconds * timeScale;
 
             if (anim.Length <= m_animFrameTimer / 1000) // /1000 to get seconds and see if we passed the length,
             {
@@ -241,6 +244,7 @@ namespace VSViewer.Rendering
                 shape.instancedSkeleton[i].LocalScale = f.LocalScale;
             }
 
+            //tick actor?
         }
 
         private void ApplySkinning()

@@ -41,13 +41,8 @@ namespace VSViewer.ViewModels
         #endregion
 
         #region Private Fields / Properties
-        ViewportViewModel m_viewport;
         MainWindowViewModel m_mainWindow;
         FileInfo m_mainFile;
-        FileInfo m_subFile;
-        bool m_isActive = false;
-        ContentBase m_loadedContent;
-        AssetBase m_loadedAsset;
         RenderCore core;
         #endregion
 

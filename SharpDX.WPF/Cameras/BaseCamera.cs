@@ -272,7 +272,7 @@ namespace SharpDX.WPF.Cameras
             var dp = pMouse - m_mouseLastPos;
 
             {
-                var rAxis = Vector3.Cross(new Vector3(dp.X, dp.Y, 0), new Vector3(0, 0, -1));
+                var rAxis = Vector3.Cross(new Vector3(dp.X, dp.Y, 0), new Vector3(0, 0, 1));
                 if (rAxis.LengthSquared() >= 0.00001)
                 {
                     float angle = GetMouseAngle(dp, ui);
@@ -300,7 +300,7 @@ namespace SharpDX.WPF.Cameras
         /// <param name="e"></param>
         public virtual void HandleMouseWheel(UIElement ui, MouseWheelEventArgs e)
         {
-            var dp = e.Delta > 0 ? new Vector3(0, 0, -1) : new Vector3(0, 0, 1);
+            var dp = e.Delta > 0 ? new Vector3(0, 0, 1) : new Vector3(0, 0, -1);
             KeyMove(dp);
         }
 
@@ -500,17 +500,17 @@ namespace SharpDX.WPF.Cameras
 
                 case Key.D:
                 case Key.Right:
-                    return new Vector3(-1, 0, 0);
+                    return new Vector3(1, 0, 0);
 
                 case Key.A:
                 case Key.Left:
-                    return new Vector3(1, 0, 0);
+                    return new Vector3(-1, 0, 0);
 
                 case Key.E:
-                    return new Vector3(0, -1, 0);
+                    return new Vector3(0, 1, 0);
 
                 case Key.Q:
-                    return new Vector3(0, 1, 0);
+                    return new Vector3(0, -1, 0);
             }
             return s_zero3;
         }

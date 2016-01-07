@@ -86,8 +86,6 @@ namespace VSViewer.Models
             }
         }
 
-        public string TEST { get { return "TEST"; } set { m_TEST = value; } }
-
         public bool TextureRequiresUpdate { get; set; }
 
         public int TextureIndex
@@ -108,7 +106,6 @@ namespace VSViewer.Models
         bool m_showSkeleton = false;
         bool m_useTurntable = false;
         float m_turntableSpeed = 1;
-        private string m_TEST;
         private int m_textureIndex;
 
         #endregion

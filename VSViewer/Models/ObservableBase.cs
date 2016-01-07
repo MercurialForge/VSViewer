@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VSViewer.Models
 {
-    public class ObservableBase : INotifyPropertyChanged, IDisposable
+    public class ObservableBase : INotifyPropertyChanged
     {
         protected ObservableBase()
         {
@@ -23,15 +23,6 @@ namespace VSViewer.Models
                 var e = new PropertyChangedEventArgs(propertyName);
                 handler(this, e);
             }
-        }
-
-        public void Dispose()
-        {
-            this.OnDispose();
-        }
-
-        protected virtual void OnDispose()
-        {
         }
     }
 }

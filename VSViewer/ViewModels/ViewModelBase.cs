@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace VSViewer.ViewModels
 {
-    public class ViewModelBase : INotifyPropertyChanged, IDisposable
+    public class ViewModelBase : INotifyPropertyChanged
     {
         protected ViewModelBase()
         {
@@ -45,15 +45,6 @@ namespace VSViewer.ViewModels
         public void HideTool ()
         {
             ToolVisiblity = Visibility.Collapsed;
-        }
-
-        public void Dispose()
-        {
-            this.OnDispose();
-        }
-
-        protected virtual void OnDispose()
-        {
         }
     }
 }

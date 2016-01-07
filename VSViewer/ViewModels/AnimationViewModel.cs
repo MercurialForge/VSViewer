@@ -7,6 +7,7 @@ using VSViewer.Common;
 using VSViewer.FileFormats;
 using VSViewer.FileFormats.Sections;
 using VSViewer.Loader;
+using System;
 
 namespace VSViewer.ViewModels
 {
@@ -54,6 +55,18 @@ namespace VSViewer.ViewModels
             }
         }
 
+        public string PauseToggleButtonText
+        {
+            get { return m_pauseToggleButtonText; }
+            set
+            {
+                m_pauseToggleButtonText = value;
+                OnPropertyChanged("PauseToggleButtonText");
+            }
+        }
+
+        public bool PauseToggleButtonCheckStatus { get; set; }
+
         public int MaxAnimationCount
         {
             get { return m_maxAnimationCount; }
@@ -64,14 +77,60 @@ namespace VSViewer.ViewModels
             }
         }
 
+        public string FrameWindowDisplayText
+        {
+            get { return m_frameWindowDisplayText; }
+            set
+            {
+                m_frameWindowDisplayText = value;
+                OnPropertyChanged("FrameWindowDisplayText");
+            }
+        }
+
         public int PlaybackSpeed
         {
             get { return m_playbackSpeed; }
             set
             {
                 m_playbackSpeed = value;
+                PlaybackSpeedReadout = GetPlaybackSpeedText(m_playbackSpeed);
                 OnPropertyChanged("PlaybackSpeed");
+                if (!PauseToggleButtonCheckStatus)
+                {
+                    m_mainWindow.RenderCore.Actor.SetPlaybackSpeed(m_playbackSpeed);
+                }
             }
+        }
+
+        public string PlaybackSpeedReadout
+        {
+            get { return m_playbackSpeedReadout; }
+            set
+            {
+                m_playbackSpeedReadout = value;
+                OnPropertyChanged("PlaybackSpeedReadout");
+            }
+        }
+
+        private string GetPlaybackSpeedText(int speed)
+        {
+            string humanReadable = "";
+            switch (speed)
+            {
+                case 0: humanReadable = "1/8"; break;
+                case 1: humanReadable = "1/6"; break;
+                case 2: humanReadable = "1/4"; break;
+                case 3: humanReadable = "1/3"; break;
+                case 4: humanReadable = "1/2"; break;
+                case 5: humanReadable = "Normal"; break;
+                case 6: humanReadable = "x2"; break;
+                case 7: humanReadable = "x3"; break;
+                case 8: humanReadable = "x4"; break;
+                case 9: humanReadable = "x6"; break;
+                case 10: humanReadable = "x8"; break;
+                default: humanReadable = "??"; break;
+            }
+            return humanReadable;
         }
 
         public ICommand PreviousAnim
@@ -84,6 +143,11 @@ namespace VSViewer.ViewModels
         {
             get { return new RelayCommand(x => StepAnim_Next()); }
 
+        }
+
+        public ICommand TogglePause
+        {
+            get { return new RelayCommand(x => DoTogglePause()); }
         }
 
         public ICommand OnSubFile
@@ -101,9 +165,12 @@ namespace VSViewer.ViewModels
 
         private int m_currentIndex;
         private int m_maxAnimationCount;
-        private int m_playbackSpeed;
+        private int m_playbackSpeed = 5;
         private FileInfo m_subFile;
         private MainWindowViewModel m_mainWindow;
+        private string m_playbackSpeedReadout = "Normal";
+        private string m_pauseToggleButtonText = "X";
+        private string m_frameWindowDisplayText;
 
         public AnimationViewModel(MainWindowViewModel mainWindowViewModel)
         {
@@ -113,6 +180,7 @@ namespace VSViewer.ViewModels
         public void Reset()
         {
             AnimationIndex = 0;
+            PlaybackSpeed = 5;
             MaxAnimationCount = m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations - 1;
         }
 
@@ -149,25 +217,56 @@ namespace VSViewer.ViewModels
         {
             SEQ seq = SEQLoader.FromStream(reader, m_mainWindow.RenderCore.Actor.Shape.coreObject);
             m_mainWindow.RenderCore.Actor.SEQ = seq;
-            m_mainWindow.RenderCore.Actor.CurrentAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[0];
+            m_mainWindow.RenderCore.Actor.PlaybackAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[0];
             m_mainWindow.AnimationTool.Reset();
         }
 
         internal void StepAnim_Prev()
         {
-            if (AnimationIndex >= 0)
+            if (m_mainWindow.RenderCore.Actor.SEQ != null)
             {
-                AnimationIndex--;
-                m_mainWindow.RenderCore.Actor.CurrentAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
+                AnimationIndex = WrapAnimationIndex(--AnimationIndex);
+                m_mainWindow.RenderCore.Actor.PlaybackAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
+
             }
         }
 
         internal void StepAnim_Next()
         {
-            if (AnimationIndex < m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations - 1)
+            if (m_mainWindow.RenderCore.Actor.SEQ != null)
             {
-                AnimationIndex++;
-                m_mainWindow.RenderCore.Actor.CurrentAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
+                AnimationIndex = WrapAnimationIndex(++AnimationIndex);
+                m_mainWindow.RenderCore.Actor.PlaybackAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
+            }
+        }
+
+        private void DoTogglePause()
+        {
+            if (PauseToggleButtonCheckStatus)
+            {
+                m_mainWindow.RenderCore.Actor.StopAnimation();
+                PauseToggleButtonText = "O";
+            }
+            else
+            {
+                PlaybackSpeed = PlaybackSpeed;
+                PauseToggleButtonText = "X";
+            }
+        }
+
+        internal int WrapAnimationIndex(int newIndex)
+        {
+            if (newIndex < 0)
+            {
+                return m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations - 1;
+            }
+            else if (newIndex > m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations - 1)
+            {
+                return 0;
+            }
+            else
+            {
+                return newIndex;
             }
         }
 

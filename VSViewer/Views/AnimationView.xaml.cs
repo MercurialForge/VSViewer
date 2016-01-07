@@ -27,5 +27,10 @@ namespace VSViewer.Views
                 e.Handled = true;
             }
         }
+
+        private void ToggleButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
     }
 }
