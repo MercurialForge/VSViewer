@@ -1,4 +1,5 @@
 ﻿using SharpDX;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using VSViewer.Common;
@@ -10,9 +11,19 @@ namespace VSViewer.FileFormats.Sections
         // the name of the animation
         public string name = "Animation";
         // const fps for all animations
-        public const float fps = 25;
-        // length of the animation
-        public float Length { get; set; }
+        public const float fps = 25f;
+        // length of the animation in seconds
+        public float LengthInSeconds { get; set; }
+        // Length of the animation in mililliseconds 
+        public float LengthInMilliseconds
+        {
+            get { return LengthInSeconds * 1000; }
+        }
+        // Length of the animation in frames
+        public int LengthInFrames
+        {
+            get { return (int)Math.Floor(LengthInSeconds * fps) - 1; }
+        }
         // A list for each bone and a list of keys
         public List<List<Keyframe>> jointKeys = new List<List<Keyframe>>();
 
@@ -22,9 +33,9 @@ namespace VSViewer.FileFormats.Sections
             {
                 for(int j = 0; j < jointKeys[i].Count; j++)
                 {
-                    if(jointKeys[i][j].Time > Length)
+                    if(jointKeys[i][j].Time > LengthInSeconds)
                     {
-                        Length = jointKeys[i][j].Time;
+                        LengthInSeconds = jointKeys[i][j].Time;
                     }
                 }
             }
@@ -57,7 +68,7 @@ namespace VSViewer.FileFormats.Sections
             Animation copy = new Animation();
 
             copy.name = name;
-            copy.Length = Length;
+            copy.LengthInSeconds = LengthInSeconds;
             for(int i = 0; i < jointKeys.Count; i++)
             {
                 Keyframe[] newKeys = new Keyframe[jointKeys[i].Count];

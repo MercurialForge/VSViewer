@@ -34,7 +34,7 @@ namespace VSViewer
 
         // all skin weights in Vagrant Story are 1
         public const int skinWeight = 1;
-        // the render systems instanced vertices for skinning
+        // the render system's instanced vertices for skinning
         public InputVertex[] instancedVertices;
         // the render system's instance joints for skinning
         public SkeletalJoint[] instancedSkeleton; 

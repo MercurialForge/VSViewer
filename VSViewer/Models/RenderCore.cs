@@ -109,5 +109,10 @@ namespace VSViewer.Models
         private int m_textureIndex;
 
         #endregion
+
+        public void TickRendered(TimeSpan deltaTime)
+        {
+            Actor.TickRendered(deltaTime);
+        }
     }
 }

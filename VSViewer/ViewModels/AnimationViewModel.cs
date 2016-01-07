@@ -8,6 +8,7 @@ using VSViewer.FileFormats;
 using VSViewer.FileFormats.Sections;
 using VSViewer.Loader;
 using System;
+using VSViewer.Rendering;
 
 namespace VSViewer.ViewModels
 {
@@ -43,6 +44,16 @@ namespace VSViewer.ViewModels
                 }
                 return false;
             }
+        }
+
+        bool QueryAnimationStatus
+        {
+            get { return (m_mainWindow.RenderCore.Actor.PlaybackAnimation != null); }
+        }
+
+        bool QuerySEQStatus
+        {
+            get { return (m_mainWindow.RenderCore.Actor.SEQ != null); }
         }
 
         public int AnimationIndex
@@ -135,14 +146,24 @@ namespace VSViewer.ViewModels
 
         public ICommand PreviousAnim
         {
-            get { return new RelayCommand(x => StepAnim_Prev()); }
+            get { return new RelayCommand(x => StepAnim_Prev(), x => QuerySEQStatus); }
 
         }
 
         public ICommand NextAnim
         {
-            get { return new RelayCommand(x => StepAnim_Next()); }
+            get { return new RelayCommand(x => StepAnim_Next(), x => QuerySEQStatus); }
 
+        }
+
+        public ICommand PrevFrame
+        {
+            get { return new RelayCommand(x => DoPrevFrame(), x => QueryAnimationStatus); }
+        }
+
+        public ICommand NextFrame
+        {
+            get { return new RelayCommand(x => DoNextFrame(), x => QueryAnimationStatus); }
         }
 
         public ICommand TogglePause
@@ -171,17 +192,50 @@ namespace VSViewer.ViewModels
         private string m_playbackSpeedReadout = "Normal";
         private string m_pauseToggleButtonText = "X";
         private string m_frameWindowDisplayText;
+        private Actor m_monitoredActor;
 
         public AnimationViewModel(MainWindowViewModel mainWindowViewModel)
         {
             m_mainWindow = mainWindowViewModel;
         }
 
-        public void Reset()
+        public override void Tick(TimeSpan deltaTime)
         {
-            AnimationIndex = 0;
+            if (m_mainWindow.RenderCore.Actor != null)
+            {
+                if (m_monitoredActor != m_mainWindow.RenderCore.Actor)
+                {
+                    m_monitoredActor = m_mainWindow.RenderCore.Actor;
+                    m_subFile = null;
+                    OnPropertyChanged("SubFileName");
+                    Flush();
+                }
+            }
+            // is SK
+            if (m_mainWindow.RenderCore.Actor.PlaybackAnimation != null)
+            {
+                int frame = (int)Math.Floor(m_mainWindow.RenderCore.Actor.PlaybackAnimationTime / 40);
+                int totalFrames = m_mainWindow.RenderCore.Actor.PlaybackAnimation.LengthInFrames;
+                FrameWindowDisplayText = string.Format("{0}:{1}", frame, totalFrames);
+            }
+            else
+            {
+                FrameWindowDisplayText = "0:0";
+            }
+        }
+
+        private void Reset()
+        {
+            Flush();
             PlaybackSpeed = 5;
             MaxAnimationCount = m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations - 1;
+        }
+
+        public void Flush()
+        {
+            m_mainWindow.RenderCore.Actor.PlaybackAnimationTime = 0;
+            AnimationIndex = 0;
+            MaxAnimationCount = 0;
         }
 
         internal void PrepSubFile()
@@ -223,21 +277,26 @@ namespace VSViewer.ViewModels
 
         internal void StepAnim_Prev()
         {
-            if (m_mainWindow.RenderCore.Actor.SEQ != null)
-            {
-                AnimationIndex = WrapAnimationIndex(--AnimationIndex);
-                m_mainWindow.RenderCore.Actor.PlaybackAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
-
-            }
+            AnimationIndex = WrapAnimationIndex(--AnimationIndex);
+            m_mainWindow.RenderCore.Actor.PlaybackAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
+            m_mainWindow.RenderCore.Actor.PlaybackAnimationTime = 0;
         }
 
         internal void StepAnim_Next()
         {
-            if (m_mainWindow.RenderCore.Actor.SEQ != null)
-            {
-                AnimationIndex = WrapAnimationIndex(++AnimationIndex);
-                m_mainWindow.RenderCore.Actor.PlaybackAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
-            }
+            AnimationIndex = WrapAnimationIndex(++AnimationIndex);
+            m_mainWindow.RenderCore.Actor.PlaybackAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[AnimationIndex];
+            m_mainWindow.RenderCore.Actor.PlaybackAnimationTime = 0;
+        }
+
+        private void DoPrevFrame()
+        {
+            m_mainWindow.RenderCore.Actor.DecrecrementFrame();
+        }
+
+        private void DoNextFrame()
+        {
+            m_mainWindow.RenderCore.Actor.IncrementFrame();
         }
 
         private void DoTogglePause()

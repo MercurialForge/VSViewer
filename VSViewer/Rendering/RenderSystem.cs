@@ -208,9 +208,12 @@ namespace VSViewer.Rendering
             // clear depth buffer
             Device.ImmediateContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1f, 0);
 
+            // tick the core to update all render required actions
+            core.TickRendered(args.DeltaTime);
+
             if (core.Actor.Shape == null) { return; }
 
-            UpdateAnimation(args.DeltaTime);
+            UpdateAnimation();
             ApplySkinning();
             UpdateTexture();
             UpdateVertexAndIndiceBuffers();
@@ -218,30 +221,19 @@ namespace VSViewer.Rendering
             PushShaders();
         }
 
-        private void UpdateAnimation(TimeSpan timeSpan)
+        private void UpdateAnimation()
         {
-            Animation anim = core.Actor.PlaybackAnimation;
-            Geometry shape = core.Actor.Shape;
+            Actor actor = core.Actor;
 
-            if (anim == null) { return; }
+            if (actor.PlaybackAnimation == null) { return; }
 
-            float timeScale = core.Actor.PlaybackSpeed;
-
-            m_animFrameTimer += timeSpan.Milliseconds * timeScale;
-
-            if (anim.Length <= m_animFrameTimer / 1000) // /1000 to get seconds and see if we passed the length,
+            for (int i = 0; i < actor.Shape.skeleton.Count; i++)
             {
-                m_animFrameTimer = 0; // if so reset timer the exact length, to cause perfect wrapping
-            }
-
-            float frameQueryTime = MathUtil.Clamp(m_animFrameTimer / 1000, 0, anim.Length);
-
-            for (int i = 0; i < shape.skeleton.Count; i++)
-            {
-                Transform f = anim.QueryAnimationTime(frameQueryTime, i);
-                shape.instancedSkeleton[i].Position = f.Position;
-                shape.instancedSkeleton[i].Rotation = f.Rotation;
-                shape.instancedSkeleton[i].LocalScale = f.LocalScale;
+                // since actors track their own animation playback, query the actor's playback animation.
+                Transform f = actor.QueryPlaybackAnimation(i);
+                actor.Shape.instancedSkeleton[i].Position = f.Position;
+                actor.Shape.instancedSkeleton[i].Rotation = f.Rotation;
+                actor.Shape.instancedSkeleton[i].LocalScale = f.LocalScale;
             }
 
             //tick actor?

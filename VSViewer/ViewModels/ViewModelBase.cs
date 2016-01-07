@@ -37,12 +37,17 @@ namespace VSViewer.ViewModels
             }
         }
 
+        public virtual void Tick(TimeSpan deltaTime)
+        {
+            throw new NotImplementedException();
+        }
+
         public void ShowTool()
         {
             ToolVisiblity = Visibility.Visible;
         }
 
-        public void HideTool ()
+        public void HideTool()
         {
             ToolVisiblity = Visibility.Collapsed;
         }

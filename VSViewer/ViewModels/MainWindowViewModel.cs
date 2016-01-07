@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Threading;
 using VSViewer.Models;
 
 namespace VSViewer.ViewModels
@@ -39,6 +40,8 @@ namespace VSViewer.ViewModels
 
         ObservableCollection<ViewModelBase> m_toolBarViewModels = new ObservableCollection<ViewModelBase>();
         private bool m_isAnimationToolEnabled = false;
+        private Timer m_tickTimer;
+        private DateTime m_previousDeltaQuery;
 
         public MainWindowViewModel()
         {
@@ -50,6 +53,17 @@ namespace VSViewer.ViewModels
 
             TextureTool.HideTool();
             AnimationTool.HideTool();
+
+            // Set default tick timer
+            m_tickTimer = new Timer(new TimerCallback(this.Tick), null, 0, 16);
+            m_previousDeltaQuery = DateTime.Now;
+        }
+
+        public void Tick(object objectState)
+        {
+            TimeSpan deltaTime = new TimeSpan(0, 0, 0, 0, (DateTime.Now - m_previousDeltaQuery).Milliseconds);
+            AnimationTool.Tick(deltaTime);
+            m_previousDeltaQuery = DateTime.Now;
         }
 
         private void AddToolBarTool(ViewModelBase tool)

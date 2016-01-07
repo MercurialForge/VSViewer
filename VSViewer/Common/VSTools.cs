@@ -19,7 +19,7 @@ namespace VSViewer
 
         // convert XYZ rotation in radians to quaternion
         // first apply x, then y, then z rotation
-        // but in sharpdx for reason I cannot explain, in version 2.3.2+ the
+        // but in sharpdx for reasons I cannot explain, in version 2.3.2+ the
         // quaternions must be multiplied z * x * y
         public static Quaternion Rot2Quat(float radX, float radY, float radZ)
         {
@@ -32,9 +32,7 @@ namespace VSViewer
             Quaternion quatZ = new Quaternion();
             quatZ = Quaternion.RotationAxis(new Vector3(0, 0, 1), radZ);
 
-            // updated to SDX 2.6.3 and this is backwards y x z... WHY?!?
             return quatZ * quatY * quatX;
-
         }
 
         // convert 16 bit color values to 32RGBA

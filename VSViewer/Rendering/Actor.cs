@@ -16,13 +16,11 @@ namespace VSViewer.Rendering
     /// </summary>
     public class Actor : Transform
     {
+        //TODO: maybe inherit to skeletal mesh and static mesh for ease of use layer...
 
         public string name { get; set; }
         public Geometry Shape { get; set; }
         public SEQ SEQ { get; set; }
-
-        private Animation m_playbackAnimation;
-        private float m_playbackSpeed;
 
         public Animation PlaybackAnimation
         {
@@ -38,7 +36,6 @@ namespace VSViewer.Rendering
         {
             get { return m_playbackSpeed; }
         }
-
         public void SetPlaybackSpeed (int speed)
         {
             switch (speed)
@@ -58,9 +55,71 @@ namespace VSViewer.Rendering
             }
         }
 
+        // time in milliseconds of the playback animation
+        public float PlaybackAnimationTime
+        {
+            get { return m_playbackAnimationTime; }
+            set
+            {
+                m_playbackAnimationTime = value;
+                OnPropertyChanged("PlaybackAnimationTime");
+            }
+        }
+        public float PlaybackAnimationTimeInSeconds
+        {
+            get { return PlaybackAnimationTime / 1000; }
+        }
+
+        private Animation m_playbackAnimation;
+        private float m_playbackSpeed;
+        private float m_playbackAnimationTime;
+
+        public void TickRendered(TimeSpan deltaTime)
+        {
+            if (PlaybackSpeed != 0)
+            {
+                PlaybackAnimationTime += deltaTime.Milliseconds * PlaybackSpeed;
+
+                if (PlaybackAnimation.LengthInMilliseconds <= PlaybackAnimationTime) // see if we passed the length,
+                {
+                    PlaybackAnimationTime = 0; // -= PlaybackAnimation.LengthInMilliseconds // if so reset timer the exact length, to cause perfect wrapping
+                }
+            }
+        }
+
+        public Transform QueryPlaybackAnimation(int jointIndex)
+        {
+            return PlaybackAnimation.QueryAnimationTime(PlaybackAnimationTimeInSeconds, jointIndex);
+        }
+
         public void StopAnimation()
         {
             m_playbackSpeed = 0;
+        }
+
+        public void IncrementFrame()
+        {
+            PlaybackAnimationTime = (int)(PlaybackAnimationTime / 40) * 40;
+            PlaybackAnimationTime += 40;
+            if(PlaybackAnimationTime > PlaybackAnimation.LengthInMilliseconds)
+            {
+                PlaybackAnimationTime = 0;
+            }
+        }
+
+        public void DecrecrementFrame()
+        {
+            PlaybackAnimationTime = (int)(PlaybackAnimationTime / 40) * 40;
+            PlaybackAnimationTime -= 40;
+            if (PlaybackAnimationTime < 0)
+            {
+                PlaybackAnimationTime = PlaybackAnimation.LengthInMilliseconds;
+            }
+        }
+
+        public void SetPlaybackFrame (int frame)
+        {
+            PlaybackAnimationTime = frame * 40;
         }
 
         public Actor()
