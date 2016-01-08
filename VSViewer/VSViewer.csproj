@@ -148,6 +148,9 @@
     <Compile Include="Views\ViewportOptionsView.xaml.cs">
       <DependentUpon>ViewportOptionsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ViewportToolView.xaml.cs">
+      <DependentUpon>ViewportToolView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ViewportView.xaml.cs">
       <DependentUpon>ViewportView.xaml</DependentUpon>
     </Compile>
@@ -180,6 +183,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ViewportOptionsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ViewportToolView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

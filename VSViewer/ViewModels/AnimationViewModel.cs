@@ -336,11 +336,10 @@ namespace VSViewer.ViewModels
             // create new sequenced anim object with 1 & 2
             // set current animation to new sequened anim.
 
-            //Animation anim1 = m_mainWindow.RenderCore.Actor.SEQ.animations[Anim1].Copy();
-            //Animation anim2 = m_mainWindow.RenderCore.Actor.SEQ.animations[Anim2].Copy();
-            //Animation newAnim = Animation.MergeAnimations(anim1, anim2);
-            //m_mainWindow.RenderCore.Actor.SEQ.animations.Add(newAnim);
-            //m_mainWindow.RenderCore.Actor.SEQ.CurrentAnimationIndex = m_mainWindow.RenderCore.Actor.SEQ.NumberOfAnimations;
+            Animation anim1 = new Animation(m_mainWindow.RenderCore.Actor.SEQ.animations[Anim1]);
+            Animation anim2 = new Animation(m_mainWindow.RenderCore.Actor.SEQ.animations[Anim2]);
+            Animation newAnim = Animation.MergeAnimations(anim1, anim2);
+            m_mainWindow.RenderCore.Actor.PlaybackAnimation = newAnim;
         }
 
     }

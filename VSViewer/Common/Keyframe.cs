@@ -18,5 +18,15 @@ namespace VSViewer.Common
         {
             Scale = Vector3.One;
         }
+
+        public Keyframe Copy ()
+        {
+            Keyframe key = new Keyframe();
+            key.Position = Position;
+            key.Rotation = Rotation;
+            key.Scale = Scale;
+            key.Time = Time;
+            return key;
+        }
     }
 }

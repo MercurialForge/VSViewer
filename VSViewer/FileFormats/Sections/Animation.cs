@@ -24,16 +24,17 @@ namespace VSViewer.FileFormats.Sections
         {
             get { return (int)Math.Floor(LengthInSeconds * fps) - 1; }
         }
-        // A list for each bone and a list of keys
+        // A list for each bone and a list of keys for that bone
         public List<List<Keyframe>> jointKeys = new List<List<Keyframe>>();
 
+        // finds the highest time and sets is as the length
         public void SetLength()
         {
-            for(int i = 0; i < jointKeys.Count; i++)
+            for (int i = 0; i < jointKeys.Count; i++)
             {
-                for(int j = 0; j < jointKeys[i].Count; j++)
+                for (int j = 0; j < jointKeys[i].Count; j++)
                 {
-                    if(jointKeys[i][j].Time > LengthInSeconds)
+                    if (jointKeys[i][j].Time > LengthInSeconds)
                     {
                         LengthInSeconds = jointKeys[i][j].Time;
                     }
@@ -41,13 +42,15 @@ namespace VSViewer.FileFormats.Sections
             }
         }
 
+        #region SEQ Source Creation Data
         // SEQ source data
         public Animation baseAnimation;
         public Vector3[] poses;
-        public List<NullableVector4>[] keyframes;
+        public List<NullableVector4>[] keyframes; //TODO: maybe just make it a list of lists? Consistancy?
+        #endregion
 
         private bool bInitialized = false;
-        private void Initialize ()
+        private void Initialize()
         {
             if (!bInitialized)
             {
@@ -57,27 +60,30 @@ namespace VSViewer.FileFormats.Sections
                 m_nextKeyframe = new Keyframe[jointKeys.Count];
             }
         }
-
         Keyframe[] m_previousKeyframe;
         Keyframe[] m_currentKeyframe;
         Keyframe[] m_nextKeyframe;
         float lastQueryTime;
 
-        public Animation Copy ()
+        public Animation() { }
+
+        /// <summary>
+        /// Creates a non-destrctive copy of the original animation
+        /// </summary>
+        public Animation(Animation Anim)
         {
-            Animation copy = new Animation();
+            name = Anim.name;
+            LengthInSeconds = Anim.LengthInSeconds;
 
-            copy.name = name;
-            copy.LengthInSeconds = LengthInSeconds;
-            for(int i = 0; i < jointKeys.Count; i++)
+            for (int i = 0; i < Anim.jointKeys.Count; i++)
             {
-                Keyframe[] newKeys = new Keyframe[jointKeys[i].Count];
-                jointKeys[i].CopyTo(newKeys);
-                List<Keyframe> dup = new List<Keyframe>(newKeys);
-                copy.jointKeys.Add(dup);
+                List<Keyframe> keys = new List<Keyframe>();
+                for (int j = 0; j < Anim.jointKeys[i].Count; j++)
+                {
+                    keys.Add(Anim.jointKeys[i][j].Copy());
+                }
+                jointKeys.Add(keys);
             }
-
-            return copy;
         }
 
         public Transform QueryAnimationTime(float time, int jointIndex)
@@ -150,7 +156,6 @@ namespace VSViewer.FileFormats.Sections
             }
         }
 
-        // TODO: this edits the original animation and ruins it.... Needs to copy the animations somehow.
         static public Animation MergeAnimations(Animation beginning, Animation end)
         {
             Animation newAnim = new Animation();
@@ -164,12 +169,16 @@ namespace VSViewer.FileFormats.Sections
                     keys.Add(beginning.jointKeys[i][b]);
                 }
 
-                float lastTime = keys[keys.Count - 1].Time;
-
-                for (int e = 0; e < end.jointKeys[i].Count; e++)
+                // skip adding more keys if the count is 1. A single key means it's only holding a default root rotation, another will cause unwanted rotations.
+                if (beginning.jointKeys[i].Count != 1)
                 {
-                    keys.Add(end.jointKeys[i][e]);
-                    keys.Last().Time += lastTime;
+                    float lastTime = keys[keys.Count - 1].Time;
+
+                    for (int e = 0; e < end.jointKeys[i].Count; e++)
+                    {
+                        keys.Add(end.jointKeys[i][e]);
+                        keys.Last().Time += lastTime;
+                    }
                 }
                 newAnim.jointKeys.Add(keys);
             }
