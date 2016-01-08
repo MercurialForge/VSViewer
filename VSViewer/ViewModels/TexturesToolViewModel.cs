@@ -10,12 +10,12 @@ using VSViewer.Models;
 
 namespace VSViewer.ViewModels
 {
-    public class TexturesViewModel : ViewModelBase
+    public class TexturesToolViewModel : ViewModelBase
     {
         MainWindowViewModel m_mainWindowModelView;
         public RenderCore Core { get; set; }
 
-        public TexturesViewModel(MainWindowViewModel mainWindowModelView, RenderCore renderCore)
+        public TexturesToolViewModel(MainWindowViewModel mainWindowModelView, RenderCore renderCore)
         {
             m_mainWindowModelView = mainWindowModelView;
             Core = renderCore;

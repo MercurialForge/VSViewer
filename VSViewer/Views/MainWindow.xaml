@@ -9,14 +9,17 @@
         Title="Vagrant Story Viewer"
         Width="1500" Height="1000">
     <Window.Resources>
-        <DataTemplate DataType="{x:Type model:ImporterViewModel}">
-            <view:ImporterView/>
+        <DataTemplate DataType="{x:Type model:ImporterToolViewModel}">
+            <view:ImporterToolView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type model:TexturesViewModel}">
-            <view:TexturesView/>
+        <DataTemplate DataType="{x:Type model:TexturesToolViewModel}">
+            <view:TexturesToolView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type model:AnimationViewModel}">
-            <view:AnimationView/>
+        <DataTemplate DataType="{x:Type model:AnimationToolViewModel}">
+            <view:AnimationToolView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type model:ViewportToolViewModel}">
+            <view:ViewportToolView/>
         </DataTemplate>
     </Window.Resources>
     <Grid>
@@ -45,9 +48,10 @@
             </Grid>
             <Grid Grid.Column="1" Background="LightGray">
                 <StackPanel Orientation="Vertical">
-                    <view:ImporterView DataContext="{Binding ImporterTool}" Visibility="{Binding ToolVisiblity}"/>
-                    <view:AnimationView DataContext="{Binding AnimationTool}" Visibility="{Binding ToolVisiblity}"/>
-                    <view:TexturesView DataContext="{Binding TextureTool}" Visibility="{Binding ToolVisiblity}"/>
+                    <view:ImporterToolView DataContext="{Binding ImporterTool}" Visibility="{Binding ToolVisiblity}"/>
+                    <view:AnimationToolView DataContext="{Binding AnimationTool}" Visibility="{Binding ToolVisiblity}"/>
+                    <view:TexturesToolView DataContext="{Binding TextureTool}" Visibility="{Binding ToolVisiblity}"/>
+                    <view:ViewportToolView DataContext="{Binding ViewportTool}" Visibility="{Binding ToolVisiblity}"/>
                 </StackPanel>
             </Grid>
         </Grid>

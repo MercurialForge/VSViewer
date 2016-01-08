@@ -14,6 +14,7 @@
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="35"/>
+                <RowDefinition Height="35"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -35,42 +36,27 @@
                 </WrapPanel>
             </Grid>
 
-            <StackPanel Grid.Row="3" Orientation="Horizontal" VerticalAlignment="Top">
-                <Grid Width="278">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Border BorderBrush="DarkGray" BorderThickness="1">
-                        <Grid Grid.Column="0" Margin="0,0,9,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="60"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Grid.Column="0" Content="Speed : " FontSize="15"/>
-                            <Label Grid.Column="1" Content="{Binding PlaybackSpeedReadout}" HorizontalContentAlignment="Center" FontSize="15"/>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Column="1" BorderBrush="DarkGray" BorderThickness="1">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-                            </Grid.ColumnDefinitions>
-                            <Slider Grid.Column="0" Value="{Binding PlaybackSpeed}" Width="auto" IsSnapToTickEnabled="true" TickPlacement="BottomRight" SmallChange="1" Foreground="#FF232222" BorderThickness="5,0"/>
-                            <ToggleButton Grid.Column="1" Content="{Binding PauseToggleButtonText}" Command="{Binding TogglePause}" IsChecked="{Binding PauseToggleButtonCheckStatus, Mode=TwoWay}"  HorizontalContentAlignment="Center" Width="15" FontSize="12"/>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </StackPanel>
+            <Grid Grid.Row="3">
+                <WrapPanel Orientation="Horizontal">
+                    <Label Grid.Row="0" Content="Use Lighting : " FontSize="15"/>
+                    <CheckBox Content="Enable" Width="150" VerticalContentAlignment="Center"/>
+                </WrapPanel>
+            </Grid>
 
-            <StackPanel Grid.Row="4" Orientation="Horizontal" VerticalAlignment="Top">
-                <Label Content="Merge:" HorizontalContentAlignment="Center" FontSize="15"/>
-                <TextBox Text="{Binding Anim1}" PreviewTextInput="ValidateNumber" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" AcceptsReturn="True" Width="50" />
-                <Label Content=":" HorizontalContentAlignment="Center" FontSize="15"/>
-                <TextBox Text="{Binding Anim2}" PreviewTextInput="ValidateNumber" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" AcceptsReturn="True" Width="50" />
-                <Button Content="View" Command="{Binding Merge}" FontSize="12" Margin="10,0,0,0"/>
-            </StackPanel>
+            <Grid Grid.Row="4">
+                <WrapPanel Orientation="Horizontal">
+                    <Label Grid.Row="0" Content="Show Skeleton : " FontSize="15"/>
+                    <CheckBox Content="Enable" Width="150" VerticalContentAlignment="Center"/>
+                </WrapPanel>
+            </Grid>
+
+            <Grid Grid.Row="5">
+                <WrapPanel Orientation="Horizontal">
+                    <Label Content="Turntable : " FontSize="15"/>
+                    <TextBox Width="50" Text="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+
+                </WrapPanel>
+            </Grid>
 
             <!--Simple separator-->
             <Separator Grid.Row="5" VerticalAlignment="Bottom"/>

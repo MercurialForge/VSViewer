@@ -6,9 +6,9 @@ namespace VSViewer.Views
     /// <summary>
     /// Interaction logic for AnimationView.xaml
     /// </summary>
-    public partial class AnimationView : UserControl
+    public partial class AnimationToolView : UserControl
     {
-        public AnimationView()
+        public AnimationToolView()
         {
             InitializeComponent();
         }

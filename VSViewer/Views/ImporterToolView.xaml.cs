@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace VSViewer.Views
 {
     /// <summary>
-    /// Interaction logic for TexturesView.xaml
+    /// Interaction logic for ImporterView.xaml
     /// </summary>
-    public partial class TexturesView : UserControl
+    public partial class ImporterToolView : UserControl
     {
-        public TexturesView()
+        public ImporterToolView()
         {
             InitializeComponent();
         }

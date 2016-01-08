@@ -47,6 +47,10 @@ namespace SharpDX.WPF.Cameras
         // Far plane
         private Matrix m_viewMat;
 
+        public Vector3 ViewPosition = new Vector3(0, 0, -500f);
+        private Quaternion ViewRotation = Quaternion.Identity;
+        private Vector3 ViewLocalScale = Vector3.One;
+
         /// <summary>
         ///
         /// </summary>
@@ -182,6 +186,12 @@ namespace SharpDX.WPF.Cameras
         /// </summary>
         public Matrix View { get { return m_viewMat; } }
 
+        public Matrix ViewTransformMatrix
+        {
+            //get { return (Matrix.Scaling(ViewPosition) * Matrix.RotationQuaternion(ViewRotation) * Matrix.Translation(ViewLocalScale)); }
+            get { return Matrix.LookAtRH(ViewPosition, Vector3.Zero, new Vector3(0, -1, 0)); }
+        }
+
         /// <summary>
         ///
         /// </summary>
@@ -272,6 +282,8 @@ namespace SharpDX.WPF.Cameras
             var dp = pMouse - m_mouseLastPos;
 
             {
+                //ViewPosition = new Vector3(ViewPosition.X + dp, ViewPosition.Y + dp.Y, ViewPosition.Z);
+
                 var rAxis = Vector3.Cross(new Vector3(dp.X, dp.Y, 0), new Vector3(0, 0, 1));
                 if (rAxis.LengthSquared() >= 0.00001)
                 {

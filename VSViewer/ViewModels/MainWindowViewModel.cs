@@ -9,9 +9,10 @@ namespace VSViewer.ViewModels
     {
         // The main viewport
         public ViewportViewModel ViewportViewModel { get; set; }
-        public ImporterViewModel ImporterTool { get; set; }
-        public TexturesViewModel TextureTool { get; set; }
-        public AnimationViewModel AnimationTool { get; set; }
+        public ImporterToolViewModel ImporterTool { get; set; }
+        public TexturesToolViewModel TextureTool { get; set; }
+        public AnimationToolViewModel AnimationTool { get; set; }
+        public ViewportToolViewModel ViewportTool { get; set; }
         public RenderCore RenderCore { get; set; }
 
         public bool IsAnimationToolEnabled
@@ -47,12 +48,14 @@ namespace VSViewer.ViewModels
         {
             RenderCore = new RenderCore();
             ViewportViewModel = new ViewportViewModel(RenderCore);
-            ImporterTool = new ImporterViewModel(this, RenderCore);
-            TextureTool = new TexturesViewModel(this, RenderCore);
-            AnimationTool = new AnimationViewModel(this);
+            ImporterTool = new ImporterToolViewModel(this, RenderCore);
+            TextureTool = new TexturesToolViewModel(this, RenderCore);
+            AnimationTool = new AnimationToolViewModel(this);
+            ViewportTool = new ViewportToolViewModel();
 
             TextureTool.HideTool();
             AnimationTool.HideTool();
+            ViewportTool.HideTool();
 
             // Set default tick timer
             m_tickTimer = new Timer(new TimerCallback(this.Tick), null, 0, 16);
@@ -64,17 +67,6 @@ namespace VSViewer.ViewModels
             TimeSpan deltaTime = new TimeSpan(0, 0, 0, 0, (DateTime.Now - m_previousDeltaQuery).Milliseconds);
             AnimationTool.Tick(deltaTime);
             m_previousDeltaQuery = DateTime.Now;
-        }
-
-        private void AddToolBarTool(ViewModelBase tool)
-        {
-            ObservableCollection<ViewModelBase> updatedToolBarCollection = new ObservableCollection<ViewModelBase>();
-            for (int i = 0; i < ToolBarViewModels.Count; i++)
-            {
-                updatedToolBarCollection.Add(ToolBarViewModels[i]);
-            }
-            updatedToolBarCollection.Add(tool);
-            ToolBarViewModels = updatedToolBarCollection;
         }
     }
 }

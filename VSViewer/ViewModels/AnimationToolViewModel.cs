@@ -12,7 +12,7 @@ using VSViewer.Rendering;
 
 namespace VSViewer.ViewModels
 {
-    public class AnimationViewModel : ViewModelBase
+    public class AnimationToolViewModel : ViewModelBase
     {
         public string SubFileName
         {
@@ -194,7 +194,7 @@ namespace VSViewer.ViewModels
         private string m_frameWindowDisplayText;
         private Actor m_monitoredActor;
 
-        public AnimationViewModel(MainWindowViewModel mainWindowViewModel)
+        public AnimationToolViewModel(MainWindowViewModel mainWindowViewModel)
         {
             m_mainWindow = mainWindowViewModel;
         }

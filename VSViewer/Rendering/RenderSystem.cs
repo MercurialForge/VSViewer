@@ -70,8 +70,6 @@ namespace VSViewer.Rendering
         RasterizerState rasterizerState;
         RenderCore core;
 
-        private float m_animFrameTimer;
-
         public RenderSystem(RenderCore theCore)
         {
             core = theCore;
@@ -210,6 +208,7 @@ namespace VSViewer.Rendering
 
             // tick the core to update all render required actions
             core.TickRendered(args.DeltaTime);
+
 
             if (core.Actor.Shape == null) { return; }
 

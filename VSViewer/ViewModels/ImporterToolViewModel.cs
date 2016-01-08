@@ -11,7 +11,7 @@ using VSViewer.Rendering;
 
 namespace VSViewer.ViewModels
 {
-    public class ImporterViewModel : ViewModelBase
+    public class ImporterToolViewModel : ViewModelBase
     {
         #region Properties
         public string MainFileName
@@ -46,7 +46,7 @@ namespace VSViewer.ViewModels
         RenderCore core;
         #endregion
 
-        public ImporterViewModel(MainWindowViewModel mainWindowViewModel, RenderCore theCore)
+        public ImporterToolViewModel(MainWindowViewModel mainWindowViewModel, RenderCore theCore)
         {
             core = theCore;
             m_mainWindow = mainWindowViewModel;
@@ -109,6 +109,7 @@ namespace VSViewer.ViewModels
                     core.TextureRequiresUpdate = true;
                     m_mainWindow.TextureTool.ShowTool();
                     m_mainWindow.AnimationTool.HideTool();
+                    m_mainWindow.ViewportTool.ShowTool();
                     break;
 
                 case ".SHP":
@@ -119,6 +120,7 @@ namespace VSViewer.ViewModels
                     core.TextureRequiresUpdate = true;
                     m_mainWindow.TextureTool.ShowTool();
                     m_mainWindow.AnimationTool.ShowTool();
+                    m_mainWindow.ViewportTool.ShowTool();
                     break;
             }
         }

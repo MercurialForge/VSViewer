@@ -127,26 +127,24 @@
     <Compile Include="Common\VSTools.cs" />
     <Compile Include="FileFormats\WEP.cs" />
     <Compile Include="Rendering\RenderSystem.cs" />
-    <Compile Include="ViewModels\AnimationViewModel.cs" />
-    <Compile Include="ViewModels\ImporterViewModel.cs" />
+    <Compile Include="ViewModels\AnimationToolViewModel.cs" />
+    <Compile Include="ViewModels\ImporterToolViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="ViewModels\TexturesViewModel.cs" />
+    <Compile Include="ViewModels\TexturesToolViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="ViewModels\ViewportToolViewModel.cs" />
     <Compile Include="ViewModels\ViewportViewModel.cs" />
     <Compile Include="Views\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\AnimationView.xaml.cs">
-      <DependentUpon>AnimationView.xaml</DependentUpon>
+    <Compile Include="Views\AnimationToolView.xaml.cs">
+      <DependentUpon>AnimationToolView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ImporterView.xaml.cs">
-      <DependentUpon>ImporterView.xaml</DependentUpon>
+    <Compile Include="Views\ImporterToolView.xaml.cs">
+      <DependentUpon>ImporterToolView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TexturesView.xaml.cs">
-      <DependentUpon>TexturesView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ViewportOptionsView.xaml.cs">
-      <DependentUpon>ViewportOptionsView.xaml</DependentUpon>
+    <Compile Include="Views\TexturesToolView.xaml.cs">
+      <DependentUpon>TexturesToolView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ViewportToolView.xaml.cs">
       <DependentUpon>ViewportToolView.xaml</DependentUpon>
@@ -158,11 +156,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\AnimationView.xaml">
+    <Page Include="Views\AnimationToolView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ImporterView.xaml">
+    <Page Include="Views\ImporterToolView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -178,11 +176,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\TexturesView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\ViewportOptionsView.xaml">
+    <Page Include="Views\TexturesToolView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
