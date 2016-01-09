@@ -107,8 +107,10 @@
     <Compile Include="FileFormats\Sections\Animation.cs" />
     <Compile Include="FileFormats\SEQ.cs" />
     <Compile Include="FileFormats\SHP.cs" />
+    <Compile Include="FileFormats\ZUD.cs" />
     <Compile Include="Loader\SEQLoader.cs" />
     <Compile Include="Loader\SHPLoader.cs" />
+    <Compile Include="Loader\ZUDLoader.cs" />
     <Compile Include="Models\ObservableBase.cs" />
     <Compile Include="Models\RenderCore.cs" />
     <Compile Include="Rendering\Actor.cs" />

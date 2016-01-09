@@ -224,6 +224,12 @@ namespace VSViewer.ViewModels
             }
         }
 
+        public void ForceUpdate()
+        {
+            m_mainWindow.RenderCore.Actor.PlaybackAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[0];
+            m_mainWindow.AnimationTool.Reset();
+        }
+
         private void Reset()
         {
             Flush();
@@ -271,8 +277,7 @@ namespace VSViewer.ViewModels
         {
             SEQ seq = SEQLoader.FromStream(reader, m_mainWindow.RenderCore.Actor.Shape.coreObject);
             m_mainWindow.RenderCore.Actor.SEQ = seq;
-            m_mainWindow.RenderCore.Actor.PlaybackAnimation = m_mainWindow.RenderCore.Actor.SEQ.animations[0];
-            m_mainWindow.AnimationTool.Reset();
+            ForceUpdate();
         }
 
         internal void StepAnim_Prev()

@@ -1,0 +1,9 @@
+MSYS-1.0.12 Build:2011-07-20 17:52
+Exception: STATUS_ACCESS_VIOLATION at eip=00897948
+eax=00000001 ebx=0029F84C ecx=0090DB68 edx=00300000 esi=0029F850 edi=00000000
+ebp=0029F824 esp=0029F6AC program=C:\Users\Oliver\AppData\Local\Atlassian\SourceTree\git_local\bin\sh.exe
+cs=0023 ds=002B es=002B fs=0053 gs=002B ss=002B
+Stack trace:
+Frame     Function  Args
+0029F824  00897948  (0029F800, 004EE278, 004EE250, 004EE294)
+End of stack trace

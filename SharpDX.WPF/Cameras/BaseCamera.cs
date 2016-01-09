@@ -51,9 +51,6 @@ namespace SharpDX.WPF.Cameras
         private Quaternion ViewRotation = Quaternion.Identity;
         private Vector3 ViewLocalScale = Vector3.One;
 
-        /// <summary>
-        ///
-        /// </summary>
         public BaseCamera()
         {
             SetViewParams(new Vector3(), new Vector3(0, 0, 1), new Vector3(0, 1, 0));
@@ -61,9 +58,6 @@ namespace SharpDX.WPF.Cameras
             OnInitInteractive();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public float AspectRatio
         {
             get { return m_aspect; }
@@ -74,9 +68,6 @@ namespace SharpDX.WPF.Cameras
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public bool EnableYAxisMovement
         {
             get { return m_enableYAxisMovement; }
@@ -88,9 +79,6 @@ namespace SharpDX.WPF.Cameras
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public float FarPlane
         {
             get { return m_farPlane; }
@@ -101,9 +89,6 @@ namespace SharpDX.WPF.Cameras
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public float FieldOfView
         {
             get { return m_aspect; }
@@ -114,9 +99,6 @@ namespace SharpDX.WPF.Cameras
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public Vector3 LookAt
         {
             get { return m_lookAt; }
@@ -127,14 +109,8 @@ namespace SharpDX.WPF.Cameras
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public float MoveScaler { get; set; }
 
-        /// <summary>
-        ///
-        /// </summary>
         public float NearPlane
         {
             get { return m_nearPlane; }
@@ -145,9 +121,6 @@ namespace SharpDX.WPF.Cameras
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public Vector3 Position
         {
             get { return m_position; }
@@ -158,19 +131,10 @@ namespace SharpDX.WPF.Cameras
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public Matrix Projection { get { return m_projMat; } }
 
-        /// <summary>
-        ///
-        /// </summary>
         public float RotationScaler { get; set; }
 
-        /// <summary>
-        ///
-        /// </summary>
         public Vector3 Up
         {
             get { return m_up; }
@@ -181,9 +145,6 @@ namespace SharpDX.WPF.Cameras
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public Matrix View { get { return m_viewMat; } }
 
         public Matrix ViewTransformMatrix
@@ -192,10 +153,6 @@ namespace SharpDX.WPF.Cameras
             get { return Matrix.LookAtRH(ViewPosition, Vector3.Zero, new Vector3(0, -1, 0)); }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="elapsed"></param>
         public void FrameMove(TimeSpan elapsed)
         {
             float rSpeed = 0;
@@ -211,11 +168,6 @@ namespace SharpDX.WPF.Cameras
             KeyRotateHorizontal(rSpeed * (float)elapsed.TotalSeconds);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ui"></param>
-        /// <param name="e"></param>
         public void HandleKeyDown(UIElement ui, KeyEventArgs e)
         {
             m_downKeys[e.Key] = true;
@@ -250,32 +202,17 @@ namespace SharpDX.WPF.Cameras
             e.Handled = true;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ui"></param>
-        /// <param name="e"></param>
         public void HandleKeyUp(UIElement ui, KeyEventArgs e)
         {
             m_downKeys.Remove(e.Key);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ui"></param>
-        /// <param name="e"></param>
         public void HandleMouseDown(UIElement ui, MouseButtonEventArgs e)
         {
             m_mouseDownPos = GetVector(ui, e);
             m_mouseLastPos = m_mouseDownPos;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ui"></param>
-        /// <param name="e"></param>
         public void HandleMouseMove(UIElement ui, MouseEventArgs e)
         {
             var pMouse = GetVector(ui, e);
@@ -296,29 +233,16 @@ namespace SharpDX.WPF.Cameras
             m_mouseLastPos = pMouse;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ui"></param>
-        /// <param name="e"></param>
         public void HandleMouseUp(UIElement ui, MouseButtonEventArgs e)
         {
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ui"></param>
-        /// <param name="e"></param>
         public virtual void HandleMouseWheel(UIElement ui, MouseWheelEventArgs e)
         {
             var dp = e.Delta > 0 ? new Vector3(0, 0, 1) : new Vector3(0, 0, -1);
             KeyMove(dp);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public void Reset()
         {
             SetViewParams(m_defaultPosition, m_defaultLookAt, m_defaultUp);
@@ -336,13 +260,6 @@ namespace SharpDX.WPF.Cameras
             UpdateView();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="fFOV"></param>
-        /// <param name="fAspect"></param>
-        /// <param name="fNearPlane"></param>
-        /// <param name="fFarPlane"></param>
         public void SetProjParams(float fFOV, float fAspect, float fNearPlane, float fFarPlane)
         {
             m_fov = fFOV;
@@ -352,33 +269,17 @@ namespace SharpDX.WPF.Cameras
             UpdateProj();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sRotation"></param>
-        /// <param name="sMove"></param>
         public void SetScalers(float sRotation, float sMove)
         {
             RotationScaler = sRotation;
             MoveScaler = sMove;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="eye"></param>
-        /// <param name="lookAt"></param>
         public void SetViewParams(Vector3 eye, Vector3 lookAt)
         {
             SetViewParams(eye, lookAt, m_up);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="eye"></param>
-        /// <param name="lookAt"></param>
-        /// <param name="vUp"></param>
         public virtual void SetViewParams(Vector3 eye, Vector3 lookAt, Vector3 vUp)
         {
             m_defaultPosition = m_position = eye;
@@ -388,24 +289,12 @@ namespace SharpDX.WPF.Cameras
             UpdateView();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ui"></param>
-        /// <param name="e"></param>
-        /// <returns></returns>
         protected static Vector2 GetVector(UIElement ui, MouseEventArgs e)
         {
             var p = e.GetPosition(ui);
             return new Vector2((float)p.X, (float)(ui.RenderSize.Height + p.Y));
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="dp"></param>
-        /// <param name="ui"></param>
-        /// <returns></returns>
         protected float GetMouseAngle(Vector2 dp, UIElement ui)
         {
             float div = (float)Math.Max(ui.RenderSize.Width, ui.RenderSize.Height) / 2;
@@ -416,10 +305,6 @@ namespace SharpDX.WPF.Cameras
             return angle;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="dp"></param>
         protected virtual void KeyMove(Vector3 dp)
         {
             if (!EnableYAxisMovement)
@@ -431,10 +316,6 @@ namespace SharpDX.WPF.Cameras
             UpdateView();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="angle"></param>
         protected virtual void KeyRoll(float angle)
         {
             angle *= RotationScaler;
@@ -460,10 +341,6 @@ namespace SharpDX.WPF.Cameras
             UpdateView();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="dMouse"></param>
         protected virtual void MouseRotation(Quaternion dMouse)
         {
             var mRot = Matrix.RotationQuaternion(dMouse);
@@ -475,29 +352,16 @@ namespace SharpDX.WPF.Cameras
             m_viewRotQuat.Normalize();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         protected virtual void UpdateView()
         {
             m_viewMat = Matrix.LookAtRH(m_position, m_lookAt, m_up);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="k"></param>
-        /// <returns></returns>
         private static float GetRollSpeed(Key k)
         {
             return 0;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="k"></param>
-        /// <returns></returns>
         private static Vector3 GetSpeed(Key k)
         {
             switch (k)
@@ -527,17 +391,11 @@ namespace SharpDX.WPF.Cameras
             return s_zero3;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         private void OnInitInteractive()
         {
             SetScalers((float)Math.PI / 5, 3);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         private void UpdateProj()
         {
             m_projMat = Matrix.PerspectiveFovRH(m_fov, m_aspect, m_nearPlane, m_farPlane);

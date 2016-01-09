@@ -122,6 +122,22 @@ namespace VSViewer.ViewModels
                     m_mainWindow.AnimationTool.ShowTool();
                     m_mainWindow.ViewportTool.ShowTool();
                     break;
+
+                case ".ZUD":
+                    ZUD zud = ZUDLoader.FromStream(reader);
+                    Console.WriteLine(string.Format("Wep:{0} -- Shd:{1} -- Com:{2} -- Bat{3}", zud.HasWeapon, zud.HasShield, zud.HasCommon, zud.HasBattle));
+                    if (true)
+                    {
+                        Geometry zudGeometry = VSTools.CreateGeometry(zud.Character);
+                        core.Actor = new Actor(zudGeometry);
+                        core.Actor.SEQ = zud.Battle;
+                        core.TextureRequiresUpdate = true;
+                        m_mainWindow.TextureTool.ShowTool();
+                        m_mainWindow.AnimationTool.ShowTool();
+                        m_mainWindow.ViewportTool.ShowTool();
+                        m_mainWindow.AnimationTool.ForceUpdate();
+                    }
+                    break;
             }
         }
 
@@ -129,8 +145,9 @@ namespace VSViewer.ViewModels
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = 
-                "Actors (*.WEP,*.SHP)|*.WEP;*.SHP|" +
-                "SHP (*.SHP)|*SHP|" +
+                "Actors (*.WEP,*.SHP,*.ZUD)|*.WEP;*.SHP;*.ZUD|" +
+                "Zone Unit Data (*.ZUD)|*.ZUD|" +
+                "SHP (*.SHP)|*.SHP|" +
                 "WEP (*.WEP)|*.WEP";
             if (openFileDialog.ShowDialog() == true)
             {
