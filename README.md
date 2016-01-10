@@ -6,10 +6,10 @@ This a content viewer for Vagrant Story. The viewer provides a way to examine th
 
 ## Supported file types
 
-- WEP (weapons)
-- SHP (characters)
-- SEQ (animations)
-- ZUD (basically SHP + SEQ + WEP) (Alpha)
+- WEP (Weapons)
+- SHP (Characters)
+- SEQ (Animations)
+- ZUD (Zone Unit Data) (Alpha)
 
 ## [RoadMap](https://trello.com/b/nCwUxluj/vagrant-story-viewer)
 
