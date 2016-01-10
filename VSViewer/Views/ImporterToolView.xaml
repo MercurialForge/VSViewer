@@ -20,7 +20,7 @@
             <!--Main file loader-->
             <Grid Grid.Row="1">
                 <WrapPanel Orientation="Vertical">
-                    <Label Grid.Row="0" Content="Select SHP, WEP" FontSize="15"/>
+                    <Label Grid.Row="0" Content="Select SHP, WEP, ZUD" FontSize="15"/>
                     <Grid>
                         <WrapPanel Orientation="Horizontal">
                             <Button Content="Choose File" Command="{Binding OnMainFile}" Height="25" HorizontalAlignment="Left" Width="70"/>

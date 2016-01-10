@@ -32,7 +32,7 @@ namespace VSViewer.Loader
             /*=====================================================================
                 TODO: add lenght
             =====================================================================*/
-            // base ptr neede because the SEQ could be embedded.
+            // base ptr needed because the SEQ could be embedded.
             uint ptrBase = (uint)reader.BaseStream.Position;
 
             byte numFrames = reader.ReadByte(); // total number of frames?
@@ -64,7 +64,7 @@ namespace VSViewer.Loader
                 AnimationHeader animHeader = new AnimationHeader
                 {
                     length = reader.ReadUInt16(),
-                    idOtherAnimation = reader.ReadSByte(), // some animations use a different animation as base
+                    idOtherAnimation = reader.ReadSByte(), // the intial source animation. Used to get initial frames.
                     mode = reader.ReadByte(),
                     ptrLooping = reader.ReadUInt16(), // seems to point to a data block that controls looping
                     ptrTranslation = reader.ReadUInt16(), // points to a translation vector for the animated mesh (root motion?)
@@ -148,12 +148,7 @@ namespace VSViewer.Loader
 
                     while (true)
                     {
-                        //Vector4 outData;
-                        //if(ReadOPCode(reader, out outData))
-                        //{
-
-                        //}
-
+                        // this could be optimized using out values and an advanced way of recording and reading frames
                         NullableVector4 op = ReadOPCode(reader);
                         if (op == null) break;
 
@@ -209,7 +204,6 @@ namespace VSViewer.Loader
                         keys.Add(key);
                     }
                     animations[a].jointKeys.Add(keys);
-                    animations[a].SetLength();
                 }
 
                 // root's translation bone
@@ -227,6 +221,10 @@ namespace VSViewer.Loader
                     animations[a].jointKeys.Add(transBone);
                 }
 
+                if (headers[a].idOtherAnimation != -1)
+                {
+                    animations[a].baseAnimation = animations[headers[a].idOtherAnimation];
+                }
             }
             return new SEQ(animations);
         }
@@ -234,7 +232,6 @@ namespace VSViewer.Loader
         private static NullableVector4 ReadOPCode(EndianBinaryReader reader)
         {
             byte op = reader.ReadByte();
-            byte op0 = op;
 
             if (op == 0) return null; // return abort vector
 

@@ -8,43 +8,45 @@ namespace VSViewer.FileFormats.Sections
 {
     public class Animation
     {
-        // the name of the animation
         public string name = "Animation";
-        // const fps for all animations
         public const float fps = 25f;
-        // length of the animation in seconds
-        public float LengthInSeconds { get; set; }
-        // Length of the animation in mililliseconds 
+        public float LengthInSeconds
+        {
+            get
+            {
+                if(!bLengthIsSet) { SetLengthInSeconds(); }
+                return m_lengthInSeconds;
+            }
+        }
         public float LengthInMilliseconds
         {
             get { return LengthInSeconds * 1000; }
         }
-        // Length of the animation in frames
         public int LengthInFrames
         {
-            get { return (int)Math.Floor(LengthInSeconds * fps) - 1; }
+            get { return (int)Math.Floor(LengthInSeconds * fps); }
         }
         // A list for each bone and a list of keys for that bone
         public List<List<Keyframe>> jointKeys = new List<List<Keyframe>>();
 
-        // finds the highest time and sets is as the length
-        public void SetLength()
+        private bool bLengthIsSet;
+        public void SetLengthInSeconds()
         {
+            bLengthIsSet = true;
             for (int i = 0; i < jointKeys.Count; i++)
             {
                 for (int j = 0; j < jointKeys[i].Count; j++)
                 {
                     if (jointKeys[i][j].Time > LengthInSeconds)
                     {
-                        LengthInSeconds = jointKeys[i][j].Time;
+                        m_lengthInSeconds = jointKeys[i][j].Time;
                     }
                 }
             }
         }
 
         #region SEQ Source Creation Data
-        // SEQ source data
-        public Animation baseAnimation;
+        public Animation baseAnimation; // not sure how to use this.
         public Vector3[] poses;
         public List<NullableVector4>[] keyframes; //TODO: maybe just make it a list of lists? Consistancy?
         #endregion
@@ -55,15 +57,15 @@ namespace VSViewer.FileFormats.Sections
             if (!bInitialized)
             {
                 bInitialized = true;
-                m_previousKeyframe = new Keyframe[jointKeys.Count];
                 m_currentKeyframe = new Keyframe[jointKeys.Count];
                 m_nextKeyframe = new Keyframe[jointKeys.Count];
             }
         }
-        Keyframe[] m_previousKeyframe;
-        Keyframe[] m_currentKeyframe;
-        Keyframe[] m_nextKeyframe;
-        float lastQueryTime;
+        // keyframe arrays keep track of respective state for each joint
+        private Keyframe[] m_currentKeyframe;
+        private Keyframe[] m_nextKeyframe;
+        private float lastQueryTime;
+        private float m_lengthInSeconds;
 
         public Animation() { }
 
@@ -73,7 +75,6 @@ namespace VSViewer.FileFormats.Sections
         public Animation(Animation Anim)
         {
             name = Anim.name;
-            LengthInSeconds = Anim.LengthInSeconds;
 
             for (int i = 0; i < Anim.jointKeys.Count; i++)
             {
@@ -86,26 +87,28 @@ namespace VSViewer.FileFormats.Sections
             }
         }
 
-        public Transform QueryAnimationTime(float time, int jointIndex)
+        //TODO: query in frames?
+        /// <summary>
+        /// Query the animation at the queryTime in seconds. Returns a local spaced Transform for jointIndex.
+        /// </summary>
+        public Transform QueryAnimationTime(float queryTime, int jointIndex)
         {
             Initialize();
-            Transform f = new Transform();
+            Transform constructedFrame = new Transform();
 
-            if (time < lastQueryTime) { UpdateAnimation(); }
+            if (queryTime < lastQueryTime) { RestartAniamtion(); }
 
-            // query frames
-            int totalKeysForJoint = jointKeys[jointIndex].Count;
-
-            for (int k = 0; k < totalKeysForJoint; k++)
+            // using the queryTime, check to see if m_nextKeyframe is no longer the next. If so find the next keyframe and shuffle the order
+            for (int k = 0; k < jointKeys[jointIndex].Count; k++)
             {
                 Keyframe keyframe = jointKeys[jointIndex][k];
                 if (m_currentKeyframe[jointIndex] == null) { m_currentKeyframe[jointIndex] = keyframe; m_nextKeyframe[jointIndex] = keyframe; }
 
-                if (time >= m_nextKeyframe[jointIndex].Time)
+                // if the query time has passed m_nextKeyframe
+                if (queryTime >= m_nextKeyframe[jointIndex].Time)
                 {
-                    if (keyframe.Time >= time)
+                    if (keyframe.Time >= queryTime) // and the current keyframe is greater than the query time
                     {
-                        m_previousKeyframe[jointIndex] = m_currentKeyframe[jointIndex];
                         m_currentKeyframe[jointIndex] = m_nextKeyframe[jointIndex];
                         m_nextKeyframe[jointIndex] = keyframe;
                         break;
@@ -115,35 +118,38 @@ namespace VSViewer.FileFormats.Sections
             }
 
 
-            float f1 = m_currentKeyframe[jointIndex].Time;
-            float f2 = m_nextKeyframe[jointIndex].Time;
-            float query = time;
+            // calculate noralized time between currentkeyframe and nextkeyframe
+            float currentKeyframeTime = m_currentKeyframe[jointIndex].Time;
+            float nextKeyframeTime = m_nextKeyframe[jointIndex].Time;
+            float query = queryTime;
 
-            float a = query - f1;
-            float b = f2 - f1;
+            float timeSinceCurrentKeyframe = query - currentKeyframeTime;
+            float timeUntilNextKeyframe = nextKeyframeTime - currentKeyframeTime;
 
-            float t = MathUtil.Clamp(a / b, 0, 1);
+            float t = MathUtil.Clamp(timeSinceCurrentKeyframe / timeUntilNextKeyframe, 0, 1);
 
             if (float.IsNaN(t))
             {
                 t = 0;
             }
 
-            f.Position = Vector3.Lerp(m_currentKeyframe[jointIndex].Position, m_nextKeyframe[jointIndex].Position, t);
-            f.Rotation = Quaternion.Slerp(m_currentKeyframe[jointIndex].Rotation, m_nextKeyframe[jointIndex].Rotation, t);
-            f.LocalScale = Vector3.Lerp(m_currentKeyframe[jointIndex].Scale, m_nextKeyframe[jointIndex].Scale, t);
+            constructedFrame.Position = Vector3.Lerp(m_currentKeyframe[jointIndex].Position, m_nextKeyframe[jointIndex].Position, t);
+            constructedFrame.Rotation = Quaternion.Slerp(m_currentKeyframe[jointIndex].Rotation, m_nextKeyframe[jointIndex].Rotation, t);
+            constructedFrame.LocalScale = Vector3.Lerp(m_currentKeyframe[jointIndex].Scale, m_nextKeyframe[jointIndex].Scale, t);
 
-            lastQueryTime = time;
-            return f;
+            lastQueryTime = queryTime;
+            return constructedFrame;
         }
 
-        private void UpdateAnimation()
+        /// <summary>
+        /// Resets the keyframes to their initial states. Causes a pop in the loop, but allows animations to restart.
+        /// </summary>
+        private void RestartAniamtion()
         {
             Initialize();
             for (int i = 0; i < jointKeys.Count; i++)
             {
                 int totalKeysForJoint = jointKeys[i].Count;
-                m_previousKeyframe[i] = jointKeys[i][totalKeysForJoint - 1];
                 m_currentKeyframe[i] = jointKeys[i][0];
                 if (totalKeysForJoint > 1)
                 {
@@ -156,6 +162,9 @@ namespace VSViewer.FileFormats.Sections
             }
         }
 
+        /// <summary>
+        /// Returns a single animation comprised of the beginning and end
+        /// </summary>
         static public Animation MergeAnimations(Animation beginning, Animation end)
         {
             Animation newAnim = new Animation();
@@ -182,7 +191,7 @@ namespace VSViewer.FileFormats.Sections
                 }
                 newAnim.jointKeys.Add(keys);
             }
-            newAnim.SetLength();
+            newAnim.SetLengthInSeconds();
             return newAnim;
         }
     }

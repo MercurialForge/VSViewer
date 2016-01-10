@@ -214,7 +214,7 @@ namespace VSViewer.ViewModels
             // is SK
             if (m_mainWindow.RenderCore.Actor.PlaybackAnimation != null)
             {
-                int frame = (int)Math.Floor(m_mainWindow.RenderCore.Actor.PlaybackAnimationTime / 40);
+                int frame = (int)Math.Floor(m_mainWindow.RenderCore.Actor.PlaybackAnimationTime / 40f);
                 int totalFrames = m_mainWindow.RenderCore.Actor.PlaybackAnimation.LengthInFrames;
                 FrameWindowDisplayText = string.Format("{0}:{1}", frame, totalFrames);
             }

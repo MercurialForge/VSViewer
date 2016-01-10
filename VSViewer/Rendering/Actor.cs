@@ -131,9 +131,5 @@ namespace VSViewer.Rendering
             Shape = theGeometry;
         }
 
-        public void AttachSEQ (SEQ sequence)
-        {
-            SEQ = sequence;
-        }
     }
 }

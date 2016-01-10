@@ -39,7 +39,10 @@ namespace VSViewer.Loader
             =====================================================================*/
             ZUD zud = new ZUD();
 
-            zud.Character = SHPLoader.FromStream(reader);
+            if (lenCharacterSHP != 0)
+            {
+                zud.Character = SHPLoader.FromStream(reader);
+            }
 
             if (lenWeaponWEP != 0)
             {
