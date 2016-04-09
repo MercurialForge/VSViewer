@@ -129,6 +129,7 @@
     <Compile Include="Common\VSTools.cs" />
     <Compile Include="FileFormats\WEP.cs" />
     <Compile Include="Rendering\RenderSystem.cs" />
+    <Compile Include="Rendering\VSViewerCamera.cs" />
     <Compile Include="ViewModels\AnimationToolViewModel.cs" />
     <Compile Include="ViewModels\ImporterToolViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />

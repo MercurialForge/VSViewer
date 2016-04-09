@@ -14,7 +14,7 @@ namespace VSViewer.FileFormats.Sections
         {
             get
             {
-                if(!bLengthIsSet) { SetLengthInSeconds(); }
+                if (!bLengthIsSet) { SetLengthInSeconds(); }
                 return m_lengthInSeconds;
             }
         }

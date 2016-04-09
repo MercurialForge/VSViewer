@@ -187,7 +187,6 @@ namespace VSViewer.Loader
                         float f = (float)keyframe.W;
 
                         t += f;
-
                         if (keyframe.X == null) keyframe.X = keyframes[j - 1].X;
                         if (keyframe.Y == null) keyframe.Y = keyframes[j - 1].Y;
                         if (keyframe.Z == null) keyframe.Z = keyframes[j - 1].Z;

@@ -192,7 +192,7 @@ namespace VSViewer.Rendering
                 return false;
             };
 
-            Camera = new ModelViewerCamera();
+            Camera = new VSViewerCamera();
             Camera.SetProjParams(65 * VSTools.Deg2Rad, 1.5f, 25.0f, 10000f);
             // vagrant story is -y up. Probably an artifact of the hardware restrictions.
             Camera.SetViewParams(new Vector3(0.0f, 0.0f, -500.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0, -1, 0));
@@ -317,7 +317,7 @@ namespace VSViewer.Rendering
             Matrix modelMatrix = Matrix.Scaling(core.Actor.LocalScale) * Matrix.RotationQuaternion(core.Actor.Rotation) * Matrix.Translation(core.Actor.Position);
             MatrixBuffer projectionModel = new MatrixBuffer
             {
-                World = Matrix.Transpose((Camera as ModelViewerCamera).World),
+                World = Matrix.Transpose((Camera as VSViewerCamera).World),
                 View = Matrix.Transpose((Camera.View)),
                 Projection = Matrix.Transpose(Camera.Projection)
             };
