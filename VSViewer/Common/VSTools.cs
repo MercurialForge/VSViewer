@@ -20,7 +20,7 @@ namespace VSViewer
         // convert XYZ rotation in radians to quaternion
         // first apply x, then y, then z rotation
         // but in sharpdx for reasons I cannot explain, in version 2.3.2+ the
-        // quaternions must be multiplied z * x * y
+        // quaternions must be multiplied z * y * x
         public static Quaternion Rot2Quat(float radX, float radY, float radZ)
         {
             Quaternion quatX = new Quaternion();

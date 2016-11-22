@@ -13,10 +13,10 @@
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
+
             <!--Import Label-->
             <Label Grid.Row="0" Content=" - IMPORT" FontWeight="Bold" FontSize="15" />
-            
+
             <!--Main file loader-->
             <Grid Grid.Row="1">
                 <WrapPanel Orientation="Vertical">
@@ -29,11 +29,11 @@
                     </Grid>
                 </WrapPanel>
             </Grid>
-            
+
             <Grid Grid.Row="2">
-                <Button Content="Next" Command="{Binding FindNext}"/>
+                <Button Content="Export" Command="{Binding ExportActor}"/>
             </Grid>
-            
+
             <!--Simple separator-->
             <Separator Grid.Row="3" VerticalAlignment="Bottom"/>
         </Grid>

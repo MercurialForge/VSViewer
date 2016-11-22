@@ -100,6 +100,7 @@
     </ApplicationDefinition>
     <Compile Include="Common\Keyframe.cs" />
     <Compile Include="Common\NullableVector4.cs" />
+    <Compile Include="Common\ObjExporter.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Converters\TextureToBitmap.cs" />
     <Compile Include="FileFormats\AssetBase.cs" />

@@ -1,5 +1,6 @@
 ﻿using GameFormatReader.Common;
 using Microsoft.Win32;
+using SharpDX;
 using System;
 using System.IO;
 using System.Windows.Input;
@@ -52,11 +53,54 @@ namespace VSViewer.ViewModels
             m_mainWindow = mainWindowViewModel;
         }
 
+        public ICommand ExportActor
+        {
+            get { return new RelayCommand(c => ExportActorCommand()); }
+        }
+
+        private void ExportActorCommand()
+        {
+            string output = "";
+            int parentIndex = -1;
+
+            for (int b = 0; b < core.Actor.Shape.skeleton.Count/2; b++)
+            {
+                string boneName = core.Actor.Shape.skeleton[b].name;
+                if (b != 0)
+                {
+                    parentIndex = core.Actor.Shape.skeleton[b].parentIndex - 28;
+                }
+                float x = core.Actor.Shape.skeleton[b + 28].LocalPosition.X;
+                float y = core.Actor.Shape.skeleton[b + 28].LocalPosition.Y;
+                float z = core.Actor.Shape.skeleton[b + 28].LocalPosition.Z;
+                float rotx = core.Actor.Shape.skeleton[b].LocalRotation.X;
+                float roty = core.Actor.Shape.skeleton[b].LocalRotation.Y;
+                float rotz = core.Actor.Shape.skeleton[b].LocalRotation.Z;
+                string orientation = "xyz";
+                output += string.Format("bn {0} {1} {2} {3} {4} {5} {6} {7} {8}\n", boneName, parentIndex, x, y, z, rotx, roty, rotz, orientation);
+            }
+
+
+            Geometry shape = core.Actor.Shape;
+            int weightCount = 1;
+            float boneWeight = 1.0f;
+
+            for (int w = 0; w < shape.vertices.Count; w++)
+            {
+                string boneName = shape.skeleton[shape.jointID[w]].name;
+                output += string.Format("vw {0} {1} {2}\n", weightCount, boneName, boneWeight);
+            }
+
+            System.IO.File.WriteAllText(@"C:\Users\Oliver\Desktop\WriteText.skl", output);
+            Console.WriteLine(output);
+        }
+
         #region Debug Code
         public ICommand FindNext
         {
             get { return new RelayCommand(x => FindNextCommand()); }
         }
+
         internal void FindNextCommand()
         {
             string path = @"C:\Users\Oliver\Desktop\VSDump\OBJ\" + t.ToString("X2") + ".WEP";
