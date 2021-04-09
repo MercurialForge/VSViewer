@@ -1,6 +1,6 @@
 # Vagrant Story Viewer
 
-This a content viewer for Vagrant Story. The viewer provides a way to examine the game's content like never before. No longer render at 640x480, the impressive care taken in every character, model, and level can be fully appreciated!
+This a content viewer for Vagrant Story. The viewer provides a way to examine the game's content like never before. No longer render at 256×224, the impressive care taken in every character, model, and level can be fully appreciated!
 
 <img src="https://raw.githubusercontent.com/MercurialForge/VSViewer/master/screen01.png"><img src="https://raw.githubusercontent.com/MercurialForge/VSViewer/master/screen02.png">
 
